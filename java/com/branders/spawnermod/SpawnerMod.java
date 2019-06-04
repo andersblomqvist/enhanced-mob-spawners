@@ -1,5 +1,6 @@
 package com.branders.spawnermod;
 
+import com.branders.spawnermod.config.Config;
 import com.branders.spawnermod.event.SpawnerEventHandler;
 
 import net.minecraft.init.Blocks;
@@ -9,7 +10,10 @@ import net.minecraft.item.ItemGroup;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
@@ -29,6 +33,11 @@ public class SpawnerMod
 	 */
     public SpawnerMod() 
     {
+    	ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.config);
+    	Config.loadConfig(Config.config, FMLPaths.CONFIGDIR.get().resolve("spawnermod-config.toml").toString());
+    	
+
+    	MinecraftForge.EVENT_BUS.register(this);
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
     }
     

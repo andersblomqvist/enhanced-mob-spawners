@@ -2,6 +2,8 @@ package com.branders.spawnermod.event;
 
 import java.util.Random;
 
+import com.branders.spawnermod.config.SpawnConfig;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -33,11 +35,13 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 @EventBusSubscriber
 public class SpawnerEventHandler
 {
-    private float SPAWN_RATE = 0.04F;
-    private Random random = new Random();
-    private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
+	// Get Spawn Rate chance for monster egg from config spec
+	private float SPAWN_RATE = SpawnConfig.monster_egg_drop_chance.get() / 100F;
 	
-    /**
+	private Random random = new Random();
+	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
+	
+	/**
      * 	When we harvest a block
      * 	Return spawner block when harvested with silk touch
      */
@@ -111,12 +115,12 @@ public class SpawnerEventHandler
     	Entity entity = event.getEntity();
     	EntityType<?> entityType = entity.getType();
     	
-	// Get the entity mob egg and put in an ItemStack
-	ItemSpawnEgg egg = ItemSpawnEgg.getEgg(entityType);
-	ItemStack itemStack = new ItemStack(egg);
-
-	// Add egg in drops
-	event.getDrops().add(new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, itemStack));
+		// Get the entity mob egg and put in an ItemStack
+		ItemSpawnEgg egg = ItemSpawnEgg.getEgg(entityType);
+		ItemStack itemStack = new ItemStack(egg);
+		
+		// Add egg in drops
+		event.getDrops().add(new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, itemStack));
     }
     
     
@@ -134,11 +138,11 @@ public class SpawnerEventHandler
     		return;
     	
     	BlockPos blockpos = event.getPos();
-	IBlockState iblockstate = world.getBlockState(blockpos);	
+		IBlockState iblockstate = world.getBlockState(blockpos);	
 		
     	// Check if we right-clicked and return mob egg from spawner
-	if(world.getBlockState(blockpos).getBlock() == Blocks.SPAWNER && event.getHand() == EnumHand.MAIN_HAND)
-		DropMonsterEgg(world, blockpos, iblockstate);
+		if(world.getBlockState(blockpos).getBlock() == Blocks.SPAWNER && event.getHand() == EnumHand.MAIN_HAND)
+			DropMonsterEgg(world, blockpos, iblockstate);
 			
     }
     
@@ -162,33 +166,33 @@ public class SpawnerEventHandler
     	entity_string = entity_string.substring(entity_string.indexOf("\"") + 1);
     	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
     	
-	// Get entity type
-	EntityType<?> entityType = EntityType.getById(entity_string);
-
-	// Leave if the spawner does not contain an egg
-	if(entityType.equals(defaultEntityType))
-		return;
+		// Get entity type
+		EntityType<?> entityType = EntityType.getById(entity_string);
+		
+		// Leave if the spawner does not contain an egg
+		if(entityType.equals(defaultEntityType))
+			return;
 		
     	// Get the entity mob egg and put in an ItemStack
-	ItemSpawnEgg egg = ItemSpawnEgg.getEgg(entityType);
-	ItemStack itemStack = new ItemStack(egg);
-
-	// Get random fly-out position offsets
-	double d0 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
+		ItemSpawnEgg egg = ItemSpawnEgg.getEgg(entityType);
+		ItemStack itemStack = new ItemStack(egg);
+		
+		// Get random fly-out position offsets
+		double d0 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
         double d1 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
         double d2 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
         
         // Create entity item
-	EntityItem entityItem = new EntityItem(world, (double)blockpos.getX() + d0, (double)blockpos.getY() + d1, (double)blockpos.getZ() + d2, itemStack);
-	entityItem.setDefaultPickupDelay();
-
-	// Spawn entity item (egg)
-	world.spawnEntity(entityItem);
-
-	// Replace the entity inside the spawner with default entity
-	logic.setEntityType(defaultEntityType);
-	spawner.markDirty();
-	world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
+		EntityItem entityItem = new EntityItem(world, (double)blockpos.getX() + d0, (double)blockpos.getY() + d1, (double)blockpos.getZ() + d2, itemStack);
+		entityItem.setDefaultPickupDelay();
+		
+		// Spawn entity item (egg)
+		world.spawnEntity(entityItem);
+		
+		// Replace the entity inside the spawner with default entity
+		logic.setEntityType(defaultEntityType);
+		spawner.markDirty();
+		world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
     }
     
     /**
@@ -201,9 +205,9 @@ public class SpawnerEventHandler
     private boolean CheckSilkTouch(NBTTagList list)
     {
     	// Check list string contains silk touch
-	if(list.getString().indexOf("minecraft:silk_touch") != -1)
-		return true;
-	else
-		return false;
+		if(list.getString().indexOf("minecraft:silk_touch") != -1)
+			return true;
+		else
+			return false;
     }
 }
