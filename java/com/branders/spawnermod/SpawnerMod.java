@@ -19,7 +19,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 /**
  * 	Small mod adding more functionality to Mob Spawners
  * 
- * 	@author Branders
+ * 	@author Anders <Branders> Blomqvist
  *
  */
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
