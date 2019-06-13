@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 /**
  * 	Handles all the events regarding the mob spawner and entities.
  * 
- * 	@author Branders
+ * 	@author Anders <Branders> Blomqvist
  *
  */
 
