@@ -41,23 +41,23 @@ public class SpawnerKeyItem extends Item
 	@Override
 	public ActionResultType onItemUse(ItemUseContext context) 
 	{
-		World world = context.getWorld();
+        World world = context.getWorld();
 		
-		// Leave if we are server
-		if(!world.isRemote)
-			return ActionResultType.FAIL;
-		
-		// Leave if we didn't right click a spawner
-		BlockPos blockpos = context.getPos();
-		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
-			return ActionResultType.FAIL;
-		
-		// Open GUI
-		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
-    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
-    	openSpawnerGui(logic, blockpos);
-		
-		return super.onItemUse(context);
+        // Leave if we are server
+        if(!world.isRemote)
+            return ActionResultType.FAIL;
+
+        // Leave if we didn't right click a spawner
+        BlockPos blockpos = context.getPos();
+        if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+            return ActionResultType.FAIL;
+
+        // Open GUI
+        MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
+        AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+        openSpawnerGui(logic, blockpos);
+
+        return super.onItemUse(context);
 	}
 	
 	/**
