@@ -3,28 +3,24 @@ package com.branders.spawnermod.event;
 import java.util.Random;
 
 import com.branders.spawnermod.config.SpawnConfig;
-import com.branders.spawnermod.gui.SpawnerConfigGui;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.MobSpawnerBaseLogic;
-import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.EnumHand;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.tileentity.MobSpawnerTileEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.spawner.AbstractSpawner;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -49,19 +45,22 @@ public class SpawnerEventHandler
 	
 	/**
      * 	Return spawner block when spawner harvested with silk touch
-     */
+     * 	
+     * 	Dont work in 1.14.
+     
     @SubscribeEvent
     public void onBlockHarvestDrops(BlockEvent.HarvestDropsEvent event)
-    {
+    {	
     	if(event.getState().getBlock() == Blocks.SPAWNER)
     	{   
-    		NBTTagList list = event.getHarvester().getHeldItemMainhand().getEnchantmentTagList();
+    		ListNBT list = event.getHarvester().getHeldItemMainhand().getEnchantmentTagList();
     		
     		// Return Spawner Block when harvested with Silk Touch
     		if(checkSilkTouch(list))
     			event.getDrops().add(new ItemStack(Blocks.SPAWNER, 1));
     	}
     }
+    */
     
     /**
      * 	Prevent XP drop when spawner is destroyed with silk touch
@@ -72,11 +71,19 @@ public class SpawnerEventHandler
     	// Check if a spawner broke
     	if(event.getState().getBlock() == Blocks.SPAWNER)
     	{
-    		NBTTagList list = event.getPlayer().getHeldItemMainhand().getEnchantmentTagList();
+    		ListNBT list = event.getPlayer().getHeldItemMainhand().getEnchantmentTagList();
     		
     		// Return 0 EXP when harvested with silk touch
     		if(checkSilkTouch(list))
+    		{
     			event.setExpToDrop(0);
+    			
+    			// Return Spawner Block
+    			ItemStack itemStack = new ItemStack(Blocks.SPAWNER.asItem());
+    			ItemEntity entityItem = new ItemEntity((World)event.getWorld(), event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), itemStack);
+    			event.getWorld().addEntity(entityItem);
+    		}
+    				
     	}
     }
     
@@ -93,10 +100,10 @@ public class SpawnerEventHandler
     	World world = (World)event.getWorld();
     	
     	BlockPos blockpos = event.getPos();
-    	IBlockState iblockstate = world.getBlockState(blockpos);
+    	BlockState iblockstate = world.getBlockState(blockpos);
 
-    	TileEntityMobSpawner spawner = (TileEntityMobSpawner)world.getTileEntity(blockpos);
-    	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();
+    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
+    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
 
     	// Replace the entity inside the spawner with default entity
     	logic.setEntityType(defaultEntityType);
@@ -120,13 +127,18 @@ public class SpawnerEventHandler
 		ItemStack itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entityType.getRegistryName() + "_spawn_egg")));
 		
 		// Add monster egg to drops
-		event.getDrops().add(new EntityItem(entity.world, entity.posX, entity.posY, entity.posZ, itemStack));
+		event.getDrops().add(new ItemEntity(entity.world, entity.posX, entity.posY, entity.posZ, itemStack));
     }
     
     
     /**
-     * 	Event when player interacts with block
-     * 	Enables so that the player can right click a spawner to get its egg
+     * 	Event when player interacts with block.
+     * 	Enables so that the player can right click a spawner to get its egg.
+     * 
+     * 	Bug: Event is only fired on server.
+     * 	{@link https://github.com/MinecraftForge/MinecraftForge/issues/5802}
+     * 
+     * 	The bug "fixed" via SpawnerKeyItem so when that item is used on a block we open the GUI from there.
      */
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
@@ -134,42 +146,26 @@ public class SpawnerEventHandler
     	World world = event.getWorld();
     	
     	// Leave if we are client and if we are holding a block. Also prevent off hand action
-    	if(event.getItemStack().getItem() instanceof ItemBlock || event.getHand() == EnumHand.OFF_HAND)		
+    	if(event.getItemStack().getItem() instanceof BlockItem || event.getHand() == Hand.OFF_HAND)		
+    		return;
+    	
+    	// Leave if we right-clicked with the SpawnerKey. That stuff is moved as said above
+    	Item item = event.getItemStack().getItem();
+    	if(item instanceof SpawnerKeyItem)
     		return;
     	
     	BlockPos blockpos = event.getPos();
-		IBlockState iblockstate = world.getBlockState(blockpos);	
+		BlockState iblockstate = world.getBlockState(blockpos);	
 		
 		// Leave if we didn't right click a spawner block
 		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
 			return;
 		
-		// Get item held in hand
-		Item item = event.getItemStack().getItem();
+		// Leave if we client just to make sure.
+		if(world.isRemote)
+			return;
 		
-    	// Check if we right-clicked with Spawner Key
-		if(item instanceof SpawnerKeyItem)
-		{
-			// Leave if we are the server
-			if(!world.isRemote)
-				return;
-			
-			// Open GUI
-			TileEntityMobSpawner spawner = (TileEntityMobSpawner)world.getTileEntity(blockpos);
-	    	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();	    	
-			openSpawnerGui(logic, blockpos);
-		}
-			
-		// If not right click with Spawner Key just get the egg (only on server to prevent visual duplicate)
-		else
-		{
-			// Leave if we are client
-			if(world.isRemote)
-				return;
-						
-			dropMonsterEgg(world, blockpos, iblockstate);
-		}
-			
+		dropMonsterEgg(world, blockpos, iblockstate);	
     }
 
     
@@ -177,16 +173,16 @@ public class SpawnerEventHandler
      * 	Spawns a mob egg depending on what type of entity inside mob spawner.
      * 	When successfully retrieved monster egg we set spawner entity to default.
      */	
-    private void dropMonsterEgg(World world, BlockPos blockpos, IBlockState iblockstate)
+    private void dropMonsterEgg(World world, BlockPos blockpos, BlockState iblockstate)
     {
-    	TileEntityMobSpawner spawner = (TileEntityMobSpawner)world.getTileEntity(blockpos);
-    	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();
+    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
+    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
     	
-    	// Get entity ResourceLocation string from spawner by creating a empty NBTTagComp which we make our 
+    	// Get entity ResourceLocation string from spawner by creating a empty compund which we make our 
     	// spawner logic write to. We can then access what type of entity id the spawner has inside
-    	NBTTagCompound nbtIn = new NBTTagCompound();
-    	nbtIn = logic.writeToNBT(nbtIn);
-    	String entity_string = nbtIn.getTag("SpawnData").getString();
+    	CompoundNBT nbt = new CompoundNBT();
+    	nbt = logic.write(nbt);
+    	String entity_string = nbt.get("SpawnData").toString();
     	
     	// Strips the string
     	// Example: {id: "minecraft:xxx_xx"} --> minecraft:xxx_xx
@@ -194,8 +190,7 @@ public class SpawnerEventHandler
     	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
     	
 		// Leave if the spawner does not contain an egg	
-		EntityType<?> entityType = EntityType.getById(entity_string);
-		if(entityType.equals(defaultEntityType))
+		if(entity_string.equalsIgnoreCase(defaultEntityType.getRegistryName().toString()))
 			return;
 		
     	// Get the entity mob egg and put in an ItemStack
@@ -207,11 +202,11 @@ public class SpawnerEventHandler
         double d2 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
         
         // Create entity item
-		EntityItem entityItem = new EntityItem(world, (double)blockpos.getX() + d0, (double)blockpos.getY() + d1, (double)blockpos.getZ() + d2, itemStack);
+        ItemEntity entityItem = new ItemEntity(world, (double)blockpos.getX() + d0, (double)blockpos.getY() + d1, (double)blockpos.getZ() + d2, itemStack);
 		entityItem.setDefaultPickupDelay();
 		
 		// Spawn entity item (egg)
-		world.spawnEntity(entityItem);
+		world.addEntity(entityItem);
 		
 		// Replace the entity inside the spawner with default entity
 		logic.setEntityType(defaultEntityType);
@@ -227,23 +222,12 @@ public class SpawnerEventHandler
      * 	@param NBTTagList of enchantment
      * 	@return true/false
      */
-    private boolean checkSilkTouch(NBTTagList list)
+    private boolean checkSilkTouch(ListNBT list)
     {
     	// Check list string contains silk touch
 		if(list.getString().indexOf("minecraft:silk_touch") != -1)
 			return true;
 		else
 			return false;
-    }
-    
-    
-    /**
-     * 	Opens GUI for configuration of the spawner. Only on client
-     */
-    @OnlyIn(Dist.CLIENT)
-    private void openSpawnerGui(MobSpawnerBaseLogic logic, BlockPos pos)
-    {
-    	Minecraft mc = Minecraft.getInstance();
-    	mc.addScheduledTask(() -> mc.displayGuiScreen(new SpawnerConfigGui(logic, pos)));
     }
 }
