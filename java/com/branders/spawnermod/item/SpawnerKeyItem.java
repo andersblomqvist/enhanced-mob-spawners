@@ -64,7 +64,7 @@ public class SpawnerKeyItem extends Item
      * 	Opens GUI for configuration of the spawner. Only on client
      */
     @OnlyIn(Dist.CLIENT)
-    private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
+   	private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
     	mc.displayGuiScreen(new SpawnerConfigGui(new TranslationTextComponent("why do I need this?"), logic, pos));
