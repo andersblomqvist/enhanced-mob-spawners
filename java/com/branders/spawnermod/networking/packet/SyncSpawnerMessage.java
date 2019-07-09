@@ -2,13 +2,13 @@ package com.branders.spawnermod.networking.packet;
 
 import java.util.function.Supplier;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.MobSpawnerBaseLogic;
-import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.spawner.AbstractSpawner;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
@@ -74,29 +74,26 @@ public class SyncSpawnerMessage
 	    	
 	    	if(world != null)
 	    	{
-	    		// Leave if blockpos not loaded, safety measures
-	    		if(!world.isBlockLoaded(msg.pos))
-	    			return;
 	    		
-	    		TileEntityMobSpawner spawner = (TileEntityMobSpawner)world.getTileEntity(msg.pos);
-	        	MobSpawnerBaseLogic logic = spawner.getSpawnerBaseLogic();
-	        	IBlockState iblockstate = world.getBlockState(msg.pos);	
+	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(msg.pos);
+	    		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+	        	BlockState blockstate = world.getBlockState(msg.pos);	
 	        	
-	        	NBTTagCompound nbt = new NBTTagCompound();
-	        	nbt = logic.writeToNBT(nbt);
+	        	CompoundNBT nbt = new CompoundNBT();
+	        	nbt = logic.write(nbt);
 	        	
 	        	// Change NBT values
-	        	nbt.setShort("Delay", msg.delay);
-	        	nbt.setShort("SpawnCount", msg.spawnCount);
-	        	nbt.setShort("RequiredPlayerRange", msg.requiredPlayerRange);
-	        	nbt.setShort("MaxNearbyEntities", msg.maxNearbyEntities);
-	        	nbt.setShort("MinSpawnDelay", msg.minSpawnDelay);
-	        	nbt.setShort("MaxSpawnDelay", msg.maxSpawnDelay);
+	        	nbt.putShort("Delay", msg.delay);
+	        	nbt.putShort("SpawnCount", msg.spawnCount);
+	        	nbt.putShort("RequiredPlayerRange", msg.requiredPlayerRange);
+	        	nbt.putShort("MaxNearbyEntities", msg.maxNearbyEntities);
+	        	nbt.putShort("MinSpawnDelay", msg.minSpawnDelay);
+	        	nbt.putShort("MaxSpawnDelay", msg.maxSpawnDelay);
 	        	
 	        	// Update block
-	        	logic.readFromNBT(nbt);
+	        	logic.read(nbt);
 	        	spawner.markDirty();
-	        	world.notifyBlockUpdate(msg.pos, iblockstate, iblockstate, 3);
+	        	world.notifyBlockUpdate(msg.pos, blockstate, blockstate, 3);
 	    	}
 	    });
 	    
