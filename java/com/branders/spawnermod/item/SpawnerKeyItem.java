@@ -41,30 +41,31 @@ public class SpawnerKeyItem extends Item
 	@Override
 	public ActionResultType onItemUse(ItemUseContext context) 
 	{
-        World world = context.getWorld();
+		World world = context.getWorld();
 		
-        // Leave if we are server
-        if(!world.isRemote)
-            return ActionResultType.FAIL;
-
-        // Leave if we didn't right click a spawner
-        BlockPos blockpos = context.getPos();
-        if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
-            return ActionResultType.FAIL;
-
-        // Open GUI
-        MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
-        AbstractSpawner logic = spawner.getSpawnerBaseLogic();
-        openSpawnerGui(logic, blockpos);
-
-        return super.onItemUse(context);
+		// Leave if we are server
+		if(!world.isRemote)
+			return ActionResultType.FAIL;
+		
+		// Leave if we didn't right click a spawner
+		BlockPos blockpos = context.getPos();
+		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+			return ActionResultType.FAIL;
+		
+		// Open GUI
+		System.out.println("??");
+		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
+    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+    	openSpawnerGui(logic, blockpos);
+		
+		return super.onItemUse(context);
 	}
 	
 	/**
      * 	Opens GUI for configuration of the spawner. Only on client
      */
     @OnlyIn(Dist.CLIENT)
-   	private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
+    private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
     	mc.displayGuiScreen(new SpawnerConfigGui(new TranslationTextComponent("why do I need this?"), logic, pos));

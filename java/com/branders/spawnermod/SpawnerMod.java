@@ -5,11 +5,11 @@ import com.branders.spawnermod.event.SpawnerEventHandler;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 
-import net.minecraft.item.Rarity;
-import net.minecraft.item.Item;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Rarity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,9 +59,7 @@ public class SpawnerMod
     {
     	// Register Spawner Wrench
     	registry.register(new SpawnerKeyItem(new Item.Properties().group(ItemGroup.TOOLS).rarity(Rarity.RARE)).setRegistryName(MODID, "spawner_key"));
-    	
-    	// Register Spawner ItemBlock as a "new" item block.
-    	// It only makes the spawner show up in decoration tab.
-    	registry.register(new BlockItem(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(MODID, "spawner"));
+
+    	registry.register(new BlockItem(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(Blocks.SPAWNER.getRegistryName()));
     }
 }
