@@ -1,6 +1,7 @@
 package com.branders.spawnermod.networking;
 
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 
 import net.minecraft.util.ResourceLocation;
@@ -29,5 +30,6 @@ public class SpawnerModPacketHandler
         int messageId = 0;
 
         INSTANCE.registerMessage(messageId++, SyncSpawnerMessage.class, SyncSpawnerMessage::encode, SyncSpawnerMessage::decode, SyncSpawnerMessage::handle);
+        INSTANCE.registerMessage(messageId++, SyncSpawnerEggDrop.class, SyncSpawnerEggDrop::encode, SyncSpawnerEggDrop::decode, SyncSpawnerEggDrop::handle);
     }
 }

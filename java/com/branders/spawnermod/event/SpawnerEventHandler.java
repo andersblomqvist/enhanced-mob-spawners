@@ -4,6 +4,8 @@ import java.util.Random;
 
 import com.branders.spawnermod.config.SpawnConfig;
 import com.branders.spawnermod.item.SpawnerKeyItem;
+import com.branders.spawnermod.networking.SpawnerModPacketHandler;
+import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -13,9 +15,11 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +42,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class SpawnerEventHandler
 {
 	// Get Spawn Rate chance for monster egg from config spec
-	private float SPAWN_RATE = SpawnConfig.monster_egg_drop_chance.get() / 100F;
+	private float SPAWN_RATE = (float)(SpawnConfig.monster_egg_drop_chance.get() / 100F);
 	
 	private Random random = new Random();
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
@@ -61,7 +65,7 @@ public class SpawnerEventHandler
     	}
     }
     */
-    
+	
     /**
      * 	Prevent XP drop when spawner is destroyed with silk touch
      */
@@ -97,18 +101,15 @@ public class SpawnerEventHandler
     	if(event.getState().getBlock() != Blocks.SPAWNER)
     		return;
     	
+    	BlockPos pos = event.getPos();
     	World world = (World)event.getWorld();
     	
-    	BlockPos blockpos = event.getPos();
-    	BlockState iblockstate = world.getBlockState(blockpos);
-
-    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
-    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
-
-    	// Replace the entity inside the spawner with default entity
-    	logic.setEntityType(defaultEntityType);
-    	spawner.markDirty();
-    	world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
+    	world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
+    	TileEntity tileentity = world.getTileEntity(pos);
+    	
+    	((MobSpawnerTileEntity)tileentity).getSpawnerBaseLogic().setEntityType(defaultEntityType);
+    	tileentity.markDirty();
+    	world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
     }
     
     
@@ -135,27 +136,31 @@ public class SpawnerEventHandler
      * 	Event when player interacts with block.
      * 	Enables so that the player can right click a spawner to get its egg.
      * 
-     * 	Bug: Event is only fired on server.
-     * 	{@link https://github.com/MinecraftForge/MinecraftForge/issues/5802}
-     * 
-     * 	The bug "fixed" via SpawnerKeyItem so when that item is used on a block we open the GUI from there.
+     * 	Bug: Event does not fire on server. Fixed via networking
      */
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
     {
-    	World world = event.getWorld();
+    	Item item = event.getItemStack().getItem();
     	
     	// Leave if we are client and if we are holding a block. Also prevent off hand action
-    	if(event.getItemStack().getItem() instanceof BlockItem || event.getHand() == Hand.OFF_HAND)		
+    	if(item instanceof BlockItem || item instanceof SpawnEggItem || item instanceof SpawnerKeyItem || event.getHand() == Hand.OFF_HAND)		
     		return;
     	
-    	// Leave if we right-clicked with the SpawnerKey. That stuff is moved as said above
-    	Item item = event.getItemStack().getItem();
-    	if(item instanceof SpawnerKeyItem)
-    		return;
     	
+    	World world = event.getWorld();
     	BlockPos blockpos = event.getPos();
-		BlockState iblockstate = world.getBlockState(blockpos);	
+    	
+    	// Leave if we didn't right click a spawner block
+		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+			return;
+		
+		// Send Network message
+		SpawnerModPacketHandler.INSTANCE.sendToServer(new SyncSpawnerEggDrop(blockpos));
+    	
+    	/*
+    	BlockPos blockpos = event.getPos();
+		BlockState blockstate = world.getBlockState(blockpos);
 		
 		// Leave if we didn't right click a spawner block
 		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
@@ -165,14 +170,17 @@ public class SpawnerEventHandler
 		if(world.isRemote)
 			return;
 		
-		dropMonsterEgg(world, blockpos, iblockstate);	
+		dropMonsterEgg(world, blockpos, blockstate);
+		*/
     }
 
     
     /**
      * 	Spawns a mob egg depending on what type of entity inside mob spawner.
      * 	When successfully retrieved monster egg we set spawner entity to default.
-     */	
+     * 
+     * 	Moved to SyncSpawnerEggDrop due to RightClick event not working for server
+     
     private void dropMonsterEgg(World world, BlockPos blockpos, BlockState iblockstate)
     {
     	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
@@ -213,6 +221,7 @@ public class SpawnerEventHandler
 		spawner.markDirty();
 		world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
     }
+    */	
    
     
     /**
