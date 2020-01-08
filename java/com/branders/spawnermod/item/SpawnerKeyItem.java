@@ -53,7 +53,6 @@ public class SpawnerKeyItem extends Item
 			return ActionResultType.FAIL;
 		
 		// Open GUI
-		System.out.println("??");
 		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
     	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
     	openSpawnerGui(logic, blockpos);
