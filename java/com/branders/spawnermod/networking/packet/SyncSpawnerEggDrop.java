@@ -16,10 +16,6 @@ import net.minecraft.world.spawner.AbstractSpawner;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-/**
- * 	Temp fix for PlayerInteractEvent.RightClickBlock not working on server. Only called on client
- * 	which means we have to send networking
- */
 public class SyncSpawnerEggDrop 
 {
 	private final BlockPos pos;

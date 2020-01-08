@@ -16,6 +16,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
+ * 	Handle all GUI
+ * 
  * 	@author Anders <Branders> Blomqvist
  */
 @OnlyIn(Dist.CLIENT)
@@ -119,7 +121,7 @@ public class SpawnerConfigGui extends Screen
 		/**
 		 * 	Count button
 		 */
-		addButton(countButton = new Button(width / 2 - 48, 65, 96, 20, "Count: " + countDisplayString[countOptionValue], button -> 
+		addButton(countButton = new Button(width / 2 - 48, 65, 108, 20, "Count: " + countDisplayString[countOptionValue], button -> 
 		{
 			switch(countOptionValue)
 			{
@@ -159,7 +161,7 @@ public class SpawnerConfigGui extends Screen
 		/**
 		 * 	Speed button
 		 */
-		addButton(speedButton = new Button(width / 2 - 48, 90, 96, 20, "Speed: " + speedDisplayString[speedOptionValue], button -> 
+		addButton(speedButton = new Button(width / 2 - 48, 90, 108, 20, "Speed: " + speedDisplayString[speedOptionValue], button -> 
 		{
 			switch(speedOptionValue)
 			{
@@ -201,7 +203,7 @@ public class SpawnerConfigGui extends Screen
 		/**
 		 * 	Range button
 		 */
-		addButton(rangeButton = new Button(width / 2 - 48, 115, 96, 20, "Range: " + rangeDisplayString[rangeOptionValue], button -> 
+		addButton(rangeButton = new Button(width / 2 - 48, 115, 108, 20, "Range: " + rangeDisplayString[rangeOptionValue] + " " + requiredPlayerRange, button -> 
 		{
 			switch(rangeOptionValue)
 			{
@@ -230,7 +232,7 @@ public class SpawnerConfigGui extends Screen
 					break;
 			}
 			
-			rangeButton.setMessage("Range: " + rangeDisplayString[rangeOptionValue]);
+			rangeButton.setMessage("Range: " + rangeDisplayString[rangeOptionValue] + " " + requiredPlayerRange);
 		}));
 		
 		/**
