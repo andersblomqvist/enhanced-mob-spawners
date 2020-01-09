@@ -1,9 +1,8 @@
-# enhanced-mob-spawners
+# Enhanced mob spawners
 Mod for Minecraft Forge
 
 Adds harvest and ability to retrieve Monster Egg from Mob Spawners
 
- 
 
 + Make Mob Spawners minable with silk touch
 
@@ -14,3 +13,6 @@ Adds harvest and ability to retrieve Monster Egg from Mob Spawners
  
 
 If a mob spawner, with any entity inside, is harvested with a silk touch it will only drop the block and not the egg. Therefore, retrieve the egg before breaking the block.
+
+See mod page for more information and download
+https://www.curseforge.com/minecraft/mc-mods/enhanced-mob-spawners
