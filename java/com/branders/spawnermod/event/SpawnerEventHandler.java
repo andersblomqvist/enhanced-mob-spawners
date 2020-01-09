@@ -115,7 +115,7 @@ public class SpawnerEventHandler
     @SubscribeEvent
     public void onMobDrop(LivingDropsEvent event)
     {	
-    	if(random.nextFloat() < DROP_RATE)
+    	if(random.nextFloat() > DROP_RATE)
     		return;
     	
     	Entity entity = event.getEntity();
