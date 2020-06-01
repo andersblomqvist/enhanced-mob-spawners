@@ -74,7 +74,6 @@ public class SyncSpawnerMessage
 	    	
 	    	if(world != null)
 	    	{
-	    		
 	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(msg.pos);
 	    		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
 	        	BlockState blockstate = world.getBlockState(msg.pos);	

@@ -1,3 +1,6 @@
 {
-	"item.spawnermod.spawner_key": "Spawner Key"
+	"item.spawnermod.spawner_key": "Spawner Key",
+	"item.spawnermod.iron_golem_spawn_egg": "Iron Golem Spawn Egg",
+	
+	"tooltip.spawnermod.spawner_key_disabled": "Spawner key is disabled"
 }

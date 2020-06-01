@@ -1,9 +1,10 @@
 package com.branders.spawnermod.gui;
 
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.config.SpawnerModConfig;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -236,6 +237,24 @@ public class SpawnerConfigGui extends Screen
 		}));
 		
 		/**
+		 * 	Disable buttons from config
+		 */
+		if(SpawnerModConfig.GENERAL.disable_count.get()) {
+			countButton.active = false;
+			countButton.setMessage("Count disabled");
+		}
+		
+		if(SpawnerModConfig.GENERAL.disable_speed.get()) {
+			speedButton.active = false;
+			speedButton.setMessage("Speed disabled");
+		}
+		
+		if(SpawnerModConfig.GENERAL.disable_range.get()) {
+			rangeButton.active = false;
+			rangeButton.setMessage("Range disabled");
+		}
+		
+		/**
 		 * 	Save button - configures spawner data
 		 */
 		addButton(new Button(width / 2 - 89, 180 + 10, 178, 20, "Save", button -> 
@@ -260,7 +279,7 @@ public class SpawnerConfigGui extends Screen
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) 
 	{
-		GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		// Draw black transparent background (just like when pressing escape)
 		renderBackground();
@@ -277,8 +296,7 @@ public class SpawnerConfigGui extends Screen
 	/**
      * 	Send message to server with the new NBT values.
      */
-    private void configureSpawner()
-    {	
+    private void configureSpawner() {	
     	SpawnerModPacketHandler.INSTANCE.sendToServer(new SyncSpawnerMessage(pos, delay, spawnCount, requiredPlayerRange, maxNearbyEntities, minSpawnDelay, maxSpawnDelay));
     }
     
@@ -294,16 +312,12 @@ public class SpawnerConfigGui extends Screen
 	{
 		if(current == reference.LOW)
 			return 0;
-		
 		else if(current == reference.DEFAULT)
 			return 1;
-		
 		else if(current == reference.HIGH)
 			return 2;
-		
 		else if(current == reference.HIGHEST)
 			return 3;
-		
 		else
 			return 0;
 	}
