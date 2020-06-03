@@ -1,5 +1,5 @@
 # Enhanced mob spawners
-Mod for Minecraft Forge
+Mod for Minecraft Forge 1.15.2 (master branch)
 
 Adds harvest and ability to retrieve Monster Egg from Mob Spawners
 
