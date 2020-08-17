@@ -73,7 +73,7 @@ public class SpawnerKeyItem extends Item
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 		if(SpawnerModConfig.GENERAL.disable_spawner_config.get()) {
-			tooltip.add(textComponent.applyTextStyle(TextFormatting.RED));
+			tooltip.add(textComponent.func_240699_a_(TextFormatting.RED));
 			super.addInformation(stack, worldIn, tooltip, flagIn);	
 		}
 	}

@@ -25,10 +25,9 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
- * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.15)
+ * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.16)
  * 
  * 	@author Anders <Branders> Blomqvist
- *
  */
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(SpawnerMod.MODID)
@@ -50,6 +49,7 @@ public class SpawnerMod
     	SpawnerModPacketHandler.register();
     	
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
+    	// MinecraftForge.EVENT_BUS.register(new WorldEvents());
     	MinecraftForge.EVENT_BUS.register(this);
     }
     
