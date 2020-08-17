@@ -20,7 +20,6 @@ import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +36,6 @@ import net.minecraftforge.registries.ForgeRegistries;
  * 	Handles all the events regarding the mob spawner and entities.
  * 
  * 	@author Anders <Branders> Blomqvist
- *
  */
 @EventBusSubscriber
 public class SpawnerEventHandler
@@ -50,7 +48,7 @@ public class SpawnerEventHandler
      */
     @SubscribeEvent
     public void onBlockBreakEvent(BlockEvent.BreakEvent event) 
-    {	
+    {    	
     	// Check if a spawner broke
     	if(event.getState().getBlock() == Blocks.SPAWNER)
     	{
@@ -92,9 +90,9 @@ public class SpawnerEventHandler
     	World world = (World)event.getWorld();
     	
     	world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
-    	TileEntity tileentity = world.getTileEntity(pos);
+    	MobSpawnerTileEntity tileentity = (MobSpawnerTileEntity)world.getTileEntity(pos);
+    	tileentity.getSpawnerBaseLogic().setEntityType(defaultEntityType);
     	
-    	((MobSpawnerTileEntity)tileentity).getSpawnerBaseLogic().setEntityType(defaultEntityType);
     	tileentity.markDirty();
     	world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
     }
