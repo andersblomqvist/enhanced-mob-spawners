@@ -1,0 +1,27 @@
+{
+	"item.spawnermod.spawner_key": "Ключ Спауна",
+	"item.spawnermod.iron_golem_spawn_egg": "Яйцо призыва железного голема",
+	
+	"button.count.default": "Количество: обичные",
+	"button.count.low": "Количество: Низкое",
+	"button.count.high": "Количество: Высокое",
+	"button.count.very_high": "Количество: очень высокое",
+	"button.count.disabled": "Подсчет отключен",
+	
+	"button.speed.default": "Скорость: по умолчанию",
+	"button.speed.low": "Скорость: Медленная",
+	"button.speed.high": "Скорость: быстрая",
+	"button.speed.very_high": "Скорость: очень быстрая",
+	"button.speed.disabled": "Скорость отключена",
+	
+	"button.range.default": "Дальность: Дальний 32",
+	"button.range.low": "Диапазон: по умолчанию 16",
+	"button.range.high": "Дальность: Очень далеко 64",
+	"button.range.very_high": "Диапазон: Extreme 128",
+	"button.range.disabled": "Диапазон отключен",
+	
+	"button.save": "Сохранить",
+	"button.cancel": "Отмена",
+	
+	"tooltip.spawnermod.spawner_key_disabled": "Ключ генератора отключен"
+}
