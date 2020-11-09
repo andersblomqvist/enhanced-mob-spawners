@@ -7,8 +7,8 @@ import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
-public class SpawnerModConfig
-{
+public class SpawnerModConfig {
+	
 	private static final ForgeConfigSpec.Builder BUILDER = new Builder();
 	
 	public static final General GENERAL = new General(BUILDER);

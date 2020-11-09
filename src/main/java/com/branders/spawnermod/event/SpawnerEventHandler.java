@@ -38,8 +38,8 @@ import net.minecraftforge.registries.ForgeRegistries;
  * 	@author Anders <Branders> Blomqvist
  */
 @EventBusSubscriber
-public class SpawnerEventHandler
-{	
+public class SpawnerEventHandler {
+	
 	private Random random = new Random();
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
 	
@@ -47,16 +47,15 @@ public class SpawnerEventHandler
      * 	Prevent XP drop when spawner is destroyed with silk touch and return Spawner Block
      */
     @SubscribeEvent
-    public void onBlockBreakEvent(BlockEvent.BreakEvent event) 
-    {    	
+    public void onBlockBreakEvent(BlockEvent.BreakEvent event) {    	
     	// Check if a spawner broke
-    	if(event.getState().getBlock() == Blocks.SPAWNER)
-    	{
+    	if(event.getState().getBlock() == Blocks.SPAWNER) {
+    		
     		ListNBT list = event.getPlayer().getHeldItemMainhand().getEnchantmentTagList();
     		
     		// Check if we broke the spawner with silk touch and if it's not disabled in config
-    		if(checkSilkTouch(list) && !SpawnerModConfig.GENERAL.disable_silk_touch.get())
-    		{
+    		if(checkSilkTouch(list) && !SpawnerModConfig.GENERAL.disable_silk_touch.get()) {
+    			
     			// Set 0 EXP
     			event.setExpToDrop(0);
     			
@@ -81,8 +80,7 @@ public class SpawnerEventHandler
      * 	Used to replace entity in spawner when block placed down by player
      */
     @SubscribeEvent
-    public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event)
-    {
+    public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event) {
     	if(event.getState().getBlock() != Blocks.SPAWNER)
     		return;
     	
@@ -102,8 +100,7 @@ public class SpawnerEventHandler
      * 	Enables mobs to have a small chance to drop an egg
      */
     @SubscribeEvent
-    public void onMobDrop(LivingDropsEvent event)
-    {	
+    public void onMobDrop(LivingDropsEvent event) {	
     	if(random.nextFloat() > SpawnerModConfig.GENERAL.monster_egg_drop_chance.get() / 100)
     		return;
     	
@@ -135,10 +132,7 @@ public class SpawnerEventHandler
      * 	Enables so that the player can right click a spawner to get its egg.
      */
     @SubscribeEvent
-    public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
-    {   
-    	System.out.println("Player right click event!");
-    	
+    public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event) {   
     	Item item = event.getItemStack().getItem();
     	
     	// Leave if we are client and if we are holding a block. Also prevent off hand action
@@ -170,8 +164,7 @@ public class SpawnerEventHandler
      * 	@param pos Spawner block position
      * 	@param world World reference for spawning
      */
-    private void dropMonsterEgg(BlockPos pos, World world)
-    {
+    private void dropMonsterEgg(BlockPos pos, World world) {
     	BlockState blockstate = world.getBlockState(pos);
 		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(pos);
     	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
@@ -229,8 +222,7 @@ public class SpawnerEventHandler
      * 	@param NBTTagList of enchantment
      * 	@return true/false
      */
-    private boolean checkSilkTouch(ListNBT list)
-    {
+    private boolean checkSilkTouch(ListNBT list) {
     	// Check list string contains silk touch
 		if(list.getString().indexOf("minecraft:silk_touch") != -1)
 			return true;
