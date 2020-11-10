@@ -45,8 +45,7 @@ public class SpawnerKeyItem extends Item
 	 * 	Replacement for PlayerInteractEvent.RightClickBlock in SpawnerEventHandler due to not fired on client side. 
 	 */
 	@Override
-	public ActionResultType onItemUse(ItemUseContext context) 
-	{
+	public ActionResultType onItemUse(ItemUseContext context) {
 		// Leave if disabled in config.
 		if(SpawnerModConfig.GENERAL.disable_spawner_config.get())
 			return ActionResultType.FAIL;

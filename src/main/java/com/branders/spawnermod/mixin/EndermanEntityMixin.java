@@ -31,17 +31,4 @@ public abstract class EndermanEntityMixin extends MonsterEntity implements IAnge
 
         ci.cancel();
     }
-	
-	/**
-	 * 	Fixes Minecraft bug where server world would be casted on client.
-	 * 	@reason bug
-	 * 	@author
-	 
-	@Overwrite
-	public void readAdditional(CompoundNBT compound) {
-		if(!world.isRemote) {
-			super.readAdditional(compound);
-        }
-	}
-	*/
 }
