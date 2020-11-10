@@ -13,6 +13,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -80,12 +81,16 @@ public class SpawnerEventHandler {
      * 	Used to replace entity in spawner when block placed down by player
      */
     @SubscribeEvent
-    public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event) {
-    	if(event.getState().getBlock() != Blocks.SPAWNER)
+    public void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+    	
+    	// Leave if we did not place down a spawner
+    	if(event.getState().getBlock() != Blocks.SPAWNER 
+    			&& event.getEntity() instanceof PlayerEntity)
     		return;
     	
+    	System.out.println("Placed down a spawner block - remove entity!");
+    	World world = (World) event.getWorld();
     	BlockPos pos = event.getPos();
-    	World world = (World)event.getWorld();
     	
     	world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
     	MobSpawnerTileEntity tileentity = (MobSpawnerTileEntity)world.getTileEntity(pos);
@@ -95,6 +100,44 @@ public class SpawnerEventHandler {
     	world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
     }
     
+    /**
+     * 	Check if Spawner block was powered by redstone or not. Used to disable
+     * 	or enable the spawner.
+     */
+    @SubscribeEvent
+    public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event) {
+    	
+    	// Leave if it wasn't a spawner block
+    	if(event.getState().getBlock() != Blocks.SPAWNER)
+    		return;
+    	
+    	World world = (World)event.getWorld();
+    	BlockPos pos = event.getPos();
+    	
+    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(pos);
+		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+		CompoundNBT nbt = new CompoundNBT();
+		
+		// Get current spawner config values
+		nbt = logic.write(nbt);
+		
+    	// Check redstone power
+    	if(world.isBlockPowered(pos)) {
+    		System.out.println("Powered by redstone - disable");
+    		nbt.putShort("RequiredPlayerRange", (short) 0);
+    	}
+    		
+    	else {
+    		System.out.println("No redstone - enable");
+    		nbt.putShort("RequiredPlayerRange", (short) 16);
+    	}
+    	
+    	// Update block
+    	logic.read(nbt);
+    	spawner.markDirty();
+    	BlockState blockstate = world.getBlockState(pos);
+    	world.notifyBlockUpdate(pos, blockstate, blockstate, 3);
+    }
     
     /**
      * 	Enables mobs to have a small chance to drop an egg
