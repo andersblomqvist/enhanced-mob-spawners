@@ -51,6 +51,7 @@ public class SpawnerConfigGui extends Screen {
 	private Button countButton = null;
 	private Button speedButton = null;
 	private Button rangeButton = null;
+	private Button disableButton = null;
 	
 	// Button States
 	private int countOptionValue;
@@ -61,6 +62,7 @@ public class SpawnerConfigGui extends Screen {
 	String[] speedDisplayString = {"Slow", "Default", "Fast", "Very Fast"};
 	String[] countDisplayString = {"Low", "Default", "High", "Very High"};
 	String[] rangeDisplayString = {"Default", "Far", "Very Far", "Extreme"};
+	String[] disableDisplayString = {"Enabled", "Disabled"};
 	
 	/**
 	 * 	Object to hold values for all NBT parameters we modify.
@@ -92,6 +94,7 @@ public class SpawnerConfigGui extends Screen {
 	private short spawnCount;
 	private short maxNearbyEntities;
 	private short requiredPlayerRange;
+	private boolean disabled;
 	
 	/**
 	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
@@ -116,6 +119,11 @@ public class SpawnerConfigGui extends Screen {
     	maxNearbyEntities = nbt.getShort("MaxNearbyEntities");
     	requiredPlayerRange = nbt.getShort("RequiredPlayerRange");
     	
+    	if(requiredPlayerRange > 0)
+    		disabled = false;
+    	else 
+    		disabled = true;
+    	
     	// Load button configuration
     	countOptionValue = loadOptionState(spawnCount, _spawnCount);
     	speedOptionValue = loadOptionState(minSpawnDelay, _minSpawnDelay);
@@ -132,7 +140,7 @@ public class SpawnerConfigGui extends Screen {
 		 * 	Count button
 		 */
 		addButton(countButton = new Button(
-				width / 2 - 48, 65, 108, 20, new TranslationTextComponent(
+				width / 2 - 48, 55, 108, 20, new TranslationTextComponent(
 						"button.count." + getButtonText(countOptionValue)), button -> {
 			switch(countOptionValue) {
 				// Low, set to Default
@@ -172,7 +180,7 @@ public class SpawnerConfigGui extends Screen {
 		 * 	Speed button
 		 */
 		addButton(speedButton = new Button(
-				width / 2 - 48, 90, 108, 20, new TranslationTextComponent(
+				width / 2 - 48, 80, 108, 20, new TranslationTextComponent(
 						"button.speed." + getButtonText(speedOptionValue)), button -> {
 			switch(speedOptionValue) {
 				// Slow, set to default
@@ -214,7 +222,7 @@ public class SpawnerConfigGui extends Screen {
 		 * 	Range button
 		 */
 		addButton(rangeButton = new Button(
-				width / 2 - 48, 115, 108, 20, new TranslationTextComponent(
+				width / 2 - 48, 105, 108, 20, new TranslationTextComponent(
 						"button.range." + getButtonText(rangeOptionValue)), button -> {
 			switch(rangeOptionValue) {
 				// Default, set to Far
@@ -246,6 +254,41 @@ public class SpawnerConfigGui extends Screen {
 		}));
 		
 		/**
+		 * 	Disable button
+		 */
+		addButton(disableButton = new Button(
+				width / 2 - 48, 130, 108, 20, new TranslationTextComponent(
+						"button.toggle." + getButtonText(disabled)), button -> {
+			if(disabled) {
+				// Set spawner to ON
+				disabled = false;
+				toggleButtons(true);
+				switch(rangeOptionValue) {
+					case 0:
+						requiredPlayerRange = _requiredPlayerRange.LOW;
+						break;
+					case 1:
+						requiredPlayerRange = _requiredPlayerRange.DEFAULT;
+						break;
+					case 2:
+						requiredPlayerRange = _requiredPlayerRange.HIGH;
+						break;
+					case 3:
+						requiredPlayerRange = _requiredPlayerRange.HIGHEST;
+						break;
+				}
+			}
+			else {
+				// Set spawner OFF
+				disabled = true;
+				toggleButtons(false);
+				requiredPlayerRange = 0;
+			}
+			
+			disableButton.setMessage(new TranslationTextComponent("button.toggle." + getButtonText(disabled)));
+		}));
+		
+		/**
 		 * 	Disable buttons from config
 		 */
 		if(SpawnerModConfig.GENERAL.disable_count.get()) {
@@ -262,6 +305,11 @@ public class SpawnerConfigGui extends Screen {
 			rangeButton.active = false;
 			countButton.setMessage(new TranslationTextComponent("button.range.disabled"));
 		}
+		
+		if(disabled)
+			toggleButtons(false);
+		else
+			toggleButtons(true);
 		
 		/**
 		 * 	Save button - configures spawner data
@@ -344,6 +392,12 @@ public class SpawnerConfigGui extends Screen {
 	    		return "default";
     	}
     }
+    private String getButtonText(boolean disabled) {
+    	if(disabled)
+    		return "disabled";
+    	else
+    		return "enabled";
+    }
     
     /**
 	 * 	Loads what type of configuration spawner has. So it can remember what we have changed 
@@ -364,5 +418,16 @@ public class SpawnerConfigGui extends Screen {
 			return 3;
 		else
 			return 0;
+	}
+	
+	/**
+	 * 	Toggles the count, speed and range button to specified state.
+	 * 
+	 * 	@param state True/False - On/Off
+	 */
+	private void toggleButtons(boolean state) {
+		countButton.active = state;
+		speedButton.active = state;
+		rangeButton.active = state;
 	}
 }

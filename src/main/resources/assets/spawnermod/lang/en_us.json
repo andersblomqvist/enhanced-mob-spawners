@@ -20,6 +20,9 @@
 	"button.range.very_high": "Range: Extreme 128",
 	"button.range.disabled": "Range disabled",
 	
+	"button.toggle.enabled": "Spawner: ON",
+	"button.toggle.disabled": "Spawner: OFF",
+	
 	"button.save": "Save",
 	"button.cancel": "Cancel",
 	
