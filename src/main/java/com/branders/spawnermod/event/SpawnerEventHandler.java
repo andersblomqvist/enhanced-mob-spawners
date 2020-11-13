@@ -85,7 +85,7 @@ public class SpawnerEventHandler {
     	
     	// Leave if we did not place down a spawner
     	if(event.getState().getBlock() != Blocks.SPAWNER 
-    			&& event.getEntity() instanceof PlayerEntity)
+    			|| !(event.getEntity() instanceof PlayerEntity))
     		return;
     	
     	System.out.println("Placed down a spawner block - remove entity!");
