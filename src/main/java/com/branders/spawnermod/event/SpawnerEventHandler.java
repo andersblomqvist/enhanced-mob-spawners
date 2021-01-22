@@ -1,5 +1,6 @@
 package com.branders.spawnermod.event;
 
+import java.util.Optional;
 import java.util.Random;
 
 import com.branders.spawnermod.SpawnerMod;
@@ -88,7 +89,6 @@ public class SpawnerEventHandler {
     			|| !(event.getEntity() instanceof PlayerEntity))
     		return;
     	
-    	System.out.println("Placed down a spawner block - remove entity!");
     	World world = (World) event.getWorld();
     	BlockPos pos = event.getPos();
     	
@@ -121,16 +121,30 @@ public class SpawnerEventHandler {
 		// Get current spawner config values
 		nbt = logic.write(nbt);
 		
+		/**
+		 * 	Fixes bug where onBlockPlaced and onNotify both gets called when a
+		 * 	player places down a spawner. This creates a problem where the egg
+		 * 	would disappear after its first spawn.
+		 * 
+		 * 	This fix checks if the entity is "empty" (area effect cloud) and if
+		 * 	so - we cancel this event. When placing down a spawner, the entity
+		 * 	will always be the cloud and when checking for redstone, it will most
+		 * 	likely not be a cloud.
+		 */
+		CompoundNBT data = nbt.getCompound("SpawnData");
+		Optional<EntityType<?>> optional = EntityType.readEntityType(data);
+		if(optional.isPresent()) { 
+			if(optional.get().equals(EntityType.AREA_EFFECT_CLOUD)) {
+				event.setCanceled(true);
+				return;
+			}
+		}
+		
     	// Check redstone power
-    	if(world.isBlockPowered(pos)) {
-    		System.out.println("Powered by redstone - disable");
+    	if(world.isBlockPowered(pos))
     		nbt.putShort("RequiredPlayerRange", (short) 0);
-    	}
-    		
-    	else {
-    		System.out.println("No redstone - enable");
+    	else
     		nbt.putShort("RequiredPlayerRange", (short) 16);
-    	}
     	
     	// Update block
     	logic.read(nbt);
