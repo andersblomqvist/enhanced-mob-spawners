@@ -2,20 +2,20 @@
 	"item.spawnermod.spawner_key": "Chave de Gerador",
 	"item.spawnermod.iron_golem_spawn_egg": "Ovo Gerador de Golem de Ferro",
 	
-	"button.count.default": "Contagem: Padr√£o",
+	"button.count.default": "Contagem: Padr„o",
 	"button.count.low": "Contagem: Baixa",
 	"button.count.high": "Contagem: Alta",
 	"button.count.very_high": "Contagem: Muita Alta",
 	"button.count.disabled": "Contagem Desativada",
 	
-	"button.speed.default": "Velocidade: Padr√£o",
+	"button.speed.default": "Velocidade: Padr„o",
 	"button.speed.low": "Velocidade: Lenta",
-	"button.speed.high": "Velocidade: R√°pida",
-	"button.speed.very_high": "Velocidade: Muito R√°pida",
+	"button.speed.high": "Velocidade: R·pida",
+	"button.speed.very_high": "Velocidade: Muito R·pida",
 	"button.speed.disabled": "Velocidade Desativada",
 	
 	"button.range.default": "Alcance: Longe 32",
-	"button.range.low": "Alcance: Padr√£o 16",
+	"button.range.low": "Alcance: Padr„o 16",
 	"button.range.high": "Alcance: Muito Longe 64",
 	"button.range.very_high": "Alcance: Extremo 128",
 	"button.range.disabled": "Alcance Desativado",
@@ -26,7 +26,7 @@
 	"button.save": "Salvar",
 	"button.cancel": "Cancelar",
 	
-	"tooltip.spawnermod.spawner_key_disabled": "A Chave de Gerador est√° desativada",
+	"tooltip.spawnermod.spawner_key_disabled": "A Chave de Gerador est· desativada",
 	
-	"gui.spawnermod.spawner_config_screen_title": "Configura√ß√£o do Gerador"
+	"gui.spawnermod.spawner_config_screen_title": "ConfiguraÁ„o do Gerador"
 }
