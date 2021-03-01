@@ -126,8 +126,6 @@ public class SpawnerConfigGui extends Screen {
     	// and the previous range is stored in this value
     	spawnRange = nbt.getShort("SpawnRange");
     	
-    	System.out.println("SpawnRange: " + spawnRange);
-    	
     	if(spawnRange > 4)
     	{
     		disabled = true;

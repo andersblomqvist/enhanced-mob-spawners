@@ -156,8 +156,6 @@ public class SpawnerEventHandler {
     		
     		// Turn off spawner
     		nbt.putShort("RequiredPlayerRange", (short) 0);
-    		
-    		System.out.println("Saving SpawnRange=" + value);
     	}
     		
     	else
@@ -174,8 +172,6 @@ public class SpawnerEventHandler {
     		
     		// Set SpawnRange back to default=4
     		nbt.putShort("SpawnRange", (short) 4);
-    		
-    		System.out.println("Reset SpawnRange=" + 4);
     	}
     		
     	
