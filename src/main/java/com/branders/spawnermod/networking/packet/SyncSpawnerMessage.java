@@ -76,10 +76,15 @@ public class SyncSpawnerMessage
 	    	{
 	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(msg.pos);
 	    		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
-	        	BlockState blockstate = world.getBlockState(msg.pos);	
+	        	BlockState blockstate = world.getBlockState(msg.pos);
 	        	
 	        	CompoundNBT nbt = new CompoundNBT();
 	        	nbt = logic.write(nbt);
+	        	
+	        	if(msg.requiredPlayerRange == 0)
+	        		nbt.putShort("SpawnRange", nbt.getShort("RequiredPlayerRange"));
+	        	else
+	        		nbt.putShort("SpawnRange", (short) 4);
 	        	
 	        	// Change NBT values
 	        	nbt.putShort("Delay", msg.delay);

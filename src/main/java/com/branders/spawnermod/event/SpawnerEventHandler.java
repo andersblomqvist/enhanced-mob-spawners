@@ -49,7 +49,8 @@ public class SpawnerEventHandler {
      * 	Prevent XP drop when spawner is destroyed with silk touch and return Spawner Block
      */
     @SubscribeEvent
-    public void onBlockBreakEvent(BlockEvent.BreakEvent event) {    	
+    public void onBlockBreakEvent(BlockEvent.BreakEvent event) {
+    	
     	// Check if a spawner broke
     	if(event.getState().getBlock() == Blocks.SPAWNER) {
     		
@@ -142,9 +143,41 @@ public class SpawnerEventHandler {
 		
     	// Check redstone power
     	if(world.isBlockPowered(pos))
+    	{
+    		short value = nbt.getShort("RequiredPlayerRange");
+    		
+    		// If spawner got disabled via GUI and then we toggle off by redstone
+    		// we don't need to do this.
+    		if(nbt.getShort("SpawnRange") > 4)
+    			return;
+    		
+    		// Read current range and save it temporary in SpawnRange field
+    		nbt.putShort("SpawnRange", value);
+    		
+    		// Turn off spawner
     		nbt.putShort("RequiredPlayerRange", (short) 0);
+    		
+    		System.out.println("Saving SpawnRange=" + value);
+    	}
+    		
     	else
-    		nbt.putShort("RequiredPlayerRange", (short) 16);
+    	{
+    		// Read what the previus range was (before this spawner was set to range = 0)
+    		short pr = nbt.getShort("SpawnRange");
+    		
+    		// If spawner was activated via GUI before, then we dont need to do this
+    		if(pr <= 4)
+    			return;
+    		
+    		// Set the range backt to what it was
+    		nbt.putShort("RequiredPlayerRange", pr);
+    		
+    		// Set SpawnRange back to default=4
+    		nbt.putShort("SpawnRange", (short) 4);
+    		
+    		System.out.println("Reset SpawnRange=" + 4);
+    	}
+    		
     	
     	// Update block
     	logic.read(nbt);

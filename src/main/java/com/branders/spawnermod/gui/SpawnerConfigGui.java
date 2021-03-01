@@ -94,7 +94,10 @@ public class SpawnerConfigGui extends Screen {
 	private short spawnCount;
 	private short maxNearbyEntities;
 	private short requiredPlayerRange;
+	private short spawnRange;
 	private boolean disabled;
+	
+	private boolean cachedDisabled;
 	
 	/**
 	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
@@ -119,10 +122,25 @@ public class SpawnerConfigGui extends Screen {
     	maxNearbyEntities = nbt.getShort("MaxNearbyEntities");
     	requiredPlayerRange = nbt.getShort("RequiredPlayerRange");
     	
-    	if(requiredPlayerRange > 0)
-    		disabled = false;
-    	else 
+    	// If spawn range differs from 4, spawner is in the disabled state and
+    	// and the previous range is stored in this value
+    	spawnRange = nbt.getShort("SpawnRange");
+    	
+    	System.out.println("SpawnRange: " + spawnRange);
+    	
+    	if(spawnRange > 4)
+    	{
     		disabled = true;
+    		cachedDisabled = disabled;
+    		
+    		// Set gui range to saved spawnRange value.
+    		requiredPlayerRange = spawnRange;
+    	}
+    		
+    	else {
+    		disabled = false;
+    		cachedDisabled = disabled;
+    	}
     	
     	// Load button configuration
     	countOptionValue = loadOptionState(spawnCount, _spawnCount);
@@ -289,6 +307,23 @@ public class SpawnerConfigGui extends Screen {
 		}));
 		
 		/**
+		 * 	Save button - configures spawner data
+		 */
+		addButton(new Button(width / 2 - 89, 180 + 10, 178, 20, new TranslationTextComponent("button.save"), button -> 
+		{
+			configureSpawner();
+			this.close();
+		}));
+		
+		/**
+		 * 	Cancel button
+		 */
+		addButton(new Button(width / 2 - 89, 180 + 35, 178, 20, new TranslationTextComponent("button.cancel"), button -> 
+		{
+			this.close();
+		}));
+		
+		/**
 		 * 	Disable buttons from config
 		 */
 		if(SpawnerModConfig.GENERAL.disable_count.get()) {
@@ -310,23 +345,6 @@ public class SpawnerConfigGui extends Screen {
 			toggleButtons(false);
 		else
 			toggleButtons(true);
-		
-		/**
-		 * 	Save button - configures spawner data
-		 */
-		addButton(new Button(width / 2 - 89, 180 + 10, 178, 20, new TranslationTextComponent("button.save"), button -> 
-		{
-			configureSpawner();
-			this.close();
-		}));
-		
-		/**
-		 * 	Cancel button
-		 */
-		addButton(new Button(width / 2 - 89, 180 + 35, 178, 20, new TranslationTextComponent("button.cancel"), button -> 
-		{
-			this.close();
-		}));
 	}
 	
 	/**
@@ -362,7 +380,12 @@ public class SpawnerConfigGui extends Screen {
 	/**
      * 	Send message to server with the new NBT values.
      */
-    private void configureSpawner() {	
+    private void configureSpawner() {
+    	
+    	if(cachedDisabled)
+    		if(cachedDisabled == disabled)
+    			return;
+    	
     	SpawnerModPacketHandler.INSTANCE.sendToServer(
     			new SyncSpawnerMessage(
     					pos, 
