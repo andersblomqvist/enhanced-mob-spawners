@@ -348,7 +348,6 @@ public class SpawnerConfigGui extends Screen {
 	/**
 	 * 	Render GUI Texture
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
