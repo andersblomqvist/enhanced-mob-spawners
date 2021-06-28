@@ -1,89 +1,68 @@
 package com.branders.spawnermod;
 
-import com.branders.spawnermod.config.SpawnerModConfig;
-import com.branders.spawnermod.event.SpawnerEventHandler;
-import com.branders.spawnermod.item.SpawnerKeyItem;
-import com.branders.spawnermod.networking.SpawnerModPacketHandler;
-import com.branders.spawnermod.networking.packet.SyncSpawnerConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import com.branders.spawnermod.config.ConfigValues;
+import com.branders.spawnermod.config.ModConfigManager;
+import com.branders.spawnermod.event.EventHandler;
+import com.branders.spawnermod.item.SpawnerKey;
+import com.branders.spawnermod.networking.SpawnerModNetworking;
+import com.branders.spawnermod.networking.packet.SyncConfigMessage;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Rarity;
 import net.minecraft.item.SpawnEggItem;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.item.ToolMaterials;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Rarity;
+import net.minecraft.util.registry.Registry;
 
 /**
- * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.16)
+ * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric (1.17)
  * 
  * 	@author Anders <Branders> Blomqvist
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-@Mod(SpawnerMod.MODID)
-public class SpawnerMod {
+public class SpawnerMod implements ModInitializer {
+
+	public static final String MOD_ID = "spawnermod";
+	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
-	public static final String MODID = "spawnermod";
+	public static final Item SPAWNER_KEY = new SpawnerKey(new FabricItemSettings().group(ItemGroup.TOOLS).rarity(Rarity.RARE));
+	public static final Item IRON_GOLEM_SPAWN_EGG = new SpawnEggItem(EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Settings()).group(ItemGroup.MISC));
 	
-	public static Item iron_golem_spawn_egg = new SpawnEggItem(
-			EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Properties()).group(ItemGroup.MISC));
+	public static final EventHandler eventHandler = new EventHandler();
 	
-	/**
-	 * 	Register events and config
-	 */
-    public SpawnerMod() {
-    	ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SpawnerModConfig.SPEC);
-    	
-    	// Register new network packet handler used to manage data from client GUI to server
-    	SpawnerModPacketHandler.register();
-    	
-    	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
-    	// MinecraftForge.EVENT_BUS.register(new WorldEvents());
-    	MinecraftForge.EVENT_BUS.register(this);
+	@Override
+	public void onInitialize() {
+		
+		ModConfigManager.initConfig(MOD_ID);
+		
+		UseBlockCallback.EVENT.register(eventHandler::onBlockInteract);
+		PlayerBlockBreakEvents.BEFORE.register(eventHandler::onBlockBreak);
+		
+		// If we are a server we send server config values to client
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			ServerPlayNetworking.send(handler.player, SyncConfigMessage.ID, new SyncConfigMessage(
+					(short)ConfigValues.get("disable_spawner_config"), 
+					(short)ConfigValues.get("disable_count"), 
+					(short)ConfigValues.get("disable_range"), 
+					(short)ConfigValues.get("disable_speed")));
+		});
+		
+		SpawnerModNetworking.registerServerMessages();
+
+		Registry.register(Registry.ITEM, 243, "spawner", new BlockItem(Blocks.SPAWNER, new Item.Settings().group(ItemGroup.DECORATIONS).rarity(Rarity.EPIC)));
+		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "spawner_key"), SPAWNER_KEY);
+		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "iron_golem_spawn_egg"), IRON_GOLEM_SPAWN_EGG);
 	}
-	
-    /**
-     * 	Sync client config with server config
-     * 
-     * 	@param event when player connects to the server
-     */
-    @SubscribeEvent
-    public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-    	ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-    	
-		SpawnerModPacketHandler.INSTANCE.sendTo(
-				new SyncSpawnerConfig(
-						SpawnerModConfig.GENERAL.disable_spawner_config.get(),
-						SpawnerModConfig.GENERAL.disable_count.get(),
-						SpawnerModConfig.GENERAL.disable_speed.get(),
-						SpawnerModConfig.GENERAL.disable_range.get()),
-				player.connection.getNetworkManager(), 
-				NetworkDirection.PLAY_TO_CLIENT);
-    }
-    
-    /**
-     * 	Event for register spawner wrench and spawner item block
-     */
-    @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        registerItems(event.getRegistry());
-    }
-    
-    public static void registerItems(IForgeRegistry<Item> registry) {
-    	// Only register Spawner Key if enabled in config
-		registry.register(new SpawnerKeyItem(new Item.Properties().group(ItemGroup.TOOLS).rarity(Rarity.RARE)).setRegistryName(MODID, "spawner_key"));
-    	
-    	registry.register(iron_golem_spawn_egg.setRegistryName(MODID, "iron_golem_spawn_egg"));
-    	registry.register(new BlockItem(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(Blocks.SPAWNER.getRegistryName()));
-    }
 }

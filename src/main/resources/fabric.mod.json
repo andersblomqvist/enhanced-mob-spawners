@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "spawnermod",
+  "version": "1.1.0",
+
+  "name": "Enhanced Mob Spawners",
+  "description": "More features to spawners. For example change range to 128!",
+  "authors": [
+    "Branders"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/enhanced-mob-spawners",
+    "sources": "https://github.com/andersblomqvist/enhanced-mob-spawners"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/spawnermod/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.branders.spawnermod.SpawnerMod"
+    ],
+	"client": [
+		"com.branders.spawnermod.SpawnerModClient"
+	]
+  },
+  "mixins": [
+    "spawnermod.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.17.x"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
