@@ -1,19 +1,26 @@
 package com.branders.spawnermod.networking.packet;
 
+import java.util.function.Consumer;
+
 import com.branders.spawnermod.SpawnerMod;
+import com.branders.spawnermod.item.SpawnerKey;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
 
 /**
  * 	Sync the Spawner Config GUI to the actual spawner block.
@@ -48,8 +55,8 @@ public class SyncSpawnerMessage extends NetworkPacket {
 			
 			World world = player.world;
 	    	
-	    	if(world != null)
-	    	{
+	    	if(world != null) {
+	    		
 	    		MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity)world.getBlockEntity(pos);
 	    		MobSpawnerLogic logic = spawner.getLogic();
 	        	BlockState blockstate = world.getBlockState(pos);
@@ -75,6 +82,15 @@ public class SyncSpawnerMessage extends NetworkPacket {
 	        	logic.readNbt(world, pos, nbt);
 	        	spawner.markDirty();
 	    		world.updateListeners(pos, blockstate, blockstate, 3);
+	    		
+	    		// Damage the Spawner Key item.
+	    		ItemStack stack = player.getMainHandStack();
+	    		if(stack.getItem() instanceof SpawnerKey) {
+	    			stack.damage(1, (LivingEntity)player, (Consumer<LivingEntity>)((p) -> {
+	    				p.sendToolBreakStatus(Hand.MAIN_HAND);
+	                }));
+	    			world.syncWorldEvent(WorldEvents.WAX_REMOVED, pos, 0);
+	    		}
 	    	}
 		});
 	}

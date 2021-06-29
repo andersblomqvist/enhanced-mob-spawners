@@ -22,7 +22,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SpawnEggItem;
-import net.minecraft.item.ToolMaterials;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
@@ -37,7 +36,7 @@ public class SpawnerMod implements ModInitializer {
 	public static final String MOD_ID = "spawnermod";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
-	public static final Item SPAWNER_KEY = new SpawnerKey(new FabricItemSettings().group(ItemGroup.TOOLS).rarity(Rarity.RARE));
+	public static final Item SPAWNER_KEY = new SpawnerKey(new FabricItemSettings().maxDamage(10).group(ItemGroup.TOOLS).rarity(Rarity.RARE));
 	public static final Item IRON_GOLEM_SPAWN_EGG = new SpawnEggItem(EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Settings()).group(ItemGroup.MISC));
 	
 	public static final EventHandler eventHandler = new EventHandler();

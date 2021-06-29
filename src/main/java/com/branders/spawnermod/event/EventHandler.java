@@ -96,12 +96,12 @@ public class EventHandler {
 		if(hand == Hand.OFF_HAND)
 			return ActionResult.PASS;
 		
-		Item item = player.getMainHandStack().getItem();
-		
-		if(item instanceof BlockItem || item instanceof SpawnerKey || item instanceof SpawnEggItem)
+		if(ConfigValues.get("disable_egg_removal_from_spawner") != 0)
 			return ActionResult.PASS;
 		
-		if(ConfigValues.get("disable_egg_removal_from_spawner") != 0)
+		Item item = player.getMainHandStack().getItem();
+		
+		if(item instanceof BlockItem || item instanceof SpawnEggItem || item instanceof SpawnerKey)
 			return ActionResult.PASS;
 		
 		dropMonsterEgg(hitResult.getBlockPos(), world);
