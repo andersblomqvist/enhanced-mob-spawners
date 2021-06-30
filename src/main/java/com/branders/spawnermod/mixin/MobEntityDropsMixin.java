@@ -49,8 +49,6 @@ public class MobEntityDropsMixin {
 		if(ConfigValues.isEggDisabled(EntityType.getId(entityType).toString()))
 			return;
 		
-		SpawnerMod.LOGGER.info(EntityType.getId(entityType).toString());
-		
 		if(entityType.equals(EntityType.ENDER_DRAGON) || entityType.equals(EntityType.WITHER))
 			return;
 		else if(entityType.equals(EntityType.IRON_GOLEM))
