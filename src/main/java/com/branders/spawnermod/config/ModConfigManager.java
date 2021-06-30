@@ -115,7 +115,7 @@ public class ModConfigManager {
 		JsonObject entities = new JsonObject();
 		
 		for(Object key : keys) {
-			if(((String) key).contains("minecraft:"))
+			if(((String) key).matches("\\w+:\\w+"))	// Matches: "minecraft:creeper" or "modid:entityname"
 				entities.addProperty((String) key, ConfigValues.get((String) key));
 			else
 				config.addProperty((String) key, ConfigValues.get((String) key));
@@ -151,7 +151,7 @@ public class ModConfigManager {
 			SpawnerMod.LOGGER.info("Broken config. Group key=disable_specific_egg_drops was not found. Adding it and all its children ...");
 			JsonObject entities = new JsonObject();
 			for(Object k : ConfigValues.getKeys().toArray())
-				if(((String) k).contains("minecraft:"))
+				if(((String) k).matches("\\w+:\\w+"))
 					entities.addProperty((String) k, 0);
 			json.add("disable_specific_egg_drops", entities);
 		}
@@ -159,7 +159,7 @@ public class ModConfigManager {
 		for(String key : ConfigValues.getKeys()) {
 			JsonElement elem = json.get(key);
 			
-			if(key.contains("minecraft:"))
+			if(key.matches("\\w+:\\w+"))
 				elem = json.getAsJsonObject("disable_specific_egg_drops").get(key);
 			
 			if(elem == null) {
