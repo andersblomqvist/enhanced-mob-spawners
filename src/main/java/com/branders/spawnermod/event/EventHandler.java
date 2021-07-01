@@ -5,6 +5,7 @@ import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKey;
 import com.google.common.collect.Iterables;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -176,6 +177,7 @@ public class EventHandler {
      */
 	public static void updateNeighbor(BlockPos spawnerPos, World world) {
 		
+		BlockState blockstate = world.getBlockState(spawnerPos);
 		MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity)world.getBlockEntity(spawnerPos);
     	MobSpawnerLogic logic = spawner.getLogic();
 		NbtCompound nbt = new NbtCompound();
@@ -215,8 +217,7 @@ public class EventHandler {
 		// Update block
 		logic.readNbt(world, spawnerPos, nbt);
     	spawner.markDirty();
-    	BlockState blockstate = world.getBlockState(spawnerPos);
-    	world.updateListeners(spawnerPos, blockstate, blockstate, 3);
+    	world.updateListeners(spawnerPos, blockstate, blockstate, Block.NOTIFY_ALL);
 	}
 	
 	/**

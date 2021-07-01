@@ -5,12 +5,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SpawnerBlock;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
 
@@ -29,23 +32,25 @@ public class PlayerPlaceBlockMixin {
 			method = "place(Lnet/minecraft/item/ItemPlacementContext;Lnet/minecraft/block/BlockState;)Z", 
 			cancellable = true
 	)
-	private void place(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> cir) {
+	private boolean place(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> cir) {
 
 		World world = context.getWorld();
 		
-		if(world.isClient)
-			return;
+		if(!(world instanceof ServerWorld))
+			return true;
 		
 		if(state.getBlock() instanceof SpawnerBlock) {
 			
-			MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity) world.getBlockEntity(context.getBlockPos());
+			BlockPos pos = context.getBlockPos();
+			MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity) world.getBlockEntity(pos);
 			MobSpawnerLogic logic = spawner.getLogic();
 			
 			// Replace the entity inside the spawner with default entity
 			logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
 			spawner.markDirty();
-			
-			world.updateListeners(context.getBlockPos(), state, state, 3);
+			world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
 		}
+		
+		return true;
 	}
 }

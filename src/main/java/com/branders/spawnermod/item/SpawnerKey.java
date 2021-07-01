@@ -57,14 +57,14 @@ public class SpawnerKey extends Item {
 			return ActionResult.FAIL;
 		
 		// Leave if we didn't right click a spawner
-		BlockPos blockpos = context.getBlockPos();
-		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+		BlockPos pos = context.getBlockPos();
+		if(world.getBlockState(pos).getBlock() != Blocks.SPAWNER)
 			return ActionResult.FAIL;
 		
 		// Open GUI
-		MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity)world.getBlockEntity(blockpos);
+		MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity)world.getBlockEntity(pos);
     	MobSpawnerLogic logic = spawner.getLogic();
-    	openSpawnerGui(logic, blockpos);
+    	openSpawnerGui(logic, pos);
     	
 		return super.useOnBlock(context);
 	}
