@@ -6,6 +6,7 @@ import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.item.SpawnerKey;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.entity.LivingEntity;
@@ -81,7 +82,7 @@ public class SyncSpawnerMessage extends NetworkPacket {
 	        	// Update block
 	        	logic.readNbt(world, pos, nbt);
 	        	spawner.markDirty();
-	    		world.updateListeners(pos, blockstate, blockstate, 3);
+	    		world.updateListeners(pos, blockstate, blockstate, Block.NOTIFY_ALL);
 	    		
 	    		// Damage the Spawner Key item.
 	    		ItemStack stack = player.getMainHandStack();
