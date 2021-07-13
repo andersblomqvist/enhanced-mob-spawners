@@ -70,16 +70,16 @@ public class SyncSpawnerMessage
 	    ctx.get().enqueueWork(() -> {
 	    	
 	    	// Get world (server world, isRemote is false)
-	    	World world = ctx.get().getSender().world;
+	    	World world = ctx.get().getSender().level;
 	    	
 	    	if(world != null)
 	    	{
-	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(msg.pos);
-	    		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(msg.pos);
+	    		AbstractSpawner logic = spawner.getSpawner();
 	        	BlockState blockstate = world.getBlockState(msg.pos);
 	        	
 	        	CompoundNBT nbt = new CompoundNBT();
-	        	nbt = logic.write(nbt);
+	        	nbt = logic.save(nbt);
 	        	
 	        	if(msg.requiredPlayerRange == 0)
 	        		nbt.putShort("SpawnRange", nbt.getShort("RequiredPlayerRange"));
@@ -95,9 +95,9 @@ public class SyncSpawnerMessage
 	        	nbt.putShort("MaxSpawnDelay", msg.maxSpawnDelay);
 	        	
 	        	// Update block
-	        	logic.read(nbt);
-	        	spawner.markDirty();
-	        	world.notifyBlockUpdate(msg.pos, blockstate, blockstate, 3);
+	        	logic.load(nbt);
+	        	spawner.setChanged();
+	        	world.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 	    	}
 	    });
 	    

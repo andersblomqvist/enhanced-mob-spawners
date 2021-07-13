@@ -43,7 +43,6 @@ public class SyncSpawnerConfig {
 	
 	public static void handle(SyncSpawnerConfig msg, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
-			System.out.println("Recieved sync message from server. Setting correct values!");
 			// Sync config values
 			SpawnerModConfig.sync(msg.disable_spawner_config,
 					msg.disable_count,

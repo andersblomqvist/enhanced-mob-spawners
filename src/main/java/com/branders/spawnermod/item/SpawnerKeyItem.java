@@ -32,7 +32,7 @@ public class SpawnerKeyItem extends Item
 	}
 	
 	@Override
-	public boolean hasEffect(ItemStack stack) {
+	public boolean isFoil(ItemStack stack) {
 		return true;
 	}
 	
@@ -45,35 +45,35 @@ public class SpawnerKeyItem extends Item
 	 * 	Replacement for PlayerInteractEvent.RightClickBlock in SpawnerEventHandler due to not fired on client side. 
 	 */
 	@Override
-	public ActionResultType onItemUse(ItemUseContext context) {
+	public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
 		// Leave if disabled in config.
 		if(SpawnerModConfig.GENERAL.disable_spawner_config.get())
-			return ActionResultType.FAIL;
+			return ActionResultType.PASS;
 		
-		World world = context.getWorld();
+		World world = context.getLevel();
 		
 		// Leave if we are server
-		if(!world.isRemote)
-			return ActionResultType.FAIL;
+		if(!world.isClientSide)
+			return ActionResultType.PASS;
 		
 		// Leave if we didn't right click a spawner
-		BlockPos blockpos = context.getPos();
+		BlockPos blockpos = context.getClickedPos();
 		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
-			return ActionResultType.FAIL;
+			return ActionResultType.PASS;
 		
 		// Open GUI
-		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(blockpos);
-    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(blockpos);
+    	AbstractSpawner logic = spawner.getSpawner();
     	openSpawnerGui(logic, blockpos);
 		
-		return super.onItemUse(context);
+		return super.onItemUseFirst(stack, context);
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 		if(SpawnerModConfig.GENERAL.disable_spawner_config.get()) {
-			tooltip.add(textComponent.mergeStyle(TextFormatting.RED));
-			super.addInformation(stack, worldIn, tooltip, flagIn);	
+			tooltip.add(textComponent.withStyle(TextFormatting.RED));
+			super.appendHoverText(stack, worldIn, tooltip, flagIn);	
 		}
 	}
 	
@@ -84,6 +84,6 @@ public class SpawnerKeyItem extends Item
     private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
-    	mc.displayGuiScreen(new SpawnerConfigGui(new TranslationTextComponent(""), logic, pos));
+    	mc.setScreen(new SpawnerConfigGui(new TranslationTextComponent(""), logic, pos));
     }
 }

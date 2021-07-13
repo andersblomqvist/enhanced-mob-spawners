@@ -54,7 +54,7 @@ public class SpawnerEventHandler {
     	// Check if a spawner broke
     	if(event.getState().getBlock() == Blocks.SPAWNER) {
     		
-    		ListNBT list = event.getPlayer().getHeldItemMainhand().getEnchantmentTagList();
+    		ListNBT list = event.getPlayer().getMainHandItem().getEnchantmentTags();
     		
     		// Check if we broke the spawner with silk touch and if it's not disabled in config
     		if(checkSilkTouch(list) && !SpawnerModConfig.GENERAL.disable_silk_touch.get()) {
@@ -74,7 +74,7 @@ public class SpawnerEventHandler {
     					event.getPos().getZ(),
     					itemStack
     			);
-    			event.getWorld().addEntity(entityItem);
+    			event.getWorld().addFreshEntity(entityItem);
     		}	
     	}
     }
@@ -93,12 +93,11 @@ public class SpawnerEventHandler {
     	World world = (World) event.getWorld();
     	BlockPos pos = event.getPos();
     	
-    	world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
-    	MobSpawnerTileEntity tileentity = (MobSpawnerTileEntity)world.getTileEntity(pos);
-    	tileentity.getSpawnerBaseLogic().setEntityType(defaultEntityType);
+    	MobSpawnerTileEntity tileentity = (MobSpawnerTileEntity)world.getBlockEntity(pos);
+    	tileentity.getSpawner().setEntityId(defaultEntityType);
     	
-    	tileentity.markDirty();
-    	world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
+    	tileentity.setChanged();
+    	world.sendBlockUpdated(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
     }
     
     /**
@@ -115,12 +114,12 @@ public class SpawnerEventHandler {
     	World world = (World)event.getWorld();
     	BlockPos pos = event.getPos();
     	
-    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(pos);
-		AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+    	MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(pos);
+		AbstractSpawner logic = spawner.getSpawner();
 		CompoundNBT nbt = new CompoundNBT();
 		
 		// Get current spawner config values
-		nbt = logic.write(nbt);
+		nbt = logic.save(nbt);
 		
 		/**
 		 * 	Fixes bug where onBlockPlaced and onNotify both gets called when a
@@ -133,7 +132,7 @@ public class SpawnerEventHandler {
 		 * 	likely not be a cloud.
 		 */
 		CompoundNBT data = nbt.getCompound("SpawnData");
-		Optional<EntityType<?>> optional = EntityType.readEntityType(data);
+		Optional<EntityType<?>> optional = EntityType.by(data);
 		if(optional.isPresent()) { 
 			if(optional.get().equals(EntityType.AREA_EFFECT_CLOUD)) {
 				event.setCanceled(true);
@@ -142,7 +141,7 @@ public class SpawnerEventHandler {
 		}
 		
     	// Check redstone power
-    	if(world.isBlockPowered(pos))
+    	if(world.hasNeighborSignal(pos))
     	{
     		short value = nbt.getShort("RequiredPlayerRange");
     		
@@ -176,10 +175,10 @@ public class SpawnerEventHandler {
     		
     	
     	// Update block
-    	logic.read(nbt);
-    	spawner.markDirty();
+    	logic.load(nbt);
+    	spawner.setChanged();
     	BlockState blockstate = world.getBlockState(pos);
-    	world.notifyBlockUpdate(pos, blockstate, blockstate, 3);
+    	world.sendBlockUpdated(pos, blockstate, blockstate, 3);
     }
     
     /**
@@ -205,10 +204,10 @@ public class SpawnerEventHandler {
 		
 		// Add monster egg to drops
 		event.getDrops().add(new ItemEntity(
-				entity.world, 
-				entity.prevPosX, 
-				entity.prevPosY, 
-				entity.prevPosZ, 
+				entity.level, 
+				entity.getX(), 
+				entity.getY(), 
+				entity.getZ(), 
 				itemStack));
     }
     
@@ -225,7 +224,7 @@ public class SpawnerEventHandler {
     	if(item instanceof BlockItem || 
     			item instanceof SpawnEggItem || 
     			item instanceof SpawnerKeyItem || 
-    			event.getHand() == Hand.OFF_HAND)		
+    			event.getHand() == Hand.OFF_HAND)
     		return;
     	
     	World world = event.getWorld();
@@ -236,7 +235,7 @@ public class SpawnerEventHandler {
 			return;
 		
 		// Leave if server
-		if(!world.isRemote)
+		if(!world.isClientSide || event.getPlayer().isSpectator())
 			return;
 		
 		// Send Network message
@@ -252,13 +251,13 @@ public class SpawnerEventHandler {
      */
     private void dropMonsterEgg(BlockPos pos, World world) {
     	BlockState blockstate = world.getBlockState(pos);
-		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(pos);
-    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(pos);
+    	AbstractSpawner logic = spawner.getSpawner();
     	
     	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
     	// spawner logic write to. We can then access what type of entity id the spawner has inside
     	CompoundNBT nbt = new CompoundNBT();
-    	nbt = logic.write(nbt);
+    	nbt = logic.save(nbt);
     	String entity_string = nbt.get("SpawnData").toString();
     	
     	// Strips the string
@@ -279,9 +278,9 @@ public class SpawnerEventHandler {
 					ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
 		
 		// Get random fly-out position offsets
-		double d0 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
-        double d1 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
-        double d2 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
+		double d0 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
+        double d1 = (double)(world.random.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
+        double d2 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
         
         // Create entity item
         ItemEntity entityItem = new ItemEntity(
@@ -290,15 +289,15 @@ public class SpawnerEventHandler {
         		(double)pos.getY() + d1, 
         		(double)pos.getZ() + d2, 
         		itemStack);
-		entityItem.setDefaultPickupDelay();
+		entityItem.setDefaultPickUpDelay();
 		
 		// Spawn entity item (egg)
-		world.addEntity(entityItem);
+		world.addFreshEntity(entityItem);
 		
 		// Replace the entity inside the spawner with default entity
-		logic.setEntityType(EntityType.AREA_EFFECT_CLOUD);
-		spawner.markDirty();
-		world.notifyBlockUpdate(pos, blockstate, blockstate, 3);
+		logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
+		spawner.setChanged();
+		world.sendBlockUpdated(pos, blockstate, blockstate, 3);
     }
     
     /**
@@ -310,7 +309,7 @@ public class SpawnerEventHandler {
      */
     private boolean checkSilkTouch(ListNBT list) {
     	// Check list string contains silk touch
-		if(list.getString().indexOf("minecraft:silk_touch") != -1)
+		if(list.getAsString().indexOf("minecraft:silk_touch") != -1)
 			return true;
 		else
 			return false;

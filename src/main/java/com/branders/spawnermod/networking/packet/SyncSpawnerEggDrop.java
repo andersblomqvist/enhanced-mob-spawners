@@ -50,7 +50,7 @@ public class SyncSpawnerEggDrop
 	{
 		ctx.get().enqueueWork(() -> {
 			
-			World world = ctx.get().getSender().world;
+			World world = ctx.get().getSender().level;
 			
 			if(world != null)
 			{
@@ -59,13 +59,13 @@ public class SyncSpawnerEggDrop
 		    		return;
 		    	
 				BlockState blockstate = world.getBlockState(msg.pos);
-				MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getTileEntity(msg.pos);
-		    	AbstractSpawner logic = spawner.getSpawnerBaseLogic();
+				MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(msg.pos);
+		    	AbstractSpawner logic = spawner.getSpawner();
 		    	
 		    	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
 		    	// spawner logic write to. We can then access what type of entity id the spawner has inside
 		    	CompoundNBT nbt = new CompoundNBT();
-		    	nbt = logic.write(nbt);
+		    	nbt = logic.save(nbt);
 		    	String entity_string = nbt.get("SpawnData").toString();
 		    	
 		    	// Strips the string
@@ -85,21 +85,21 @@ public class SyncSpawnerEggDrop
 					itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
 				
 				// Get random fly-out position offsets
-				double d0 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
-		        double d1 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
-		        double d2 = (double)(world.rand.nextFloat() * 0.7F) + (double)0.15F;
+				double d0 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
+		        double d1 = (double)(world.random.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
+		        double d2 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
 		        
 		        // Create entity item
 		        ItemEntity entityItem = new ItemEntity(world, (double)msg.pos.getX() + d0, (double)msg.pos.getY() + d1, (double)msg.pos.getZ() + d2, itemStack);
-				entityItem.setDefaultPickupDelay();
+				entityItem.setDefaultPickUpDelay();
 				
 				// Spawn entity item (egg)
-				world.addEntity(entityItem);
+				world.addFreshEntity(entityItem);
 				
 				// Replace the entity inside the spawner with default entity
-				logic.setEntityType(EntityType.AREA_EFFECT_CLOUD);
-				spawner.markDirty();
-				world.notifyBlockUpdate(msg.pos, blockstate, blockstate, 3);
+				logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
+				spawner.setChanged();
+				world.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 			}
 		});
 		

@@ -36,7 +36,7 @@ public class SpawnerMod {
 	public static final String MODID = "spawnermod";
 	
 	public static Item iron_golem_spawn_egg = new SpawnEggItem(
-			EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Properties()).group(ItemGroup.MISC));
+			EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Properties()).tab(ItemGroup.TAB_MISC));
 	
 	/**
 	 * 	Register events and config
@@ -67,7 +67,7 @@ public class SpawnerMod {
 						SpawnerModConfig.GENERAL.disable_count.get(),
 						SpawnerModConfig.GENERAL.disable_speed.get(),
 						SpawnerModConfig.GENERAL.disable_range.get()),
-				player.connection.getNetworkManager(), 
+				player.connection.getConnection(),
 				NetworkDirection.PLAY_TO_CLIENT);
     }
     
@@ -81,9 +81,9 @@ public class SpawnerMod {
     
     public static void registerItems(IForgeRegistry<Item> registry) {
     	// Only register Spawner Key if enabled in config
-		registry.register(new SpawnerKeyItem(new Item.Properties().group(ItemGroup.TOOLS).rarity(Rarity.RARE)).setRegistryName(MODID, "spawner_key"));
+		registry.register(new SpawnerKeyItem(new Item.Properties().tab(ItemGroup.TAB_TOOLS).rarity(Rarity.RARE)).setRegistryName(MODID, "spawner_key"));
     	
     	registry.register(iron_golem_spawn_egg.setRegistryName(MODID, "iron_golem_spawn_egg"));
-    	registry.register(new BlockItem(Blocks.SPAWNER, new Item.Properties().group(ItemGroup.DECORATIONS)).setRegistryName(Blocks.SPAWNER.getRegistryName()));
+    	registry.register(new BlockItem(Blocks.SPAWNER, new Item.Properties().tab(ItemGroup.TAB_DECORATIONS).rarity(Rarity.EPIC)).setRegistryName(Blocks.SPAWNER.getRegistryName()));
     }
 }

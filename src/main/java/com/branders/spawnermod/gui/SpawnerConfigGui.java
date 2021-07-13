@@ -114,7 +114,7 @@ public class SpawnerConfigGui extends Screen {
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
-		nbt = this.logic.write(nbt);
+		nbt = this.logic.save(nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
@@ -321,24 +321,6 @@ public class SpawnerConfigGui extends Screen {
 			this.close();
 		}));
 		
-		/**
-		 * 	Disable buttons from config
-		 */
-		if(SpawnerModConfig.GENERAL.disable_count.get()) {
-			countButton.active = false;
-			countButton.setMessage(new TranslationTextComponent("button.count.disabled"));
-		}
-		
-		if(SpawnerModConfig.GENERAL.disable_speed.get()) {
-			speedButton.active = false;
-			countButton.setMessage(new TranslationTextComponent("button.speed.disabled"));
-		}
-		
-		if(SpawnerModConfig.GENERAL.disable_range.get()) {
-			rangeButton.active = false;
-			countButton.setMessage(new TranslationTextComponent("button.range.disabled"));
-		}
-		
 		if(disabled)
 			toggleButtons(false);
 		else
@@ -356,12 +338,12 @@ public class SpawnerConfigGui extends Screen {
 		renderBackground(matrixStack);
 		
 		// Draw spawner screen texture
-		minecraft.getTextureManager().bindTexture(spawnerConfigTexture);
+		minecraft.getTextureManager().bind(spawnerConfigTexture);
 		blit(matrixStack, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
 		// Render spawner title text
 		int length = textComponent.getString().length() * 2;
-		drawString(matrixStack, minecraft.fontRenderer, textComponent, width / 2 - length - 3, 33, 0xFFD964);
+		drawString(matrixStack, minecraft.font, textComponent, width / 2 - length - 3, 33, 0xFFD964);
 		
 		// Render other stuff as well (buttons)
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -371,7 +353,7 @@ public class SpawnerConfigGui extends Screen {
 	 * 	Close GUI
 	 */
 	private void close() {
-		minecraft.displayGuiScreen((Screen)null);
+		minecraft.setScreen((Screen)null);
 	}
 	
 	/**
@@ -446,8 +428,23 @@ public class SpawnerConfigGui extends Screen {
 	 * 	@param state True/False - On/Off
 	 */
 	private void toggleButtons(boolean state) {
-		countButton.active = state;
-		speedButton.active = state;
-		rangeButton.active = state;
+		
+		if(SpawnerModConfig.GENERAL.disable_count.get()) {
+			countButton.active = false;
+			countButton.setMessage(new TranslationTextComponent("button.count.disabled"));
+		} else
+			countButton.active = state;
+		
+		if(SpawnerModConfig.GENERAL.disable_speed.get()) {
+			speedButton.active = false;
+			speedButton.setMessage(new TranslationTextComponent("button.speed.disabled"));
+		} else
+			speedButton.active = state;
+		
+		if(SpawnerModConfig.GENERAL.disable_range.get()) {
+			rangeButton.active = false;
+			rangeButton.setMessage(new TranslationTextComponent("button.range.disabled"));
+		} else
+			rangeButton.active = state;
 	}
 }
