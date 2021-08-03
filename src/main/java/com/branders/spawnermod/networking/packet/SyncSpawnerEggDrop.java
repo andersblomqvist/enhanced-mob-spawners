@@ -3,20 +3,20 @@ package com.branders.spawnermod.networking.packet;
 import java.util.function.Supplier;
 
 import com.branders.spawnermod.SpawnerMod;
-import com.branders.spawnermod.config.SpawnerModConfig;
+import com.branders.spawnermod.config.ConfigValues;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.spawner.AbstractSpawner;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -34,12 +34,12 @@ public class SyncSpawnerEggDrop
 		this.pos = pos;
 	}
 	
-	public static void encode(SyncSpawnerEggDrop msg, PacketBuffer buf)
+	public static void encode(SyncSpawnerEggDrop msg, FriendlyByteBuf buf)
 	{
 		buf.writeBlockPos(msg.pos);
 	}
 	
-	public static SyncSpawnerEggDrop decode(PacketBuffer buf)
+	public static SyncSpawnerEggDrop decode(FriendlyByteBuf buf)
 	{
 		BlockPos pos = new BlockPos(buf.readBlockPos());
 		
@@ -50,22 +50,22 @@ public class SyncSpawnerEggDrop
 	{
 		ctx.get().enqueueWork(() -> {
 			
-			World world = ctx.get().getSender().level;
+			Level level = ctx.get().getSender().level;
 			
-			if(world != null)
+			if(level != null)
 			{
 		    	// Leave if disabled in config
-		    	if(SpawnerModConfig.GENERAL.disable_egg_removal_from_spawner.get())
+		    	if(ConfigValues.get("disable_egg_removal_from_spawner") == 1)
 		    		return;
 		    	
-				BlockState blockstate = world.getBlockState(msg.pos);
-				MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(msg.pos);
-		    	AbstractSpawner logic = spawner.getSpawner();
+				BlockState blockstate = level.getBlockState(msg.pos);
+				SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(msg.pos);
+		    	BaseSpawner logic = spawner.getSpawner();
 		    	
 		    	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
 		    	// spawner logic write to. We can then access what type of entity id the spawner has inside
-		    	CompoundNBT nbt = new CompoundNBT();
-		    	nbt = logic.save(nbt);
+		    	CompoundTag nbt = new CompoundTag();
+		    	nbt = logic.save(level, msg.pos, nbt);
 		    	String entity_string = nbt.get("SpawnData").toString();
 		    	
 		    	// Strips the string
@@ -85,21 +85,21 @@ public class SyncSpawnerEggDrop
 					itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
 				
 				// Get random fly-out position offsets
-				double d0 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
-		        double d1 = (double)(world.random.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
-		        double d2 = (double)(world.random.nextFloat() * 0.7F) + (double)0.15F;
+				double d0 = (double)(level.random.nextFloat() * 0.7F) + (double)0.15F;
+		        double d1 = (double)(level.random.nextFloat() * 0.7F) + (double)0.06F + 0.6D;
+		        double d2 = (double)(level.random.nextFloat() * 0.7F) + (double)0.15F;
 		        
 		        // Create entity item
-		        ItemEntity entityItem = new ItemEntity(world, (double)msg.pos.getX() + d0, (double)msg.pos.getY() + d1, (double)msg.pos.getZ() + d2, itemStack);
+		        ItemEntity entityItem = new ItemEntity(level, (double)msg.pos.getX() + d0, (double)msg.pos.getY() + d1, (double)msg.pos.getZ() + d2, itemStack);
 				entityItem.setDefaultPickUpDelay();
 				
 				// Spawn entity item (egg)
-				world.addFreshEntity(entityItem);
+				level.addFreshEntity(entityItem);
 				
 				// Replace the entity inside the spawner with default entity
 				logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
 				spawner.setChanged();
-				world.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
+				level.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 			}
 		});
 		

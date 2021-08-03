@@ -2,30 +2,30 @@ package com.branders.spawnermod.item;
 
 import java.util.List;
 
-import com.branders.spawnermod.config.SpawnerModConfig;
+import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.gui.SpawnerConfigGui;
 
-import net.minecraft.block.Blocks;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.spawner.AbstractSpawner;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnerKeyItem extends Item
 {
-	private static final TranslationTextComponent textComponent = 
-			new TranslationTextComponent("tooltip.spawnermod.spawner_key_disabled");
+	private static final TranslatableComponent textComponent = 
+			new TranslatableComponent("tooltip.spawnermod.spawner_key_disabled");
 	
 	public SpawnerKeyItem(Properties properties) {
 		super(properties);
@@ -41,39 +41,36 @@ public class SpawnerKeyItem extends Item
 		return 1;
 	}
 	
-	/**
-	 * 	Replacement for PlayerInteractEvent.RightClickBlock in SpawnerEventHandler due to not fired on client side. 
-	 */
 	@Override
-	public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
+	public InteractionResult useOn(UseOnContext context) {
 		// Leave if disabled in config.
-		if(SpawnerModConfig.GENERAL.disable_spawner_config.get())
-			return ActionResultType.PASS;
+		if(ConfigValues.get("disable_spawner_config") == 1)
+			return InteractionResult.PASS;
 		
-		World world = context.getLevel();
+		Level level = context.getLevel();
 		
 		// Leave if we are server
-		if(!world.isClientSide)
-			return ActionResultType.PASS;
+		if(!level.isClientSide)
+			return InteractionResult.PASS;
 		
 		// Leave if we didn't right click a spawner
 		BlockPos blockpos = context.getClickedPos();
-		if(world.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
-			return ActionResultType.PASS;
+		if(level.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+			return InteractionResult.PASS;
 		
 		// Open GUI
-		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(blockpos);
-    	AbstractSpawner logic = spawner.getSpawner();
+		SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(blockpos);
+    	BaseSpawner logic = spawner.getSpawner();
     	openSpawnerGui(logic, blockpos);
 		
-		return super.onItemUseFirst(stack, context);
+		return super.useOn(context);
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-		if(SpawnerModConfig.GENERAL.disable_spawner_config.get()) {
-			tooltip.add(textComponent.withStyle(TextFormatting.RED));
-			super.appendHoverText(stack, worldIn, tooltip, flagIn);	
+	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
+		if(ConfigValues.get("disable_spawner_config") == 1) {
+			tooltip.add(textComponent.withStyle(ChatFormatting.RED));
+			super.appendHoverText(stack, level, tooltip, flagIn);	
 		}
 	}
 	
@@ -81,9 +78,9 @@ public class SpawnerKeyItem extends Item
      * 	Opens GUI for configuration of the spawner. Only on client
      */
     @OnlyIn(Dist.CLIENT)
-    private void openSpawnerGui(AbstractSpawner logic, BlockPos pos)
+    private void openSpawnerGui(BaseSpawner logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
-    	mc.setScreen(new SpawnerConfigGui(new TranslationTextComponent(""), logic, pos));
+    	mc.setScreen(new SpawnerConfigGui(new TranslatableComponent(""), logic, pos));
     }
 }

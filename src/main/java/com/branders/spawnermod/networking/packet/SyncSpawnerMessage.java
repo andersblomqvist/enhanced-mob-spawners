@@ -2,14 +2,18 @@ package com.branders.spawnermod.networking.packet;
 
 import java.util.function.Supplier;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.MobSpawnerTileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.spawner.AbstractSpawner;
-import net.minecraftforge.fml.network.NetworkEvent;
+import com.branders.spawnermod.item.SpawnerKeyItem;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * 	Network message to handle communication from Client GUI to logical server in order to write
@@ -38,7 +42,7 @@ public class SyncSpawnerMessage
 		this.requiredPlayerRange = requiredPlayerRange;
 	}
 	
-	public static void encode(SyncSpawnerMessage msg, PacketBuffer buf)
+	public static void encode(SyncSpawnerMessage msg, FriendlyByteBuf buf)
 	{
 		buf.writeBlockPos(msg.pos);
 		
@@ -50,7 +54,7 @@ public class SyncSpawnerMessage
 		buf.writeShort(msg.spawnCount);
 	}
 	
-	public static SyncSpawnerMessage decode(PacketBuffer buf)
+	public static SyncSpawnerMessage decode(FriendlyByteBuf buf)
 	{
 		BlockPos pos = new BlockPos(buf.readBlockPos());
 		
@@ -70,16 +74,16 @@ public class SyncSpawnerMessage
 	    ctx.get().enqueueWork(() -> {
 	    	
 	    	// Get world (server world, isRemote is false)
-	    	World world = ctx.get().getSender().level;
+	    	Level level = ctx.get().getSender().level;
 	    	
-	    	if(world != null)
+	    	if(level != null)
 	    	{
-	    		MobSpawnerTileEntity spawner = (MobSpawnerTileEntity)world.getBlockEntity(msg.pos);
-	    		AbstractSpawner logic = spawner.getSpawner();
-	        	BlockState blockstate = world.getBlockState(msg.pos);
+	    		SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(msg.pos);
+	    		BaseSpawner logic = spawner.getSpawner();
+	        	BlockState blockstate = level.getBlockState(msg.pos);
 	        	
-	        	CompoundNBT nbt = new CompoundNBT();
-	        	nbt = logic.save(nbt);
+	        	CompoundTag nbt = new CompoundTag();
+	        	nbt = logic.save(level, msg.pos, nbt);
 	        	
 	        	if(msg.requiredPlayerRange == 0)
 	        		nbt.putShort("SpawnRange", nbt.getShort("RequiredPlayerRange"));
@@ -95,9 +99,16 @@ public class SyncSpawnerMessage
 	        	nbt.putShort("MaxSpawnDelay", msg.maxSpawnDelay);
 	        	
 	        	// Update block
-	        	logic.load(nbt);
+	        	logic.load(level, msg.pos, nbt);
 	        	spawner.setChanged();
-	        	world.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
+	        	level.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
+	        	
+	        	ItemStack stack = ctx.get().getSender().getMainHandItem();
+	        	if(stack.getItem() instanceof SpawnerKeyItem) {
+	        		stack.hurtAndBreak(1, (LivingEntity)ctx.get().getSender(), (player) -> {
+	        			player.broadcastBreakEvent(ctx.get().getSender().getUsedItemHand());
+	        		});
+	        	}
 	    	}
 	    });
 	    

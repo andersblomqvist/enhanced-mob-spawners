@@ -1,21 +1,22 @@
 package com.branders.spawnermod.gui;
 
 import com.branders.spawnermod.SpawnerMod;
-import com.branders.spawnermod.config.SpawnerModConfig;
+import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.spawner.AbstractSpawner;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BaseSpawner;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,16 +31,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SpawnerConfigGui extends Screen {
 	
-	private static final TranslationTextComponent textComponent = 
-			new TranslationTextComponent("gui.spawnermod.spawner_config_screen_title");
+	private static final TranslatableComponent textComponent = 
+			new TranslatableComponent("gui.spawnermod.spawner_config_screen_title");
 	
 	// Used for rendering.
 	private Minecraft minecraft = Minecraft.getInstance();
 	
 	// References to Spawner Logic and NBT Data. Set in constructor
-	private AbstractSpawner logic;
+	private BaseSpawner logic;
 	private BlockPos pos;
-	private CompoundNBT nbt = new CompoundNBT();	
+	private CompoundTag nbt = new CompoundTag();
 	
 	// GUI Texture
 	private ResourceLocation spawnerConfigTexture =new ResourceLocation(
@@ -104,7 +105,7 @@ public class SpawnerConfigGui extends Screen {
 	 * 	current NBT values (used to make GUI remember option states) and send network package to server with
 	 * 	a reference to the spawner block position.
 	 */
-	public SpawnerConfigGui(ITextComponent textComponent, AbstractSpawner logic, BlockPos pos) {
+	public SpawnerConfigGui(Component textComponent, BaseSpawner logic, BlockPos pos) {
 		
 		super(textComponent);
 		
@@ -114,7 +115,7 @@ public class SpawnerConfigGui extends Screen {
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
-		nbt = this.logic.save(nbt);
+		nbt = this.logic.save(null, pos, nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
@@ -152,11 +153,12 @@ public class SpawnerConfigGui extends Screen {
 	 */
 	@Override
 	public void init() {
+		
 		/**
 		 * 	Count button
 		 */
-		addButton(countButton = new Button(
-				width / 2 - 48, 55, 108, 20, new TranslationTextComponent(
+		addRenderableWidget(countButton = new Button(
+				width / 2 - 48, 55, 108, 20, new TranslatableComponent(
 						"button.count." + getButtonText(countOptionValue)), button -> {
 			switch(countOptionValue) {
 				// Low, set to Default
@@ -188,15 +190,15 @@ public class SpawnerConfigGui extends Screen {
 					break;
 			}
 			
-			countButton.setMessage(new TranslationTextComponent("button.count." + getButtonText(countOptionValue)));
+			countButton.setMessage(new TranslatableComponent("button.count." + getButtonText(countOptionValue)));
 		}));
 		
 		
 		/**
 		 * 	Speed button
 		 */
-		addButton(speedButton = new Button(
-				width / 2 - 48, 80, 108, 20, new TranslationTextComponent(
+		addRenderableWidget(speedButton = new Button(
+				width / 2 - 48, 80, 108, 20, new TranslatableComponent(
 						"button.speed." + getButtonText(speedOptionValue)), button -> {
 			switch(speedOptionValue) {
 				// Slow, set to default
@@ -231,14 +233,14 @@ public class SpawnerConfigGui extends Screen {
 					maxSpawnDelay = _maxSpawnDelay.LOW;
 					break;
 			}
-			speedButton.setMessage(new TranslationTextComponent("button.speed." + getButtonText(speedOptionValue)));
+			speedButton.setMessage(new TranslatableComponent("button.speed." + getButtonText(speedOptionValue)));
 		}));
 		
 		/**
 		 * 	Range button
 		 */
-		addButton(rangeButton = new Button(
-				width / 2 - 48, 105, 108, 20, new TranslationTextComponent(
+		addRenderableWidget(rangeButton = new Button(
+				width / 2 - 48, 105, 108, 20, new TranslatableComponent(
 						"button.range." + getButtonText(rangeOptionValue)), button -> {
 			switch(rangeOptionValue) {
 				// Default, set to Far
@@ -266,14 +268,14 @@ public class SpawnerConfigGui extends Screen {
 					break;
 			}
 			
-			rangeButton.setMessage(new TranslationTextComponent("button.range." + getButtonText(rangeOptionValue)));
+			rangeButton.setMessage(new TranslatableComponent("button.range." + getButtonText(rangeOptionValue)));
 		}));
 		
 		/**
 		 * 	Disable button
 		 */
-		addButton(disableButton = new Button(
-				width / 2 - 48, 130, 108, 20, new TranslationTextComponent(
+		addRenderableWidget(disableButton = new Button(
+				width / 2 - 48, 130, 108, 20, new TranslatableComponent(
 						"button.toggle." + getButtonText(disabled)), button -> {
 			if(disabled) {
 				// Set spawner to ON
@@ -301,13 +303,13 @@ public class SpawnerConfigGui extends Screen {
 				requiredPlayerRange = 0;
 			}
 			
-			disableButton.setMessage(new TranslationTextComponent("button.toggle." + getButtonText(disabled)));
+			disableButton.setMessage(new TranslatableComponent("button.toggle." + getButtonText(disabled)));
 		}));
 		
 		/**
 		 * 	Save button - configures spawner data
 		 */
-		addButton(new Button(width / 2 - 89, 180 + 10, 178, 20, new TranslationTextComponent("button.save"), button -> 
+		addRenderableWidget(new Button(width / 2 - 89, 180 + 10, 178, 20, new TranslatableComponent("button.save"), button -> 
 		{
 			configureSpawner();
 			this.close();
@@ -316,7 +318,7 @@ public class SpawnerConfigGui extends Screen {
 		/**
 		 * 	Cancel button
 		 */
-		addButton(new Button(width / 2 - 89, 180 + 35, 178, 20, new TranslationTextComponent("button.cancel"), button -> 
+		addRenderableWidget(new Button(width / 2 - 89, 180 + 35, 178, 20, new TranslatableComponent("button.cancel"), button -> 
 		{
 			this.close();
 		}));
@@ -331,14 +333,15 @@ public class SpawnerConfigGui extends Screen {
 	 * 	Render GUI Texture
 	 */
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		// Draw black transparent background (just like when pressing escape)
 		renderBackground(matrixStack);
 		
 		// Draw spawner screen texture
-		minecraft.getTextureManager().bind(spawnerConfigTexture);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, spawnerConfigTexture);
 		blit(matrixStack, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
 		// Render spawner title text
@@ -429,21 +432,21 @@ public class SpawnerConfigGui extends Screen {
 	 */
 	private void toggleButtons(boolean state) {
 		
-		if(SpawnerModConfig.GENERAL.disable_count.get()) {
+		if(ConfigValues.get("disable_count") != 0) {
 			countButton.active = false;
-			countButton.setMessage(new TranslationTextComponent("button.count.disabled"));
+			countButton.setMessage(new TranslatableComponent("button.count.disabled"));
 		} else
 			countButton.active = state;
 		
-		if(SpawnerModConfig.GENERAL.disable_speed.get()) {
+		if(ConfigValues.get("disable_speed") != 0) {
 			speedButton.active = false;
-			speedButton.setMessage(new TranslationTextComponent("button.speed.disabled"));
+			speedButton.setMessage(new TranslatableComponent("button.speed.disabled"));
 		} else
 			speedButton.active = state;
 		
-		if(SpawnerModConfig.GENERAL.disable_range.get()) {
+		if(ConfigValues.get("disable_range") != 0) {
 			rangeButton.active = false;
-			rangeButton.setMessage(new TranslationTextComponent("button.range.disabled"));
+			rangeButton.setMessage(new TranslatableComponent("button.range.disabled"));
 		} else
 			rangeButton.active = state;
 	}

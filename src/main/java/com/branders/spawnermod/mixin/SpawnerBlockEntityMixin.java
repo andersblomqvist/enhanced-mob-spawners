@@ -1,13 +1,5 @@
 package com.branders.spawnermod.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.MobSpawnerTileEntity;
 
 /**
  * 	This mixin fixes the bug where the egg inside the spawner would go back to previous entity if the 
@@ -23,9 +15,14 @@ import net.minecraft.tileentity.MobSpawnerTileEntity;
  * 	
  * 	@author Anders <Branders> Blomqvist
  */
-@Mixin(MobSpawnerTileEntity.class)
+// @Mixin(SpawnerBlockEntity.class)
 public class SpawnerBlockEntityMixin {
 
+	// !!!!!!!!!!!!!!!!!!!!!!!!
+	// MIXINS NOT AVAILABLE YET
+	// !!!!!!!!!!!!!!!!!!!!!!!!
+	
+	/* 
 	@Inject(at = @At(value = "TAIL"), method = "getUpdateTag()Lnet/minecraft/nbt/CompoundNBT;")
 	public CompoundNBT getUpdateTag(CallbackInfoReturnable<CompoundNBT> info) {
 		CompoundNBT nbt = ((MobSpawnerTileEntity)(Object)this).save(new CompoundNBT());
@@ -39,4 +36,5 @@ public class SpawnerBlockEntityMixin {
 		}
 		return nbt;
 	}
+	*/
 }
