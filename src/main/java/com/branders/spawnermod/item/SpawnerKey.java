@@ -72,6 +72,6 @@ public class SpawnerKey extends Item {
 	@Environment(EnvType.CLIENT)
 	private void openSpawnerGui(MobSpawnerLogic logic, BlockPos pos) {
 		MinecraftClient mc = MinecraftClient.getInstance();
-		mc.openScreen(new SpawnerConfigGui(new TranslatableText(""), logic, pos));
+		mc.setScreen(new SpawnerConfigGui(new TranslatableText(""), logic, pos));
 	}
 }
