@@ -365,7 +365,7 @@ public class SpawnerConfigGui extends Screen {
 	 * 	Close GUI
 	 */
 	private void close() {
-		client.openScreen((Screen)null);
+		client.setScreen((Screen)null);
 	}
 	
 	/**
