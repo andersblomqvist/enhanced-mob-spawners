@@ -182,7 +182,14 @@ public class SpawnerEventHandler {
      * 	Enables mobs to have a small chance to drop an egg
      */
     @SubscribeEvent
-    public void onMobDrop(LivingDropsEvent event) {	
+    public void onMobDrop(LivingDropsEvent event) {
+    	
+    	boolean causedByPlayer = event.getSource().getEntity() instanceof Player ? true : false;
+    	
+		// Leave if eggs should only drop when killed by a player
+		if(ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
+			return;
+    	
     	if(random.nextFloat() > ConfigValues.get("monster_egg_drop_chance") / 100f)
     		return;
     	
@@ -206,12 +213,11 @@ public class SpawnerEventHandler {
 		// Add monster egg to drops
 		event.getDrops().add(new ItemEntity(
 				entity.level, 
-				entity.getX(), 
-				entity.getY(), 
-				entity.getZ(), 
+				entity.getX(),
+				entity.getY(),
+				entity.getZ(),
 				itemStack));
     }
-    
     
     /**
      * 	Event when player interacts with block.
