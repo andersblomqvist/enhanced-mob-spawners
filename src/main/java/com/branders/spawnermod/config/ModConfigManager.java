@@ -16,8 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.minecraft.client.Minecraft;
-
 /**
  * 	Simple config manager using a <modid>.json file. Init the config by calling initConfig() with
  * 	mod id as parameter.
@@ -51,13 +49,12 @@ public class ModConfigManager {
 	 * 	Initialize the mod config. Try find an existing config file. If it exists we set values from
 	 * 	file. Otherwise we create a new config file with default values.
 	 */
-	@SuppressWarnings("resource")
-	public static void initConfig(String modid) {
+	public static void initConfig(String modid, File absoluteFile) {
 		
 		// Config values will be overwritten if a config file exists.
 		ConfigValues.setDefaultConfigValues();
 		
-		file = new File(Minecraft.getInstance().gameDirectory.getAbsoluteFile(), "/config/" + modid + ".json");
+		file = new File(absoluteFile, "/config/" + modid + ".json");
 		
 		if(!file.exists()) {
 			// No config file found. Create a new default config

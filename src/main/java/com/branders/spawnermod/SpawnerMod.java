@@ -10,6 +10,7 @@ import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerConfig;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
@@ -23,7 +24,10 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
@@ -45,16 +49,27 @@ public class SpawnerMod {
 	 * 	Register events and config
 	 */
     public SpawnerMod() {
-    	// ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SpawnerModConfig.SPEC);
-    	ModConfigManager.initConfig(MODID);
     	
     	// Register new network packet handler used to manage data from client GUI to server
     	SpawnerModPacketHandler.register();
+    	
+    	FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientStarting);
     	
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
     	MinecraftForge.EVENT_BUS.register(this);
 	}
 	
+    @SuppressWarnings("resource")
+	@SubscribeEvent
+    public void onClientStarting(FMLClientSetupEvent event) {
+    	ModConfigManager.initConfig(MODID, Minecraft.getInstance().gameDirectory.getAbsoluteFile());
+    }
+    
+    @SubscribeEvent
+    public void onServerStarting(FMLServerStartingEvent event) {
+    	ModConfigManager.initConfig(MODID, event.getServer().getServerDirectory().getAbsoluteFile());
+    }
+    
     /**
      * 	Sync client config with server config
      * 
