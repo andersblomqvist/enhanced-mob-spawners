@@ -20,11 +20,13 @@ public class UpdateNeighborMixin {
 			method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;"
 					+ "Lnet/minecraft/block/Block;"
 					+ "Lnet/minecraft/util/math/BlockPos;)V",
-			cancellable = true
-	)
+			cancellable = true)
 	private void updateNeighbor(BlockPos pos, Block sourceBlock, BlockPos neighborPos, CallbackInfo ci) {
 		World world = (World)(Object)this;
+		
 		if(world.getBlockState(neighborPos).getBlock() instanceof SpawnerBlock)
 			EventHandler.updateNeighbor(neighborPos, world);
+		else if(world.getBlockState(pos).getBlock() instanceof SpawnerBlock)
+			EventHandler.updateNeighbor(pos, world);
 	}
 }

@@ -35,6 +35,10 @@ public class MobEntityDropsMixin {
 	)
 	private void dropLoot(DamageSource source, boolean causedByPlayer, CallbackInfo ci) {
 		
+		// Leave if eggs should only drop when killed by a player
+		if(ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
+			return;
+		
 		Random random = new Random();
 		
 		if(random.nextFloat() > ConfigValues.get("monster_egg_drop_chance") / 100f)

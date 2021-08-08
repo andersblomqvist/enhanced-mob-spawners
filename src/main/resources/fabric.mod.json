@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "spawnermod",
-  "version": "1.1.1",
+  "version": "1.1.2",
 
   "name": "Enhanced Mob Spawners",
   "description": "More features to spawners. For example change range to 128!",
