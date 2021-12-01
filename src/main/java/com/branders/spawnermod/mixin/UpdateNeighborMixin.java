@@ -24,7 +24,6 @@ public class UpdateNeighborMixin {
 			cancellable = true)
 	private void neighborChanged(BlockPos pos, Block sourceBlock, BlockPos neighborPos, CallbackInfo ci) {
 		Level world = (Level)(Object)this;
-		SpawnerMod.LOGGER.info("NEIGHBOR CHANGED MIXIN");
 		if(world.getBlockState(neighborPos).getBlock() instanceof SpawnerBlock)
 			SpawnerEventHandler.updateNeighbor(neighborPos, world);
 		else if(world.getBlockState(pos).getBlock() instanceof SpawnerBlock)
