@@ -47,6 +47,8 @@ public class SpawnerConfigGui extends Screen {
 			SpawnerMod.MODID, "/textures/gui/spawner_config_screen.png");
 	private int imageWidth = 178;
 	private int imageHeight = 177;
+	private ResourceLocation spawnsIconTexture = new ResourceLocation(
+			SpawnerMod.MODID, "textures/gui/spawner_config_screen_icon_spawns.png");
 	
 	// Buttons for controlling Spawner data
 	private Button countButton = null;
@@ -97,8 +99,10 @@ public class SpawnerConfigGui extends Screen {
 	private short requiredPlayerRange;
 	private short spawnRange;
 	private boolean disabled;
+	private short spawns;
 	
 	private boolean cachedDisabled;
+	private boolean limitedSpawns;
 	
 	/**
 	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
@@ -145,6 +149,18 @@ public class SpawnerConfigGui extends Screen {
     	countOptionValue = loadOptionState(spawnCount, _spawnCount);
     	speedOptionValue = loadOptionState(minSpawnDelay, _minSpawnDelay);
     	rangeOptionValue = loadOptionState(requiredPlayerRange, _requiredPlayerRange);
+    	
+    	if(ConfigValues.get("limited_spawns_enabled") != 0) {
+    		limitedSpawns = true;
+    		if(nbt.contains("spawns")) {
+    			spawns = nbt.getShort("spawns");
+    			if(ConfigValues.get("limited_spawns_amount") - spawns == 0) {
+    				// Spawner has ran out of spawns. Disable.
+    				disabled = true;
+    			}
+    		}
+    	} else
+    		limitedSpawns = false;
 	}
 	
 	
@@ -347,6 +363,13 @@ public class SpawnerConfigGui extends Screen {
 		// Render spawner title text
 		int length = textComponent.getString().length() * 2;
 		drawString(matrixStack, minecraft.font, textComponent, width / 2 - length - 3, 33, 0xFFD964);
+		
+		if(limitedSpawns) {
+			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			RenderSystem.setShaderTexture(0, spawnsIconTexture);
+			blit(matrixStack, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
+			drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
+		}
 		
 		// Render other stuff as well (buttons)
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
