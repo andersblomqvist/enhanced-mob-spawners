@@ -2,10 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.branders.spawnermod.mixin",
-  "refmap": "spawnermod.refmap.json",
+  "refmap": "refmap.spawnermod.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-  	"SpawnerBlockEntityMixin"
+  	"SpawnerBlockEntityMixin",
+	"UpdateNeighborMixin",
+	"LimitedSpawnsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

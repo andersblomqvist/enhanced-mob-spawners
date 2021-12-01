@@ -1,3 +1,7 @@
+// EMS build.gradle
+// Forge 1.17.1-37.1.0
+// Using Mixins
+
 buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
@@ -7,14 +11,16 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        // classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        // MixinGradle:
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-// apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+// MixinGradle:
+apply plugin: 'org.spongepowered.mixin'
 
 version = "${mod_version}"
 group = 'com.branders.' + "${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -25,9 +31,14 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
-// mixin {
-//     add sourceSets.main, "spawnermod.refmap.json"
-// }
+mixin {
+	// MixinGradle Settings
+    add sourceSets.main, 'mixins.spawnermod.refmap.json'
+    config 'mixins.spawnermod.json'
+	
+	debug.verbose = true
+	debug.export = true
+}
 
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -140,6 +151,9 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:' + "${forge_version}"
 
+	// Apply Mixin AP
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+	
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency

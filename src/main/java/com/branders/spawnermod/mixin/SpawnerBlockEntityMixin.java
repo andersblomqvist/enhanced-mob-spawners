@@ -1,5 +1,13 @@
 package com.branders.spawnermod.mixin;
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 
 /**
  * 	This mixin fixes the bug where the egg inside the spawner would go back to previous entity if the 
@@ -15,18 +23,13 @@ package com.branders.spawnermod.mixin;
  * 	
  * 	@author Anders <Branders> Blomqvist
  */
-// @Mixin(SpawnerBlockEntity.class)
+@Mixin(SpawnerBlockEntity.class)
 public class SpawnerBlockEntityMixin {
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!
-	// MIXINS NOT AVAILABLE YET
-	// !!!!!!!!!!!!!!!!!!!!!!!!
 	
-	/* 
-	@Inject(at = @At(value = "TAIL"), method = "getUpdateTag()Lnet/minecraft/nbt/CompoundNBT;")
-	public CompoundNBT getUpdateTag(CallbackInfoReturnable<CompoundNBT> info) {
-		CompoundNBT nbt = ((MobSpawnerTileEntity)(Object)this).save(new CompoundNBT());
-		ListNBT list = nbt.getList("SpawnPotentials", 10);
+	@Inject(at = @At(value = "TAIL"), method = "getUpdateTag()Lnet/minecraft/nbt/CompoundTag;")
+	public CompoundTag getUpdateTag(CallbackInfoReturnable<CompoundTag> info) {
+		CompoundTag nbt = ((SpawnerBlockEntity)(Object)this).save(new CompoundTag());
+		ListTag list = nbt.getList("SpawnPotentials", 10);
 		String e1 = list.getCompound(0).getCompound("Entity").getString("id");
 		String e2 = nbt.getCompound("SpawnData").getString("id");
 		
@@ -36,5 +39,4 @@ public class SpawnerBlockEntityMixin {
 		}
 		return nbt;
 	}
-	*/
 }
