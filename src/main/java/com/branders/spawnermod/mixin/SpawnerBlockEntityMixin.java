@@ -28,7 +28,7 @@ public class SpawnerBlockEntityMixin {
 
 	@Inject(at = @At(value = "TAIL"), method = "toInitialChunkDataNbt()Lnet/minecraft/nbt/NbtCompound;")
 	private NbtCompound toInitialChunkDataNbt(CallbackInfoReturnable<NbtCompound> info) {
-		NbtCompound nbt = ((MobSpawnerBlockEntity)(Object)this).writeNbt(new NbtCompound());
+		NbtCompound nbt = ((MobSpawnerBlockEntity)(Object)this).createNbt();
 		NbtList list = nbt.getList("SpawnPotentials", 10);
 		String e1 = list.getCompound(0).getCompound("Entity").getString("id");
 		String e2 = nbt.getCompound("SpawnData").getString("id");

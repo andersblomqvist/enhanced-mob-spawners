@@ -22,7 +22,7 @@ import net.minecraft.world.WorldEvents;
  * 	@author Anders <Branders> Blomqvist 
  */
 @Mixin(MobSpawnerLogic.class)
-public class SpawnerLogicMixin {
+public class LimitedSpawnsMixin {
 	
 	private short spawns = 0;
 	
@@ -37,7 +37,7 @@ public class SpawnerLogicMixin {
 		
 		// Don't count "empty" entities.
 		NbtCompound nbt = new NbtCompound(); 
-    	nbt = ((MobSpawnerLogic)(Object)this).writeNbt(world, pos, nbt);
+    	nbt = ((MobSpawnerLogic)(Object)this).writeNbt(nbt);
     	String entity_string = nbt.get("SpawnData").toString();
     	entity_string = entity_string.substring(entity_string.indexOf("\"") + 1);
     	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
@@ -63,7 +63,7 @@ public class SpawnerLogicMixin {
         if (spawns >= ConfigValues.get("limited_spawns_amount")) {
         	// Disable the spawner AND remove egg.
         	NbtCompound nbt = new NbtCompound(); 
-        	nbt = ((MobSpawnerLogic)(Object)this).writeNbt(world, pos, nbt);
+        	nbt = ((MobSpawnerLogic)(Object)this).writeNbt(nbt);
         	nbt.putShort("RequiredPlayerRange", (short) 0);
         	((MobSpawnerLogic)(Object)this).readNbt(world, pos, nbt);
         	((MobSpawnerLogic)(Object)this).setEntityId(EntityType.AREA_EFFECT_CLOUD);
@@ -82,7 +82,7 @@ public class SpawnerLogicMixin {
 	}
 	
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/nbt/NbtCompound;putShort(Ljava/lang/String;S)V"), method = "writeNbt")
-	private void writeNbt(World world, BlockPos pos, NbtCompound nbt, CallbackInfoReturnable<NbtCompound> info) {
+	private void writeNbt(NbtCompound nbt, CallbackInfoReturnable<NbtCompound> info) {
 		
 		if(ConfigValues.get("limited_spawns_enabled") == 0)
 			return;

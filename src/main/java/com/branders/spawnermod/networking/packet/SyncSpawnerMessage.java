@@ -64,7 +64,7 @@ public class SyncSpawnerMessage extends NetworkPacket {
 	        	
 	        	NbtCompound nbt = new NbtCompound();
 	        	
-	        	nbt = logic.writeNbt(world, pos, nbt);
+	        	nbt = logic.writeNbt(nbt);
 	        	
 	        	if(requiredPlayerRange == 0)
 	        		nbt.putShort("SpawnRange", nbt.getShort("RequiredPlayerRange"));

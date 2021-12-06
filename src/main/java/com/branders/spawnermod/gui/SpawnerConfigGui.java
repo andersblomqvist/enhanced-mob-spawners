@@ -7,7 +7,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
@@ -114,7 +113,7 @@ public class SpawnerConfigGui extends Screen {
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
-		nbt = this.logic.writeNbt(MinecraftClient.getInstance().world, pos, nbt);
+		nbt = this.logic.writeNbt(nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");

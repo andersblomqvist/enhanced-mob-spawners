@@ -125,7 +125,7 @@ public class EventHandler {
     	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
     	// spawner logic write to. We can then access what type of entity id the spawner has inside
     	NbtCompound nbt = new NbtCompound();
-    	nbt = logic.writeNbt(world, pos, nbt);
+    	nbt = logic.writeNbt(nbt);
     	String entity_string = nbt.get("SpawnData").toString();
     	
     	// Strips the string
@@ -182,7 +182,7 @@ public class EventHandler {
     	MobSpawnerLogic logic = spawner.getLogic();
 		NbtCompound nbt = new NbtCompound();
     	
-		nbt = logic.writeNbt(world, spawnerPos, nbt);
+		nbt = logic.writeNbt(nbt);
 		
 		if(world.isReceivingRedstonePower(spawnerPos)) {
 			short value = nbt.getShort("RequiredPlayerRange");
