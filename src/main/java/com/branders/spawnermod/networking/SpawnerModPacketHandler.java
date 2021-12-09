@@ -6,8 +6,8 @@ import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.NetworkRegistry;
-import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 /**
  * 	Register network messages

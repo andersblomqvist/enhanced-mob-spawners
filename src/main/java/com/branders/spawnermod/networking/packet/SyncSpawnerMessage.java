@@ -11,9 +11,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 /**
  * 	Network message to handle communication from Client GUI to logical server in order to write
@@ -21,8 +22,7 @@ import net.minecraftforge.fmllegacy.network.NetworkEvent;
  * 
  * 	@author Anders <Branders> Blomqvist
  */
-public class SyncSpawnerMessage 
-{
+public class SyncSpawnerMessage {
 	private final BlockPos pos;
 	private short delay;
 	private short minSpawnDelay;
@@ -31,8 +31,7 @@ public class SyncSpawnerMessage
 	private short maxNearbyEntities;
 	private short requiredPlayerRange;
 	
-	public SyncSpawnerMessage(BlockPos pos, short delay, short spawnCount, short requiredPlayerRange, short maxNearbyEntities, short minSpawnDelay, short maxSpawnDelay)
-	{
+	public SyncSpawnerMessage(BlockPos pos, short delay, short spawnCount, short requiredPlayerRange, short maxNearbyEntities, short minSpawnDelay, short maxSpawnDelay) {
 		this.pos = pos;
 		this.delay = delay;
 		this.minSpawnDelay = minSpawnDelay;
@@ -42,8 +41,7 @@ public class SyncSpawnerMessage
 		this.requiredPlayerRange = requiredPlayerRange;
 	}
 	
-	public static void encode(SyncSpawnerMessage msg, FriendlyByteBuf buf)
-	{
+	public static void encode(SyncSpawnerMessage msg, FriendlyByteBuf buf) {
 		buf.writeBlockPos(msg.pos);
 		
 		buf.writeShort(msg.delay);
@@ -54,8 +52,7 @@ public class SyncSpawnerMessage
 		buf.writeShort(msg.spawnCount);
 	}
 	
-	public static SyncSpawnerMessage decode(FriendlyByteBuf buf)
-	{
+	public static SyncSpawnerMessage decode(FriendlyByteBuf buf) {
 		BlockPos pos = new BlockPos(buf.readBlockPos());
 		
 		short delay = buf.readShort();
@@ -83,7 +80,7 @@ public class SyncSpawnerMessage
 	        	BlockState blockstate = level.getBlockState(msg.pos);
 	        	
 	        	CompoundTag nbt = new CompoundTag();
-	        	nbt = logic.save(level, msg.pos, nbt);
+	        	nbt = logic.save(nbt);
 	        	
 	        	if(msg.requiredPlayerRange == 0)
 	        		nbt.putShort("SpawnRange", nbt.getShort("RequiredPlayerRange"));
@@ -108,6 +105,7 @@ public class SyncSpawnerMessage
 	        		stack.hurtAndBreak(1, (LivingEntity)ctx.get().getSender(), (player) -> {
 	        			player.broadcastBreakEvent(ctx.get().getSender().getUsedItemHand());
 	        		});
+	        		level.levelEvent(LevelEvent.PARTICLES_WAX_OFF, msg.pos, 0);
 	        	}
 	    	}
 	    });

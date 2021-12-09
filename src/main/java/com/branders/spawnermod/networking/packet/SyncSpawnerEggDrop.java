@@ -16,7 +16,7 @@ import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -29,31 +29,26 @@ public class SyncSpawnerEggDrop
 {
 	private final BlockPos pos;
 	
-	public SyncSpawnerEggDrop(BlockPos pos)
-	{
+	public SyncSpawnerEggDrop(BlockPos pos) {
 		this.pos = pos;
 	}
 	
-	public static void encode(SyncSpawnerEggDrop msg, FriendlyByteBuf buf)
-	{
+	public static void encode(SyncSpawnerEggDrop msg, FriendlyByteBuf buf) {
 		buf.writeBlockPos(msg.pos);
 	}
 	
-	public static SyncSpawnerEggDrop decode(FriendlyByteBuf buf)
-	{
+	public static SyncSpawnerEggDrop decode(FriendlyByteBuf buf) {
 		BlockPos pos = new BlockPos(buf.readBlockPos());
 		
 		return new SyncSpawnerEggDrop(pos);
 	}
 	
-	public static void handle(SyncSpawnerEggDrop msg, Supplier<NetworkEvent.Context> ctx)
-	{
+	public static void handle(SyncSpawnerEggDrop msg, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			
 			Level level = ctx.get().getSender().level;
 			
-			if(level != null)
-			{
+			if(level != null) {
 		    	// Leave if disabled in config
 		    	if(ConfigValues.get("disable_egg_removal_from_spawner") == 1)
 		    		return;
@@ -65,7 +60,7 @@ public class SyncSpawnerEggDrop
 		    	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
 		    	// spawner logic write to. We can then access what type of entity id the spawner has inside
 		    	CompoundTag nbt = new CompoundTag();
-		    	nbt = logic.save(level, msg.pos, nbt);
+		    	nbt = logic.save(nbt);
 		    	String entity_string = nbt.get("SpawnData").toString();
 		    	
 		    	// Strips the string

@@ -1,45 +1,42 @@
 // EMS build.gradle
-// Forge 1.17.1-37.1.0
-// Using Mixins
+// Forge 1.18-38.0.14
 
 buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
-        // maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        // MixinGradle:
-        classpath 'org.spongepowered:mixingradle:0.7.+'
+        // classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+
 // MixinGradle:
-apply plugin: 'org.spongepowered.mixin'
+// apply plugin: 'org.spongepowered.mixin'
 
 version = "${mod_version}"
 group = 'com.branders.' + "${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${modid}"
 
-// Mojang ships Java 16 to end users in 1.17+ instead of Java 8 in 1.16 or lower, so your mod should target Java 16.
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// mixin {
+	// MixinGradle Settings
+    // add sourceSets.main, 'mixins.spawnermod.refmap.json'
+    // config 'mixins.spawnermod.json'
+	
+	// debug.verbose = true
+	// debug.export = true
+// }
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-
-mixin {
-	// MixinGradle Settings
-    add sourceSets.main, 'mixins.spawnermod.refmap.json'
-    config 'mixins.spawnermod.json'
-	
-	debug.verbose = true
-	debug.export = true
-}
-
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
     // Channel:   Version:
@@ -52,7 +49,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -61,7 +58,6 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            // arg "-mixin.config=spawnermod.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -84,7 +80,6 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            // arg "-mixin.config=spawnermod.mixins.json"
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -152,8 +147,8 @@ dependencies {
     minecraft 'net.minecraftforge:forge:' + "${forge_version}"
 
 	// Apply Mixin AP
-    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
-	
+    // annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
@@ -173,11 +168,11 @@ jar {
         attributes([
                 "Specification-Title"     : "${modid}",
                 "Specification-Vendor"    : "examplemodsareus",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Specification-Version"   : "${mod_version}",
                 "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${mod_version}",
+                "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "examplemodsareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }

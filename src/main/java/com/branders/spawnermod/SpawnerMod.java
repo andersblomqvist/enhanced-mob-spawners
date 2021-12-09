@@ -22,12 +22,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
@@ -42,6 +42,7 @@ public class SpawnerMod {
 	public static final String MODID = "spawnermod";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	
+	@SuppressWarnings("deprecation")
 	public static Item iron_golem_spawn_egg = new SpawnEggItem(
 			EntityType.IRON_GOLEM, 15198183, 9794134, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC));
 	
@@ -53,7 +54,8 @@ public class SpawnerMod {
     	// Register new network packet handler used to manage data from client GUI to server
     	SpawnerModPacketHandler.register();
     	
-    	FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientStarting);
+    	// FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientStarting);
+    	// FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onServerStarting);
     	
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
     	MinecraftForge.EVENT_BUS.register(this);
@@ -66,7 +68,7 @@ public class SpawnerMod {
     }
     
     @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
+    public void onServerStarting(ServerStartingEvent event) {
     	ModConfigManager.initConfig(MODID, event.getServer().getServerDirectory().getAbsoluteFile());
     }
     

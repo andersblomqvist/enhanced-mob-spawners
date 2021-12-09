@@ -119,7 +119,7 @@ public class SpawnerConfigGui extends Screen {
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
-		nbt = this.logic.save(null, pos, nbt);
+		nbt = this.logic.save(nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
@@ -368,7 +368,8 @@ public class SpawnerConfigGui extends Screen {
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, spawnsIconTexture);
 			blit(matrixStack, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
-			drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
+			// drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
+			drawString(matrixStack, minecraft.font, "not available yet", width / 2 + 114, 27, 0xFFFFFF);
 		}
 		
 		// Render other stuff as well (buttons)

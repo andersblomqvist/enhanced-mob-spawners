@@ -119,7 +119,7 @@ public class SpawnerEventHandler {
 		CompoundTag nbt = new CompoundTag();
 		
 		// Get current spawner config values
-		nbt = logic.save(level, pos, nbt);
+		nbt = logic.save(nbt);
 		
 		/**
 		 * 	Fixes bug where onBlockPlaced and onNotify both gets called when a
@@ -264,7 +264,7 @@ public class SpawnerEventHandler {
     	// Get entity ResourceLocation string from spawner by creating a empty compound which we make our 
     	// spawner logic write to. We can then access what type of entity id the spawner has inside
     	CompoundTag nbt = new CompoundTag();
-    	nbt = logic.save(level, pos, nbt);
+    	nbt = logic.save(nbt);
     	String entity_string = nbt.get("SpawnData").toString();
     	
     	// Strips the string
@@ -321,57 +321,4 @@ public class SpawnerEventHandler {
 		else
 			return false;
     }
-
-    /**
-     * 	Called from Mixin after block update to check for redstone.
-     * 
-     * 	@param pos Spawner block pos
-     * 	@param world
-     */
-	public static void updateNeighbor(BlockPos pos, Level level) {
-		SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(pos);
-		BaseSpawner logic = spawner.getSpawner();
-		CompoundTag nbt = new CompoundTag();
-		
-		// Get current spawner config values
-		nbt = logic.save(level, pos, nbt);
-		
-		// Check redstone power
-    	if(level.hasNeighborSignal(pos)) {
-    		short value = nbt.getShort("RequiredPlayerRange");
-    		
-    		// If spawner got disabled via GUI and then we toggle off by redstone
-    		// we don't need to do this.
-    		if(nbt.getShort("SpawnRange") > 4)
-    			return;
-    		
-    		// Read current range and save it temporary in SpawnRange field
-    		nbt.putShort("SpawnRange", value);
-    		
-    		// Turn off spawner
-    		nbt.putShort("RequiredPlayerRange", (short) 0);
-    	}
-    		
-    	else {
-    		// Read what the previus range was (before this spawner was set to range = 0)
-    		short pr = nbt.getShort("SpawnRange");
-    		
-    		// If spawner was activated via GUI before, then we dont need to do this
-    		if(pr <= 4)
-    			return;
-    		
-    		// Set the range backt to what it was
-    		nbt.putShort("RequiredPlayerRange", pr);
-    		
-    		// Set SpawnRange back to default=4
-    		nbt.putShort("SpawnRange", (short) 4);
-    	}
-    		
-    	
-    	// Update block
-    	logic.load(level, pos, nbt);
-    	spawner.setChanged();
-    	BlockState blockstate = level.getBlockState(pos);
-    	level.sendBlockUpdated(pos, blockstate, blockstate, 3);
-	}
 }

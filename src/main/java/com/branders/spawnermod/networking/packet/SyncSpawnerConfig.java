@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import com.branders.spawnermod.config.ConfigValues;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 /**
  * 	Config values needs to be synced from server to client
