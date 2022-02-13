@@ -1,0 +1,32 @@
+{
+	"item.spawnermod.spawner_key": "Chiave del generatore",
+	"item.spawnermod.iron_golem_spawn_egg": "Uovo generatore di golem di ferro",
+	
+	"button.count.default": "Conteggio: predefinito",
+	"button.count.low": "Conteggio: basso",
+	"button.count.high": "Conteggio: alto",
+	"button.count.very_high": "Conteggio: molto alto",
+	"button.count.disabled": "Conteggio disabilitato",
+	
+	"button.speed.default": "Velocità: predefinita",
+	"button.speed.low": "Velocità: lenta",
+	"button.speed.high": "Velocità: alta",
+	"button.speed.very_high": "Velocità: molto alta",
+	"button.speed.disabled": "Velocità disabilitata",
+	
+	"button.range.default": "Raggio: lontano 32",
+	"button.range.low": "Raggio: predefinito 16",
+	"button.range.high": "Raggio: molto lontano 64",
+	"button.range.very_high": "Raggio: estremo 128",
+	"button.range.disabled": "Raggio disabilitato",
+	
+	"button.toggle.enabled": "Generatore: attivato",
+	"button.toggle.disabled": "Generatore: disattivato",
+	
+	"button.save": "Salva",
+	"button.cancel": "Annulla",
+	
+	"tooltip.spawnermod.spawner_key_disabled": "La chiave del generatore è disabilitata",
+	
+	"gui.spawnermod.spawner_config_screen_title": "Configurazione generatore"
+}
