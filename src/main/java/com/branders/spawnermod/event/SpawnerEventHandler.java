@@ -3,11 +3,11 @@ package com.branders.spawnermod.event;
 import java.util.Optional;
 import java.util.Random;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
+import com.branders.spawnermod.registry.ItemRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +46,8 @@ public class SpawnerEventHandler {
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
 	
     /**
-     * 	Prevent XP drop when spawner is destroyed with silk touch and return Spawner Block
+     * 	Prevent XP drop when spawner is destroyed with silk touch.
+     * 	The Spawner block is returned via loot tables json
      */
     @SubscribeEvent
     public void onBlockBreakEvent(BlockEvent.BreakEvent event) {
@@ -62,19 +63,9 @@ public class SpawnerEventHandler {
     			// Set 0 EXP
     			event.setExpToDrop(0);
     			
+    			// drop monster egg
     			if(ConfigValues.get("disable_egg_removal_from_spawner") == 0)
     				dropMonsterEgg(event.getPos(), (Level)event.getWorld());
-		    	
-    			// Return Spawner Block
-    			ItemStack itemStack = new ItemStack(Blocks.SPAWNER.asItem());
-    			ItemEntity entityItem = new ItemEntity(
-    					(Level)event.getWorld(),
-    					event.getPos().getX(),
-    					event.getPos().getY(),
-    					event.getPos().getZ(),
-    					itemStack
-    			);
-    			event.getWorld().addFreshEntity(entityItem);
     		}	
     	}
     }
@@ -86,8 +77,7 @@ public class SpawnerEventHandler {
     public void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
     	
     	// Leave if we did not place down a spawner
-    	if(event.getState().getBlock() != Blocks.SPAWNER 
-    			|| !(event.getEntity() instanceof Player))
+    	if(event.getState().getBlock() != Blocks.SPAWNER || !(event.getEntity() instanceof Player))
     		return;
     	
     	Level world = (Level) event.getWorld();
@@ -205,7 +195,7 @@ public class SpawnerEventHandler {
     	if(entityType.equals(EntityType.PLAYER) || entityType.equals(EntityType.ENDER_DRAGON) || entityType.equals(EntityType.WITHER))
     		return;
     	else if (entityType.equals(EntityType.IRON_GOLEM))
-    		itemStack = new ItemStack(SpawnerMod.iron_golem_spawn_egg);
+    		itemStack = new ItemStack(ItemRegistry.IRON_GOLEM_SPAWN_EGG.get());
     	else
     		itemStack = new ItemStack(ForgeRegistries.ITEMS
     				.getValue(new ResourceLocation(entityType.getRegistryName() + "_spawn_egg")));
@@ -279,7 +269,7 @@ public class SpawnerEventHandler {
     	// Get the entity mob egg and put in an ItemStack
 		ItemStack itemStack;
 		if(entity_string.contains("iron_golem"))
-			itemStack = new ItemStack(SpawnerMod.iron_golem_spawn_egg);
+			itemStack = new ItemStack(ItemRegistry.IRON_GOLEM_SPAWN_EGG.get());
 		else
 			itemStack = new ItemStack(
 					ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));

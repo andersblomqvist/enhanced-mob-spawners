@@ -22,8 +22,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class SpawnerKeyItem extends Item
-{
+public class SpawnerKeyItem extends Item {
 	private static final TranslatableComponent textComponent = 
 			new TranslatableComponent("tooltip.spawnermod.spawner_key_disabled");
 	

@@ -2,8 +2,8 @@ package com.branders.spawnermod.networking.packet;
 
 import java.util.function.Supplier;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
+import com.branders.spawnermod.registry.ItemRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -75,7 +75,7 @@ public class SyncSpawnerEggDrop
 		    	// Get the entity mob egg and put in an ItemStack
 				ItemStack itemStack;
 				if(entity_string.contains("iron_golem"))
-					itemStack = new ItemStack(SpawnerMod.iron_golem_spawn_egg);
+					itemStack = new ItemStack(ItemRegistry.IRON_GOLEM_SPAWN_EGG.get());
 				else
 					itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
 				

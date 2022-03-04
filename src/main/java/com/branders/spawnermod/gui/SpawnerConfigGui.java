@@ -44,11 +44,11 @@ public class SpawnerConfigGui extends Screen {
 	
 	// GUI Texture
 	private ResourceLocation spawnerConfigTexture =new ResourceLocation(
-			SpawnerMod.MODID, "/textures/gui/spawner_config_screen.png");
+			SpawnerMod.MOD_ID, "/textures/gui/spawner_config_screen.png");
 	private int imageWidth = 178;
 	private int imageHeight = 177;
 	private ResourceLocation spawnsIconTexture = new ResourceLocation(
-			SpawnerMod.MODID, "textures/gui/spawner_config_screen_icon_spawns.png");
+			SpawnerMod.MOD_ID, "textures/gui/spawner_config_screen_icon_spawns.png");
 	
 	// Buttons for controlling Spawner data
 	private Button countButton = null;

@@ -1,5 +1,5 @@
 // EMS build.gradle
-// Forge 1.18-38.0.14
+// Forge 1.18.2
 
 buildscript {
     repositories {
@@ -9,7 +9,6 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        // classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -17,24 +16,12 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-// MixinGradle:
-// apply plugin: 'org.spongepowered.mixin'
-
 version = "${mod_version}"
-group = 'com.branders.' + "${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "${modid}"
+group = 'com.branders.' + "${mod_id}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "${mod_id}"
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-// mixin {
-	// MixinGradle Settings
-    // add sourceSets.main, 'mixins.spawnermod.refmap.json'
-    // config 'mixins.spawnermod.json'
-	
-	// debug.verbose = true
-	// debug.export = true
-// }
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -70,12 +57,6 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
         }
 
         server {
@@ -92,12 +73,6 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
         }
 
         data {
@@ -114,15 +89,6 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
@@ -139,15 +105,11 @@ repositories {
     //     dir 'libs'
     // }
 }
-
 dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:' + "${forge_version}"
-
-	// Apply Mixin AP
-    // annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
@@ -166,7 +128,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "${modid}",
+                "Specification-Title"     : "${mod_id}",
                 "Specification-Vendor"    : "examplemodsareus",
                 "Specification-Version"   : "${mod_version}",
                 "Implementation-Title"    : project.name,
