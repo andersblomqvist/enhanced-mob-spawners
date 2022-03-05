@@ -39,9 +39,10 @@ import net.minecraft.world.World;
 public class EventHandler {
 	
 	/**
-	 * 	Called when player breaks a block.
+	 * 	Called when player breaks a block
 	 * 
-	 * 	Used to check if player destroyed a spawner and either drop Spawner Block item or exp orbs.
+	 * 	If silk touch was used we want to drop the monster egg. Otherwise just exp.
+	 * 	The spawner block is dropped via loot_table json
 	 */
 	public boolean onBlockBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, BlockEntity entity) {
 		
@@ -49,30 +50,22 @@ public class EventHandler {
 		if(world.isClient)
 			return true;
 		
+		// No need to drop if in creative mode
+		if(player.isCreative())
+			return true;
+		
+		// Make sure it was a spawner block
 		if(world.getBlockState(pos).getBlock() == Blocks.SPAWNER ) {
 			
 			ItemStack item = Iterables.get(player.getItemsHand(), 0);
 			NbtList enchants = item.getEnchantments();
 			
 			if(checkSilkTouch(enchants) && ConfigValues.get("disable_silk_touch") == 0) {
-				
-				// No need to drop if in creative mode
-				if(player.isCreative())
-					return true;
-				
-				// Drop block.
-				ItemStack block = new ItemStack(Blocks.SPAWNER.asItem());
-				ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), block);
-				world.spawnEntity(itemEntity);
-				
 				// Drop egg inside if not disabled from config
 				if(ConfigValues.get("disable_egg_removal_from_spawner") == 0)
 					dropMonsterEgg(pos, world);
 				
 			} else {
-				// No silk touch enchant. Drop EXP orbs.
-				if(player.isCreative())
-					return true;
 				int size = 15 + world.random.nextInt(15) + world.random.nextInt(15);
 				ExperienceOrbEntity.spawn((ServerWorld) world, Vec3d.ofCenter(pos), size);
 			}

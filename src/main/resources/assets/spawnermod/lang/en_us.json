@@ -14,10 +14,10 @@
 	"button.speed.very_high": "Speed: Very Fast",
 	"button.speed.disabled": "Speed disabled",
 	
-	"button.range.default": "Range: Far 32",
-	"button.range.low": "Range: Default 16",
-	"button.range.high": "Range: Very far 64",
-	"button.range.very_high": "Range: Extreme 128",
+	"button.range.default": "Range: Far",
+	"button.range.low": "Range: Default",
+	"button.range.high": "Range: Very far",
+	"button.range.very_high": "Range: Extreme",
 	"button.range.disabled": "Range disabled",
 	
 	"button.toggle.enabled": "Spawner: ON",

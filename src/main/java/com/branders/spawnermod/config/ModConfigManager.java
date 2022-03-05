@@ -76,6 +76,7 @@ public class ModConfigManager {
 	private static void readConfig() {
 		try {
 			BufferedReader reader =  new BufferedReader(new FileReader(file));
+			@SuppressWarnings("deprecation")
 			JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
 			
 			Pair<JsonObject, Boolean> validConfig = validateConfig(json);

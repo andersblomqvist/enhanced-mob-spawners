@@ -16,9 +16,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SpawnEggItem;
@@ -27,7 +25,7 @@ import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
 
 /**
- * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric (1.17)
+ * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric (1.18.2)
  * 
  * 	@author Anders <Branders> Blomqvist
  */
@@ -61,8 +59,8 @@ public class SpawnerMod implements ModInitializer {
 		});
 		
 		SpawnerModNetworking.registerServerMessages();
-
-		Registry.register(Registry.ITEM, 243, "spawner", new BlockItem(Blocks.SPAWNER, new Item.Settings().group(ItemGroup.DECORATIONS).rarity(Rarity.EPIC)));
+		
+		// Registry.register(Registry.ITEM, 1101, "spawner", new BlockItem(Blocks.SPAWNER, new Item.Settings().group(ItemGroup.DECORATIONS).rarity(Rarity.EPIC)));
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "spawner_key"), SPAWNER_KEY);
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "iron_golem_spawn_egg"), IRON_GOLEM_SPAWN_EGG);
 	}

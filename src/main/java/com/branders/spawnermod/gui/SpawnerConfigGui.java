@@ -245,7 +245,7 @@ public class SpawnerConfigGui extends Screen {
 		 */
 		addDrawableChild(rangeButton = new ButtonWidget(
 				width / 2 - 48, 105, 108, 20, new TranslatableText(
-						"button.range." + getButtonText(rangeOptionValue)), button -> {
+						"button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
 			switch(rangeOptionValue) {
 				// Default, set to Far
 				case 0:
@@ -272,7 +272,7 @@ public class SpawnerConfigGui extends Screen {
 					break;
 			}
 			
-			rangeButton.setMessage(new TranslatableText("button.range." + getButtonText(rangeOptionValue)));
+			rangeButton.setMessage(new TranslatableText("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
 		}));
 		
 		/**
@@ -358,13 +358,6 @@ public class SpawnerConfigGui extends Screen {
 		}
 		
 		super.render(matrices, mouseX, mouseY, delta);
-	}
-	
-	/**
-	 * 	Close GUI
-	 */
-	private void close() {
-		client.setScreen((Screen)null);
 	}
 	
 	/**
