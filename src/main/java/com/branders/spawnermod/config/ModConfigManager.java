@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import com.branders.spawnermod.SpawnerMod;
@@ -48,13 +49,17 @@ public class ModConfigManager {
 	/**
 	 * 	Initialize the mod config. Try find an existing config file. If it exists we set values from
 	 * 	file. Otherwise we create a new config file with default values.
+	 * 
+	 * 	@param modid config file
 	 */
-	public static void initConfig(String modid, File absoluteFile) {
+	public static void initConfig(String modid, Path configPath) {
 		
 		// Config values will be overwritten if a config file exists.
 		ConfigValues.setDefaultConfigValues();
 		
-		file = new File(absoluteFile, "/config/" + modid + ".json");
+		SpawnerMod.LOGGER.info("Config path: [" + configPath.toFile() + "]");
+		
+		file = new File(configPath.toFile(), modid + ".json");
 		
 		if(!file.exists()) {
 			// No config file found. Create a new default config

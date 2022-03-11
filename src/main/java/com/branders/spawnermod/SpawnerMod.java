@@ -10,7 +10,6 @@ import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerConfig;
 import com.branders.spawnermod.registry.RegistryHandler;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,9 +19,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -41,10 +40,9 @@ public class SpawnerMod {
 	/**
 	 * 	Register events and config
 	 */
-	@SuppressWarnings("resource")
     public SpawnerMod() {
     	
-    	ModConfigManager.initConfig(MOD_ID, Minecraft.getInstance().gameDirectory.getAbsoluteFile());
+    	ModConfigManager.initConfig(MOD_ID, FMLPaths.CONFIGDIR.get());
     	
     	// Register new network packet handler used to manage data from client GUI to server
     	SpawnerModPacketHandler.register();
@@ -52,11 +50,6 @@ public class SpawnerMod {
     	MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
     	MinecraftForge.EVENT_BUS.register(this);
 	}
-    
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-    	ModConfigManager.initConfig(MOD_ID, event.getServer().getServerDirectory().getAbsoluteFile());
-    }
     
     /**
      * 	Sync client config with server config
