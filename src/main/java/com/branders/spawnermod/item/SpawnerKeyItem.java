@@ -9,7 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,8 +22,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnerKeyItem extends Item {
-	private static final TranslatableComponent textComponent = 
-			new TranslatableComponent("tooltip.spawnermod.spawner_key_disabled");
+	private static final Component TOOL_TIP = Component.translatable("tooltip.spawnermod.spawner_key_disabled").withStyle(ChatFormatting.RED);
 	
 	public SpawnerKeyItem(Properties properties) {
 		super(properties);
@@ -68,7 +66,7 @@ public class SpawnerKeyItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
 		if(ConfigValues.get("disable_spawner_config") == 1) {
-			tooltip.add(textComponent.withStyle(ChatFormatting.RED));
+			tooltip.add(TOOL_TIP);
 			super.appendHoverText(stack, level, tooltip, flagIn);	
 		}
 	}
@@ -80,6 +78,6 @@ public class SpawnerKeyItem extends Item {
     private void openSpawnerGui(BaseSpawner logic, BlockPos pos)
     {
     	Minecraft mc = Minecraft.getInstance();
-    	mc.setScreen(new SpawnerConfigGui(new TranslatableComponent(""), logic, pos));
+    	mc.setScreen(new SpawnerConfigGui(Component.translatable(""), logic, pos));
     }
 }

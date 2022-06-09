@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,10 +28,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * 	@author Anders <Branders> Blomqvist
  */
 @OnlyIn(Dist.CLIENT)
-public class SpawnerConfigGui extends Screen {
+public class SpawnerConfigGui extends Screen {	
 	
-	private static final TranslatableComponent textComponent = 
-			new TranslatableComponent("gui.spawnermod.spawner_config_screen_title");
+	private static final Component titleText = Component.translatable("gui.spawnermod.spawner_config_screen_title");
 	
 	// Used for rendering.
 	private Minecraft minecraft = Minecraft.getInstance();
@@ -116,6 +114,7 @@ public class SpawnerConfigGui extends Screen {
 		this.logic = logic;
 		this.pos = pos;
     	
+		
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
@@ -174,7 +173,7 @@ public class SpawnerConfigGui extends Screen {
 		 * 	Count button
 		 */
 		addRenderableWidget(countButton = new Button(
-				width / 2 - 48, 55, 108, 20, new TranslatableComponent(
+				width / 2 - 48, 55, 108, 20, Component.translatable(
 						"button.count." + getButtonText(countOptionValue)), button -> {
 			switch(countOptionValue) {
 				// Low, set to Default
@@ -206,7 +205,7 @@ public class SpawnerConfigGui extends Screen {
 					break;
 			}
 			
-			countButton.setMessage(new TranslatableComponent("button.count." + getButtonText(countOptionValue)));
+			countButton.setMessage(Component.translatable("button.count." + getButtonText(countOptionValue)));
 		}));
 		
 		
@@ -214,7 +213,7 @@ public class SpawnerConfigGui extends Screen {
 		 * 	Speed button
 		 */
 		addRenderableWidget(speedButton = new Button(
-				width / 2 - 48, 80, 108, 20, new TranslatableComponent(
+				width / 2 - 48, 80, 108, 20, Component.translatable(
 						"button.speed." + getButtonText(speedOptionValue)), button -> {
 			switch(speedOptionValue) {
 				// Slow, set to default
@@ -249,14 +248,14 @@ public class SpawnerConfigGui extends Screen {
 					maxSpawnDelay = _maxSpawnDelay.LOW;
 					break;
 			}
-			speedButton.setMessage(new TranslatableComponent("button.speed." + getButtonText(speedOptionValue)));
+			speedButton.setMessage(Component.translatable("button.speed." + getButtonText(speedOptionValue)));
 		}));
 		
 		/**
 		 * 	Range button
 		 */
 		addRenderableWidget(rangeButton = new Button(
-				width / 2 - 48, 105, 108, 20, new TranslatableComponent(
+				width / 2 - 48, 105, 108, 20, Component.translatable(
 						"button.range." + getButtonText(rangeOptionValue)), button -> {
 			switch(rangeOptionValue) {
 				// Default, set to Far
@@ -284,14 +283,14 @@ public class SpawnerConfigGui extends Screen {
 					break;
 			}
 			
-			rangeButton.setMessage(new TranslatableComponent("button.range." + getButtonText(rangeOptionValue)));
+			rangeButton.setMessage(Component.translatable("button.range." + getButtonText(rangeOptionValue)));
 		}));
 		
 		/**
 		 * 	Disable button
 		 */
 		addRenderableWidget(disableButton = new Button(
-				width / 2 - 48, 130, 108, 20, new TranslatableComponent(
+				width / 2 - 48, 130, 108, 20, Component.translatable(
 						"button.toggle." + getButtonText(disabled)), button -> {
 			if(disabled) {
 				// Set spawner to ON
@@ -319,13 +318,13 @@ public class SpawnerConfigGui extends Screen {
 				requiredPlayerRange = 0;
 			}
 			
-			disableButton.setMessage(new TranslatableComponent("button.toggle." + getButtonText(disabled)));
+			disableButton.setMessage(Component.translatable("button.toggle." + getButtonText(disabled)));
 		}));
 		
 		/**
 		 * 	Save button - configures spawner data
 		 */
-		addRenderableWidget(new Button(width / 2 - 89, 180 + 10, 178, 20, new TranslatableComponent("button.save"), button -> 
+		addRenderableWidget(new Button(width / 2 - 89, 180 + 10, 178, 20, Component.translatable("button.save"), button -> 
 		{
 			configureSpawner();
 			this.close();
@@ -334,7 +333,7 @@ public class SpawnerConfigGui extends Screen {
 		/**
 		 * 	Cancel button
 		 */
-		addRenderableWidget(new Button(width / 2 - 89, 180 + 35, 178, 20, new TranslatableComponent("button.cancel"), button -> 
+		addRenderableWidget(new Button(width / 2 - 89, 180 + 35, 178, 20, Component.translatable("button.cancel"), button -> 
 		{
 			this.close();
 		}));
@@ -361,8 +360,8 @@ public class SpawnerConfigGui extends Screen {
 		blit(matrixStack, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
 		// Render spawner title text
-		int length = textComponent.getString().length() * 2;
-		drawString(matrixStack, minecraft.font, textComponent, width / 2 - length - 3, 33, 0xFFD964);
+		int length = titleText.getString().length() * 2;
+		drawString(matrixStack, minecraft.font, titleText, width / 2 - length - 3, 33, 0xFFD964);
 		
 		if(limitedSpawns) {
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -458,19 +457,19 @@ public class SpawnerConfigGui extends Screen {
 		
 		if(ConfigValues.get("disable_count") != 0) {
 			countButton.active = false;
-			countButton.setMessage(new TranslatableComponent("button.count.disabled"));
+			countButton.setMessage(Component.translatable("button.count.disabled"));
 		} else
 			countButton.active = state;
 		
 		if(ConfigValues.get("disable_speed") != 0) {
 			speedButton.active = false;
-			speedButton.setMessage(new TranslatableComponent("button.speed.disabled"));
+			speedButton.setMessage(Component.translatable("button.speed.disabled"));
 		} else
 			speedButton.active = state;
 		
 		if(ConfigValues.get("disable_range") != 0) {
 			rangeButton.active = false;
-			rangeButton.setMessage(new TranslatableComponent("button.range.disabled"));
+			rangeButton.setMessage(Component.translatable("button.range.disabled"));
 		} else
 			rangeButton.active = state;
 	}

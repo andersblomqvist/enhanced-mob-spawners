@@ -3,6 +3,7 @@ package com.branders.spawnermod.event;
 import java.util.Optional;
 import java.util.Random;
 
+import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
@@ -186,7 +187,11 @@ public class SpawnerEventHandler {
     	Entity entity = event.getEntity();
     	EntityType<?> entityType = entity.getType();
     	
-    	if(ConfigValues.isEggDisabled(entityType.getRegistryName().toString()))
+    	// Entity type string is: "entity.minecraft.pig"
+    	// Convert to "minecraft:pig"
+    	String entityName = getEntityName(entityType);
+    	
+    	if(ConfigValues.isEggDisabled(entityName))
 			return;
     	
     	ItemStack itemStack;
@@ -198,7 +203,7 @@ public class SpawnerEventHandler {
     		itemStack = new ItemStack(ItemRegistry.IRON_GOLEM_SPAWN_EGG.get());
     	else
     		itemStack = new ItemStack(ForgeRegistries.ITEMS
-    				.getValue(new ResourceLocation(entityType.getRegistryName() + "_spawn_egg")));
+    				.getValue(new ResourceLocation(entityName + "_spawn_egg")));
 		
 		// Add monster egg to drops
 		event.getDrops().add(new ItemEntity(
@@ -263,7 +268,7 @@ public class SpawnerEventHandler {
     	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
     	
 		// Leave if the spawner does not contain an egg	
-		if(entity_string.equalsIgnoreCase(EntityType.AREA_EFFECT_CLOUD.getRegistryName().toString()))
+		if(entity_string.equalsIgnoreCase(EntityType.AREA_EFFECT_CLOUD.toString()))
 			return;
 		
     	// Get the entity mob egg and put in an ItemStack
@@ -305,10 +310,24 @@ public class SpawnerEventHandler {
      * 	@return true/false
      */
     private boolean checkSilkTouch(ListTag list) {
-    	// Check list string contains silk touch
 		if(list.getAsString().indexOf("minecraft:silk_touch") != -1)
 			return true;
 		else
 			return false;
+    }
+    
+    /**
+     * 	Transform the entityType string to colon format: {@code modid:entityname}
+     * 
+     * 	Note: {@code entityType.toString()} returns "entity.modid.entityname"
+     * 
+     * 	@param entityType
+     * 	@returns entity name as "modid:entityname".
+     */
+    private String getEntityName(EntityType<?> entityType) {
+    	String entity = entityType.toString();
+    	String[] dotSplit = entity.split("\\.");
+    	String entityName = dotSplit[1] + ":" + dotSplit[2];
+    	return entityName;
     }
 }

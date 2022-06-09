@@ -69,7 +69,7 @@ public class SyncSpawnerEggDrop
 		    	entity_string = entity_string.substring(0, entity_string.indexOf("\""));
 		    	
 				// Leave if the spawner does not contain an egg	
-				if(entity_string.equalsIgnoreCase(EntityType.AREA_EFFECT_CLOUD.getRegistryName().toString()))
+				if(entity_string.equalsIgnoreCase(EntityType.AREA_EFFECT_CLOUD.toString()))
 					return;
 				
 		    	// Get the entity mob egg and put in an ItemStack
