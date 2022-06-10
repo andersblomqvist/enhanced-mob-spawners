@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 
 import net.minecraft.core.BlockPos;
@@ -20,8 +19,6 @@ import net.minecraft.world.level.block.LevelEvent;
 /**
  * 	Implements a limit to how many spawns a spawner can do. Only if enabled in config!
  * 
- * 	https://github.com/cpw/modlauncher/issues/74
- * 
  * 	@author Anders <Branders> Blomqvist 
  */
 @Mixin(BaseSpawner.class)
@@ -31,11 +28,9 @@ public class LimitedSpawnsMixin {
 	
 	@Inject(at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/server/level/ServerLevel;levelEvent(ILnet/minecraft/core/BlockPos;I)V"), 
-			method = "serverTick(Lnet/minecraft/server/level/ServerLevel;ILnet/minecraft/core/BlockPos;)V", 
+			method = "serverTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)V", 
 			cancellable = true)
 	private void entitySpawn(ServerLevel level, BlockPos pos, CallbackInfo ci) {
-		
-		SpawnerMod.LOGGER.info("Hello from mixin");
 		
 		if(ConfigValues.get("limited_spawns_enabled") == 0)
 			return;
@@ -54,7 +49,7 @@ public class LimitedSpawnsMixin {
 	
 	@Inject(at = @At(value = "INVOKE_ASSIGN", 
 			target = "Lnet/minecraft/world/entity/EntityType;by(Lnet/minecraft/nbt/CompoundTag;)Ljava/util/Optional;"), 
-			method = "serverTick(Lnet/minecraft/server/level/ServerLevel;ILnet/minecraft/core/BlockPos;)V", 
+			method = "serverTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)V", 
 			cancellable = true)
     private void cancel(ServerLevel level, BlockPos pos, CallbackInfo ci) {
 		

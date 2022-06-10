@@ -1,9 +1,7 @@
 package com.branders.spawnermod.event;
 
-import java.util.Optional;
 import java.util.Random;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
@@ -11,6 +9,7 @@ import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 import com.branders.spawnermod.registry.ItemRegistry;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +25,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SpawnerBlock;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -98,77 +98,57 @@ public class SpawnerEventHandler {
     @SubscribeEvent
     public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event) {
     	
-    	// Leave if it wasn't a spawner block
-    	if(event.getState().getBlock() != Blocks.SPAWNER)
-    		return;
-    	
     	Level level = (Level)event.getWorld();
-    	BlockPos pos = event.getPos();
     	
-    	SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(pos);
-		BaseSpawner logic = spawner.getSpawner();
-		CompoundTag nbt = new CompoundTag();
-		
-		// Get current spawner config values
-		nbt = logic.save(nbt);
-		
-		/**
-		 * 	Fixes bug where onBlockPlaced and onNotify both gets called when a
-		 * 	player places down a spawner. This creates a problem where the egg
-		 * 	would disappear after its first spawn.
-		 * 
-		 * 	This fix checks if the entity is "empty" (area effect cloud) and if
-		 * 	so - we cancel this event. When placing down a spawner, the entity
-		 * 	will always be the cloud and when checking for redstone, it will most
-		 * 	likely not be a cloud.
-		 */
-		CompoundTag data = nbt.getCompound("SpawnData");
-		Optional<EntityType<?>> optional = EntityType.by(data);
-		if(optional.isPresent()) { 
-			if(optional.get().equals(EntityType.AREA_EFFECT_CLOUD)) {
-				event.setCanceled(true);
-				return;
-			}
-		}
-		
-    	// Check redstone power
-    	if(level.hasNeighborSignal(pos)) {
-    		short value = nbt.getShort("RequiredPlayerRange");
-    		
-    		// If spawner got disabled via GUI and then we toggle off by redstone
-    		// we don't need to do this.
-    		if(nbt.getShort("SpawnRange") > 4)
-    			return;
-    		
-    		// Read current range and save it temporary in SpawnRange field
-    		nbt.putShort("SpawnRange", value);
-    		
-    		// Turn off spawner
-    		nbt.putShort("RequiredPlayerRange", (short) 0);
+    	for(Direction dir : Direction.values()) {
+    		BlockPos pos = event.getPos().relative(dir);
+    		if(level.getBlockState(pos).getBlock() instanceof SpawnerBlock) {
+    			
+    			SpawnerBlockEntity spawner = (SpawnerBlockEntity)level.getBlockEntity(pos);
+    			BaseSpawner logic = spawner.getSpawner();
+    			CompoundTag nbt = new CompoundTag();
+    			
+    			// Get current spawner config values
+    			nbt = logic.save(nbt);
+    			
+    			if(level.hasNeighborSignal(pos)) {
+    				short value = nbt.getShort("RequiredPlayerRange");
+    	    		
+    	    		// If spawner got disabled via GUI and then we toggle off by redstone
+    	    		// we don't need to do this.
+    	    		if(nbt.getShort("SpawnRange") > 4)
+    	    			return;
+    	    		
+    	    		// Read current range and save it temporary in SpawnRange field
+    	    		nbt.putShort("SpawnRange", value);
+    	    		
+    	    		// Turn off spawner
+    	    		nbt.putShort("RequiredPlayerRange", (short) 0);
+    			}
+    			else {
+    				// Read what the previus range was (before this spawner was set to range = 0)
+    	    		short pr = nbt.getShort("SpawnRange");
+    	    		
+    	    		// If spawner was activated via GUI before, then we dont need to do this
+    	    		if(pr <= 4)
+    	    			return;
+    	    		
+    	    		// Set the range backt to what it was
+    	    		nbt.putShort("RequiredPlayerRange", pr);
+    	    		
+    	    		// Set SpawnRange back to default=4
+    	    		nbt.putShort("SpawnRange", (short) 4);
+    			}
+    			
+    			// Update block
+    	    	logic.load(level, pos, nbt);
+    	    	spawner.setChanged();
+    	    	BlockState blockstate = level.getBlockState(pos);
+    	    	level.sendBlockUpdated(pos, blockstate, blockstate, 3);
+    		}
     	}
-    		
-    	else {
-    		// Read what the previus range was (before this spawner was set to range = 0)
-    		short pr = nbt.getShort("SpawnRange");
-    		
-    		// If spawner was activated via GUI before, then we dont need to do this
-    		if(pr <= 4)
-    			return;
-    		
-    		// Set the range backt to what it was
-    		nbt.putShort("RequiredPlayerRange", pr);
-    		
-    		// Set SpawnRange back to default=4
-    		nbt.putShort("SpawnRange", (short) 4);
-    	}
-    	
-    	// Update block
-    	logic.load(level, pos, nbt);
-    	spawner.setChanged();
-    	BlockState blockstate = level.getBlockState(pos);
-    	level.sendBlockUpdated(pos, blockstate, blockstate, 3);
-    }
-    
+    }   
+
     /**
      * 	Enables mobs to have a small chance to drop an egg
      */

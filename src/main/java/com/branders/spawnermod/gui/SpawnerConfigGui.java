@@ -367,8 +367,8 @@ public class SpawnerConfigGui extends Screen {
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, spawnsIconTexture);
 			blit(matrixStack, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
-			// drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
-			drawString(matrixStack, minecraft.font, "not available yet", width / 2 + 114, 27, 0xFFFFFF);
+			drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
+			// drawString(matrixStack, minecraft.font, "not available yet", width / 2 + 114, 27, 0xFFFFFF);
 		}
 		
 		// Render other stuff as well (buttons)
