@@ -3,11 +3,13 @@ package com.branders.spawnermod.event;
 import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKey;
+import com.branders.spawnermod.mixin.UpdateNeighborMixin;
 import com.google.common.collect.Iterables;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.SpawnerBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.entity.EntityType;
@@ -55,7 +57,7 @@ public class EventHandler {
 			return true;
 		
 		// Make sure it was a spawner block
-		if(world.getBlockState(pos).getBlock() == Blocks.SPAWNER ) {
+		if(world.getBlockState(pos).getBlock() instanceof SpawnerBlock) {
 			
 			ItemStack item = Iterables.get(player.getItemsHand(), 0);
 			NbtList enchants = item.getEnchantments();
@@ -64,7 +66,6 @@ public class EventHandler {
 				// Drop egg inside if not disabled from config
 				if(ConfigValues.get("disable_egg_removal_from_spawner") == 0)
 					dropMonsterEgg(pos, world);
-				
 			} else {
 				int size = 15 + world.random.nextInt(15) + world.random.nextInt(15);
 				ExperienceOrbEntity.spawn((ServerWorld) world, Vec3d.ofCenter(pos), size);
@@ -164,6 +165,9 @@ public class EventHandler {
     /**	
      * 	Check for redstone update. If block gets powered we want to turn it off (set range to 0).
      * 	We store previous range: 16, 32, 64 or 128, so we can set it back when spawner regain power.
+     * 
+     * 	<br><br>
+     * 	Called from {@link UpdateNeighborMixin}
      * 	 
      * 	@param spawnerwPos
      * 	@param world
@@ -171,6 +175,10 @@ public class EventHandler {
 	public static void updateNeighbor(BlockPos spawnerPos, World world) {
 		
 		BlockState blockstate = world.getBlockState(spawnerPos);
+		
+		if(!(world.getBlockEntity(spawnerPos) instanceof MobSpawnerBlockEntity))
+			return;
+		
 		MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity)world.getBlockEntity(spawnerPos);
     	MobSpawnerLogic logic = spawner.getLogic();
 		NbtCompound nbt = new NbtCompound();

@@ -4,12 +4,12 @@
   "package": "com.branders.spawnermod.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-	"LimitedSpawnsMixin",
-	"SpawnerBlockExpMixin",
-	"PlayerPlaceBlockMixin",
-	"UpdateNeighborMixin",
-	"MobEntityDropsMixin",
-	"SpawnerBlockEntityMixin"
+    "LimitedSpawnsMixin",
+    "SpawnerBlockExpMixin",
+    "PlayerPlaceBlockMixin",
+    "MobEntityDropsMixin",
+    "SpawnerBlockEntityMixin",
+    "UpdateNeighborMixin"
   ],
   "injectors": {
     "defaultRequire": 1
