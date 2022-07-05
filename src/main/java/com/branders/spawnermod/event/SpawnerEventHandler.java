@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.SpawnerBlock;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,6 +46,44 @@ public class SpawnerEventHandler {
 	
 	private Random random = new Random();
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
+	
+	/**
+	 * 	Change hardness for Spawner Block.
+	 * 
+	 * 	It calculates a new break speed for the custom hardness. If the custom hardness
+	 * 	is the same as Spawner default it will calculate the same break speed as vanilla.
+	 * 
+	 * 	@implNote The wiki tick is at 20 but it gave wrong results when new and original
+	 * 	hardness was the same. Example: newHardness = 5.0 should give 0.95 seconds for a
+	 * 	diamond pick but it gave 3.1 seconds.
+	 * 
+	 * 	@see https://minecraft.fandom.com/wiki/Breaking 
+	 * 
+	 * 	@param event
+	 */
+	@SubscribeEvent
+	public void onBreakSpeedEvent(PlayerEvent.BreakSpeed event) {
+		if(event.getState().getBlock() instanceof SpawnerBlock) {
+			
+			float newHardness = ConfigValues.get("spawner_hardness");
+			float originalHardness = 5.0f;
+			
+			// First we calculate how many seconds it will take with new hardness and
+			// original break speed. We want to solve for break speed later.
+			float dmg = event.getOriginalSpeed() / newHardness;
+			dmg /= 100;
+			float ticks = Math.round(1 / dmg);
+			float seconds = ticks / 64f;
+			
+			// now do it reverse and insert original hardness 
+			float ticks2 = seconds * 64f;
+			float dmg2 = 1 / ticks2;
+			dmg2 *= 100;
+			int newBreakSpeed = Math.round(dmg2 * originalHardness);
+			
+			event.setNewSpeed(newBreakSpeed);
+		}
+	}
 	
     /**
      * 	Prevent XP drop when spawner is destroyed with silk touch.
