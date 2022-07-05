@@ -102,6 +102,9 @@ public class SpawnerConfigGui extends Screen {
 	private boolean cachedDisabled;
 	private boolean limitedSpawns;
 	
+	private boolean isCustomRange;
+	private short customRange;
+	
 	/**
 	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
 	 * 	current NBT values (used to make GUI remember option states) and send network package to server with
@@ -113,7 +116,11 @@ public class SpawnerConfigGui extends Screen {
 		
 		this.logic = logic;
 		this.pos = pos;
-    	
+		
+		if(ConfigValues.get("default_spawner_range_enabled") == 1) {
+    		isCustomRange = true;
+    		customRange = (short)ConfigValues.get("default_spawner_range");
+    	}
 		
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
@@ -275,9 +282,19 @@ public class SpawnerConfigGui extends Screen {
 					rangeOptionValue = 3;
 					requiredPlayerRange = _requiredPlayerRange.HIGHEST;
 					break;
-					
-				// Extreme, set back to Default
+				// Extreme, set back to Default or Custom
 				case 3:
+					if(isCustomRange) {
+						rangeOptionValue = 4;
+						requiredPlayerRange = customRange;
+					} else {
+						rangeOptionValue = 0;
+						requiredPlayerRange = _requiredPlayerRange.LOW;
+					}
+					break;
+					
+				// Custom, set back to Default
+				case 4:
 					rangeOptionValue = 0;
 					requiredPlayerRange = _requiredPlayerRange.LOW;
 					break;
@@ -416,6 +433,8 @@ public class SpawnerConfigGui extends Screen {
 	    		return "high";
 	    	case 3:
 	    		return "very_high";
+	    	case 4:
+	    		return "custom";
 	    	default:
 	    		return "default";
     	}
@@ -430,12 +449,15 @@ public class SpawnerConfigGui extends Screen {
     /**
 	 * 	Loads what type of configuration spawner has. So it can remember what we have changed 
 	 * 
-	 * 	@param current: value which the spawner has when player just right clicked it
-	 * 	@param reference: reference to all the Low -> Highest data values
-	 * 	@return optionValue: current config spec
+	 * 	@param current value which the spawner has when player just right clicked it
+	 * 	@param reference reference to all the Low -> Highest data values
+	 * 	@return optionValue current config spec
 	 */
 	private int loadOptionState(short current, Data reference)
 	{
+		if(isCustomRange && current == customRange)
+			return 4;
+		
 		if(current == reference.LOW)
 			return 0;
 		else if(current == reference.DEFAULT)
@@ -470,7 +492,9 @@ public class SpawnerConfigGui extends Screen {
 		if(ConfigValues.get("disable_range") != 0) {
 			rangeButton.active = false;
 			rangeButton.setMessage(Component.translatable("button.range.disabled"));
-		} else
+		}
+		else
 			rangeButton.active = state;
+			
 	}
 }

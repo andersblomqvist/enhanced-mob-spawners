@@ -4,6 +4,7 @@
   "package": "com.branders.spawnermod.mixin",
   "refmap": "mixins.spawnermod.refmap.json",  
   "mixins": [
-	  "LimitedSpawnsMixin"
+	  "LimitedSpawnsMixin",
+    "SpawnerRangeMixin"
   ]
 }

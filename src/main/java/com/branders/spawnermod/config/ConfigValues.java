@@ -27,10 +27,14 @@ public class ConfigValues {
 		CONFIG_SPEC.put("disable_count", 0);
 		CONFIG_SPEC.put("disable_range", 0);
 		CONFIG_SPEC.put("disable_speed", 0);
-		CONFIG_SPEC.put("limited_spawns_enabled", 1);
+		CONFIG_SPEC.put("limited_spawns_enabled", 0);
 		CONFIG_SPEC.put("limited_spawns_amount", 32);
 		CONFIG_SPEC.put("disable_egg_removal_from_spawner", 0);
 		CONFIG_SPEC.put("monster_egg_only_drop_when_killed_by_player", 0);
+		
+		// Set custom range on all spawners (mc default is 16)
+		CONFIG_SPEC.put("default_spawner_range_enabled", 1);
+		CONFIG_SPEC.put("default_spawner_range", 52);
 		
 		// Loop through item registry and insert all spawn egg entities to hash map.
 		// Example of a key: "minecraft:pig" with default value 0.
