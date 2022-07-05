@@ -19,6 +19,7 @@
 	"button.range.high": "Дальность: Очень далеко 64",
 	"button.range.very_high": "Диапазон: Extreme 128",
 	"button.range.disabled": "Диапазон отключен",
+	"button.range.custom": "Custom range",
 	
 	"button.save": "Сохранить",
 	"button.cancel": "Отмена",
