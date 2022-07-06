@@ -97,16 +97,17 @@ public class ConfigValues {
 	
 	/**
 	 * 	Sync the server config with client when player joins a server.
-	 * 
-	 * 	@param config 
-	 * 	@param count
-	 * 	@param speed
-	 * 	@param range
 	 */
-	public static void sync(int config, int count, int speed, int range) {
+	public static void sync(int config, int count, int speed, int range, int limitedSpawns, int limitedSpawnsAmount, int isCustomRange, int customRange) {
 		put("disable_spawner_config", config);
 		put("disable_count", count);
 		put("disable_speed", speed);
 		put("disable_range", range);
+		put("limited_spawns_enabled", limitedSpawns);
+		put("limited_spawns_amount", limitedSpawnsAmount);
+		put("default_spawner_range_enabled", isCustomRange);
+		put("default_spawner_range", customRange);
+		
+		SpawnerMod.LOGGER.info("Recieved config from server.");
 	}
 }

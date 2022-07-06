@@ -2,9 +2,11 @@ package com.branders.spawnermod.event;
 
 import java.util.Random;
 
+import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
+import com.branders.spawnermod.networking.packet.SyncSpawnerConfig;
 import com.branders.spawnermod.networking.packet.SyncSpawnerEggDrop;
 import com.branders.spawnermod.registry.ItemRegistry;
 
@@ -13,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -34,6 +37,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -46,6 +50,31 @@ public class SpawnerEventHandler {
 	
 	private Random random = new Random();
 	private EntityType<?> defaultEntityType = EntityType.AREA_EFFECT_CLOUD;
+	
+	/**
+     * 	Sync client config with server config when a client joins a server.
+     * 
+     * 	@param event when player connects to the server.
+     */
+    @SubscribeEvent
+    public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    	ServerPlayer player = (ServerPlayer) event.getPlayer();
+    	
+    	SpawnerMod.LOGGER.info("Sending config to player.");
+    	
+		SpawnerModPacketHandler.INSTANCE.sendTo(
+				new SyncSpawnerConfig(
+						ConfigValues.get("disable_spawner_config"),
+						ConfigValues.get("disable_count"),
+						ConfigValues.get("disable_speed"),
+						ConfigValues.get("disable_range"),
+						ConfigValues.get("limited_spawns_enabled"),
+						ConfigValues.get("limited_spawns_amount"),
+						ConfigValues.get("default_spawner_range_enabled"),
+						ConfigValues.get("default_spawner_range")),
+				player.connection.getConnection(),
+				NetworkDirection.PLAY_TO_CLIENT);
+    }
 	
 	/**
 	 * 	Change hardness for Spawner Block.
