@@ -18,13 +18,15 @@ public class SyncConfigMessage extends NetworkPacket {
 	
 	public static final Identifier ID = new Identifier(SpawnerMod.MOD_ID, "packet.sync_config_message");
 	
-	public SyncConfigMessage(short config, short count, short range, short speed, short limitedSpawns, short limitedSpawnsAmount) {
+	public SyncConfigMessage(short config, short count, short range, short speed, short limitedSpawns, short limitedSpawnsAmount, short isCustomRange, short customRange) {
 		this.writeShort(config);
 		this.writeShort(count);
 		this.writeShort(range);
 		this.writeShort(speed);
 		this.writeShort(limitedSpawns);
 		this.writeShort(limitedSpawnsAmount);
+		this.writeShort(isCustomRange);
+		this.writeShort(customRange);
 	}
 	
 	public static void apply(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
@@ -36,6 +38,8 @@ public class SyncConfigMessage extends NetworkPacket {
 		short disable_speed = buf.readShort();
 		short limited_spawns = buf.readShort();
 		short limitedSpawnsAmount = buf.readShort();
+		short isCustomRange = buf.readShort();
+		short customRange = buf.readShort();
 		
 		client.execute(() -> {
 			ConfigValues.put("disable_spawner_config", (int) disable_spawner_config);
@@ -44,6 +48,8 @@ public class SyncConfigMessage extends NetworkPacket {
 			ConfigValues.put("disable_speed", (int) disable_speed);
 			ConfigValues.put("limited_spawns_enabled", (int)limited_spawns);
 			ConfigValues.put("limited_spawns_amount", (int)limitedSpawnsAmount);
+			ConfigValues.put("default_spawner_range_enabled", (int)isCustomRange);
+			ConfigValues.put("default_spawner_range", (int)customRange);
 		});
 		buf.release();
 	}

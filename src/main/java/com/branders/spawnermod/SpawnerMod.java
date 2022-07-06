@@ -44,7 +44,9 @@ public class SpawnerMod implements ModInitializer {
 					(short)ConfigValues.get("disable_range"), 
 					(short)ConfigValues.get("disable_speed"),
 					(short)ConfigValues.get("limited_spawns_enabled"),
-					(short)ConfigValues.get("limited_spawns_amount")));
+					(short)ConfigValues.get("limited_spawns_amount"),
+					(short)ConfigValues.get("default_spawner_range_enabled"),
+					(short)ConfigValues.get("default_spawner_range")));
 		});
 		
 		SpawnerModNetworking.registerServerMessages();
