@@ -32,6 +32,12 @@ public class ConfigValues {
 		CONFIG_SPEC.put("disable_egg_removal_from_spawner", 0);
 		CONFIG_SPEC.put("monster_egg_only_drop_when_killed_by_player", 0);
 		
+		// Set custom range on all spawners (mc default is 16)
+		CONFIG_SPEC.put("default_spawner_range_enabled", 0);
+		CONFIG_SPEC.put("default_spawner_range", 52);
+		
+		CONFIG_SPEC.put("spawner_hardness", 5);
+		
 		// Loop through item registry and insert all spawn egg entities to hash map.
 		// Example of a key: "minecraft:pig" with default value 0.
 		Registry.ITEM.getIds().stream().forEach(i -> {
