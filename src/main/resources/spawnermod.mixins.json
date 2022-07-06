@@ -10,7 +10,8 @@
     "MobEntityDropsMixin",
     "SpawnerBlockEntityMixin",
     "UpdateNeighborMixin",
-    "SpawnerRangeMixin"
+    "SpawnerRangeMixin",
+    "BlockHardnessMixin"
   ],
   "injectors": {
     "defaultRequire": 1
