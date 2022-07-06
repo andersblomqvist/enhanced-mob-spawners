@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
+import com.branders.spawnermod.registry.ModRegistry;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -56,7 +56,7 @@ public class MobEntityDropsMixin {
 		if(entityType.equals(EntityType.ENDER_DRAGON) || entityType.equals(EntityType.WITHER))
 			return;
 		else if(entityType.equals(EntityType.IRON_GOLEM))
-			egg = new ItemStack(SpawnerMod.IRON_GOLEM_SPAWN_EGG);
+			egg = new ItemStack(ModRegistry.IRON_GOLEM_SPAWN_EGG);
 		else
 			egg = new ItemStack(Registry.ITEM.get(new Identifier(EntityType.getId(entityType).toString() + "_spawn_egg")));
 		

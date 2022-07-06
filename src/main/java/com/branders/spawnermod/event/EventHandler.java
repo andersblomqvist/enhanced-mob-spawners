@@ -1,9 +1,9 @@
 package com.branders.spawnermod.event;
 
-import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKey;
 import com.branders.spawnermod.mixin.UpdateNeighborMixin;
+import com.branders.spawnermod.registry.ModRegistry;
 import com.google.common.collect.Iterables;
 
 import net.minecraft.block.Block;
@@ -134,7 +134,7 @@ public class EventHandler {
     	// Get the entity mob egg and put in an ItemStack
 		ItemStack itemStack;
 		if(entity_string.contains("iron_golem"))
-			itemStack = new ItemStack(SpawnerMod.IRON_GOLEM_SPAWN_EGG);
+			itemStack = new ItemStack(ModRegistry.IRON_GOLEM_SPAWN_EGG);
 		else
 			itemStack = new ItemStack(
 					Registry.ITEM.get(new Identifier(entity_string + "_spawn_egg")));
