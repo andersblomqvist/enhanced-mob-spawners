@@ -19,6 +19,7 @@
 	"button.range.high": "Range: Very far",
 	"button.range.very_high": "Range: Extreme",
 	"button.range.disabled": "Range disabled",
+	"button.range.custom": "Range: Custom",
 	
 	"button.toggle.enabled": "Spawner: ON",
 	"button.toggle.disabled": "Spawner: OFF",

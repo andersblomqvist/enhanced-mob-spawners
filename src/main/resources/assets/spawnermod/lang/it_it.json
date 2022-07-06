@@ -19,6 +19,7 @@
 	"button.range.high": "Raggio: molto lontano 64",
 	"button.range.very_high": "Raggio: estremo 128",
 	"button.range.disabled": "Raggio disabilitato",
+	"button.range.custom": "Range: Custom",
 	
 	"button.toggle.enabled": "Generatore: attivato",
 	"button.toggle.disabled": "Generatore: disattivato",
