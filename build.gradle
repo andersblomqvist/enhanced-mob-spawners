@@ -1,214 +1,306 @@
+/*
+ * GradleWorks for ForgeGradle 5
+ * Written by Jonathing
+ * Version 4.0.2
+ *
+ * What was once just an effort to make life easier is now a fully-fledged buildscript that does almost all of the work
+ * for you! The only things you will need to take care of yourself are dependencies, but that shouldn't be too big of a
+ * deal. Anything you'll most likely ever need to change can be found in gradle.properties. Enjoy!
+ */
+
+import net.minecraftforge.gradle.common.util.ModConfig
+
+// Detects if the OS is macOS.
+static boolean isMacOS() {
+	def osProp = System.properties['os.name'].toLowerCase()
+	return osProp.contains('darwin') || osProp.contains('osx') || osProp.contains('mac')
+}
+
+// Detects if the OS is Windows.
+static boolean isWindows() {
+	def osProp = System.properties['os.name'].toLowerCase()
+	return osProp.contains('windows')
+}
+
+// Detects if GradleWorks should use Mixin.
+boolean isUsingMixin() {
+	return project.hasProperty('mixin_version')
+}
+
+// Detects if GradleWorks should use Structure Gel (ML exclusive).
+boolean isUsingStructureGel() {
+	return project.hasProperty('gel_version')
+}
+
+// Whether or not to use FML only (REMINDER: YOU ARE GIVEN NO SUPPORT FOR THIS).
+boolean usingFMLOnly() {
+	return project.hasProperty('use_fmlonly') && Boolean.parseBoolean(use_fmlonly)
+}
+
+// Buildscript setup (DO NOT EDIT!!!)
 buildscript {
 	repositories {
-        mavenCentral()
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+		// Minecraft Forge Maven
+		maven { url 'https://maven.minecraftforge.net' }
+
+		// SpongePowered Maven
+		maven { url 'https://repo.spongepowered.org/maven' }
+
+		// ParchmentMC Maven
+		maven { url 'https://maven.parchmentmc.org' }
+
+		// Maven Central
+		mavenCentral()
 	}
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7.+'
-    }
+	dependencies {
+		// Minecraft Forge ForgeGradle
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+
+		// SpongePowered MixinGradle
+		classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.+', changing: true
+
+		// ParchmentMC Librarian
+		classpath group: 'org.parchmentmc', name: 'librarian', version: '1.+', changing: true
+	}
 }
 
-plugins {
-    id 'eclipse'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.+'
+println('GradleWorks for ForgeGradle 5')
+println('Written by Jonathing')
+println('Version 4.0.2')
+
+// ForgeGradle - The heart and soul of the buildscript and the development environment.
+apply plugin: 'net.minecraftforge.gradle'
+// MixinGradle - Adds Mixin support to the development environment.
+if (isUsingMixin()) {
+	if (!project.extensions.findByName('eclipse')) {
+		println()
+	}
+	apply plugin: 'org.spongepowered.mixin'
+}
+// Librarian - Adds Parchment support to the development environment.
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+
+// Eclipse - Adds compatibility for Eclipse workspaces.
+apply plugin: 'eclipse'
+// Maven Publishing - Used to be able to publish to maven repositories.
+apply plugin: 'maven-publish'
+
+// Gets a file from a parent directory and folder/file names.
+// Accounts for windows backslashes because I'm paranoid as hell.
+File getFile(File parent, String... paths) {
+	StringBuilder builder = new StringBuilder()
+	builder.append(parent)
+	for (String path : paths) {
+		builder.append('/')
+		builder.append(path)
+	}
+
+	return file(builder.toString().replace('/', isWindows() ? '\\' : '/'))
 }
 
-version = "${mod_version}"
-group = 'com.branders.' + "${mod_id}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "${mod_id}"
+// Get the mod version from gradle.properties.
+version = mod_version
+// Get the mod group from gradle.properties.
+group = mod_group
+// Get the archives base name from the mod id and the Minecraft version.
+archivesBaseName = String.format('%s-%s', mod_id, mc_version)
 
-apply plugin: 'org.spongepowered.mixin'
+// This variable points to where the latest built file is placed for usage in publish.gradle.
+// Use this when you need to point to a completely built JAR file once it is ready for use.
+project.ext.reobfFile = getFile(buildDir, 'libs', "${archivesBaseName}-${version}.jar".toString())
 
-mixin {
-    add sourceSets.main, 'mixins.spawnermod.refmap.json'
-    config 'mixins.spawnermod.json'
+// This file contains additional instructions for publishing builds of this mod to maven repositories (commented out by default, see the file for more details).
+apply from: 'publish.gradle'
+
+// Ensure that the IDE knows that this project is for Java 16 (or at the least, SDK level 16) and nothing else.
+java.toolchain.languageVersion = JavaLanguageVersion.of(Integer.parseInt(java_language_version))
+
+// This section prints out the Java, Minecraft, and Mod info just to double check all the values are correct.
+// It is printed on every build, so make sure you double check!
+println()
+println('Java Information')
+printf('- Java: %s%n', System.getProperty('java.version'))
+printf('- JVM: %s (%s)%n', System.getProperty('java.vm.version'), System.getProperty('java.vendor'))
+printf('- Arch: %s%n', System.getProperty('os.arch'))
+println()
+println('Minecraft Information')
+printf('- Minecraft: %s%n', mc_version)
+printf('- Minecraft Forge: %s%n', forge_version)
+printf('- Mappings: %s %s%n', mappings_version, mappings_channel)
+println()
+println('Mod Information')
+printf('- ID: %s%n', mod_id)
+printf('- Name: %s%n', mod_name)
+printf('- Version: %s%n', version)
+println()
+
+// This section prints out information for Structure Gel API to make sure its values are correct.
+// It is commented out by default in case this specific project does not need compatibility with Structure Gel API.
+// ML exclusive
+if (isUsingStructureGel()) {
+	println('Structure Gel API Information')
+	println('- ID: structure_gel')
+	println('- Name: Structure Gel API')
+	printf('- Version: %s%n', gel_version)
+	println()
 }
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-minecraft {
-    // The mappings can be changed at any time and must be in the following format.
-    // Channel:   Version:
-    // official   MCVersion             Official field/method names from Mojang mapping files
-    // parchment  YYYY.MM.DD-MCVersion  Open community-sourced parameter names and javadocs layered on top of official
-    //
-    // You must be aware of the Mojang license when using the 'official' or 'parchment' mappings.
-    // See more information here: https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
-    //
-    // Parchment is an unofficial project maintained by ParchmentMC, separate from MinecraftForge
-    // Additional setup is needed to use their mappings: https://github.com/ParchmentMC/Parchment/wiki/Getting-Started
-    //
-    // Use non-default mappings at your own risk. They may not always work.
-    // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'official', version: '1.19'
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-// Include resources generated by data generators.
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
+// Any repositories for dependencies go here. Feel free to add to them as needed.
 repositories {
-    // Put repositories for dependencies here
-    // ForgeGradle automatically adds the Forge maven and Maven Central for you
+	// CurseMaven
+	maven {
+		url 'https://www.cursemaven.com'
+		content {
+			includeGroup 'curse.maven'
+		}
+	}
 
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-    // flatDir {
-    //     dir 'libs'
-    // }
+	// Modding Legacy Maven
+	maven {
+		name 'ModdingLegacyMaven'
+		url 'https://maven.moddinglegacy.com/maven'
+	}
 }
 
+// Minecraft setup
+minecraft {
+	// Mappings to use for the project. See default MDK for mappings instructions.
+	mappings channel: mappings_channel, version: mappings_version
+
+	// The access transformer file for the project.
+	// GradleWorks only tells ModDev we're using an AT if the file exists. If you don't need it, don't make it.
+	File atFile = getFile(projectDir, 'src', 'main', 'resources', 'META-INF', 'accesstransformer.cfg')
+	if (atFile.exists()) {
+		accessTransformer = atFile
+	}
+
+	// Run configurations
+	runs {
+		// All run configurations
+		all {
+			// Process non-mod libraries for 1.17.1.
+			lazyToken('minecraft_classpath') {
+				configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+			}
+
+			// The directory for Minecraft to run in.
+			workingDirectory getFile(projectDir, 'run')
+
+			// If we're not using Mixin, then MixinGradle won't do this for us. We have to do this ourselves.
+			// This is logic copied straight from MixinGradle. If we are using Mixin, then MixinGradle does this for us.
+			// https://github.com/SpongePowered/MixinGradle/blob/8118e612547371494be3afbad681ea92e0f2afdb/src/main/groovy/org/spongepowered/asm/gradle/plugins/MixinExtension.groovy#L614
+			if (!isUsingMixin())
+			{
+				def srgToMcpFile = project.tasks.createSrgToMcp.outputs.files[0].path
+
+				property 'net.minecraftforge.gradle.GradleStart.srg.srg-mcp', srgToMcpFile
+				property 'mixin.env.remapRefMap', 'true'
+				property 'mixin.env.refMapRemappingFile', srgToMcpFile
+			}
+
+			// Logging markers for Forge. See default MDK for instructions.
+			property 'forge.logging.markers', 'REGISTRIES'
+
+			// Console logging level (debug by info, change to debug if you need debug logging).
+			property 'forge.logging.console.level', 'info'
+
+			// Tells the mod if it is running in an IDE (must be configured in your project, but not required).
+			property "${mod_id}.iside".toString(), 'true'
+
+			// Add the mod's main source set to the total mods in the run configuration.
+			ModConfig modConfig = new ModConfig(project, mod_id)
+			modConfig.source(sourceSets.main)
+			mods.add(modConfig)
+		}
+
+		// Client run configuration
+		client {
+			// The client run configuration does not need any additional properties.
+			// All of them are defined in the "all" closure. If you'd like to add some of your own, feel free.
+		}
+
+		// Server run configuration
+		server {
+			// Additional arguments exclusive to the server (nogui by default, separated by ",").
+			args 'nogui'
+		}
+
+		// Data run configuration
+		data {
+			// Additional arguments exclusive to data generation (do NOT change these unless necessary).
+			args '--mod', mod_id, '--all', '--output', getFile(projectDir, 'src', 'generated', 'resources'), '--existing', getFile(projectDir, 'src', 'main', 'resources')
+
+			// Tells the mod if it is running datagen (must be configured in your project, but not required).
+			property "${mod_id}.datagen".toString(), 'true'
+
+			// Workaround for https://github.com/MinecraftForge/ForgeGradle/issues/690
+			// Written by Shadew
+			if (isMacOS()) {
+				jvmArg('-XstartOnFirstThread')
+			}
+		}
+	}
+}
+
+// Additional settings for the resources source set.
+sourceSets.main.resources {
+	// Include resources generated by data generators.
+	srcDir getFile(projectDir, 'src', 'generated', 'resources')
+}
+
+if (isUsingMixin()) {
+	// MixinGradle settings
+	mixin {
+		// Add the refmap to the built JAR file.
+		add sourceSets.main, "${mod_id}.refmap.json".toString()
+
+		// Add the mixin config JSON file to run configs and the built JAR's Manifest.
+		config "${mod_id}.mixins.json".toString()
+	}
+}
+
+// Additional configuration for non-mod dependencies.
+configurations {
+	library
+	implementation.extendsFrom(library)
+}
+
+// Dependencies to use in this project.
 dependencies {
-    // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.19-41.0.5'
+	// Minecraft Forge
+	String toolchain = 'forge'
+	if (usingFMLOnly()) {
+		toolchain = 'fmlonly'
+	}
+	minecraft "net.minecraftforge:${toolchain}:${mc_version}-${forge_version}".toString()
 
-    // Real mod deobf dependency examples - these get remapped to your current mappings
-    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
-    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
-    // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
+	// Mixin processor
+	if (isUsingMixin()) {
+		annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor".toString()
+	}
 
-    // Examples using mod jars from ./libs
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+	// LazyDFU
+	if (project.hasProperty('lazydfu_version')) {
+		runtimeOnly fg.deobf("me.jonathing.minecraft:lazydfu:${lazydfu_version}".toString())
+	}
 
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    
-    // Apply Mixin AP
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+	// Structure Gel API (ML Exclusive)
+	if (isUsingStructureGel()) {
+		implementation fg.deobf("com.legacy:structure-gel:${gel_version}".toString())
+	}
 }
 
-// Example for how to get properties into the manifest for reading at runtime.
+// Attributes to include in the built jar file.
 jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "${mod_id}",
-                "Specification-Vendor"    : "examplemodsareus",
-                "Specification-Version"   : "${mod_version}",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "examplemodsareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
+	manifest {
+		attributes([
+				'Specification-Title'     : mod_id,
+				'Specification-Vendor'    : mod_author,
+				'Specification-Version'   : '1',
+				'Implementation-Title'    : project.name,
+				'Implementation-Version'  : archiveVersion.getOrElse(version),
+				'Implementation-Vendor'   : mod_author,
+				'Implementation-Timestamp': new Date().format('yyyy-MM-dd\'T\'HH:mm:ssZ')
+		])
+	}
 }
-
-// Example configuration to allow publishing using the maven-publish plugin
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-// publish.dependsOn('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-

@@ -1,0 +1,67 @@
+/*
+ * GradleWorks for ForgeGradle 5
+ * Written by Jonathing
+ * Version 4.0.2
+ *
+ * This gradle file contains additional instructions for publishing builds of this mod to the Modding Legacy Maven
+ * repository. For more information on publishing to the ML Maven, talk to Jonathing.
+ */
+
+// Shoves all of the sources in a JAR file.
+task sourcesJar(type: Jar, dependsOn: classes) {
+	archiveClassifier.set('sources')
+
+	from sourceSets.main.allSource
+}
+
+// Shoves all of the sources and deobfuscated compiled classes in a JAR file.
+task deobfJar(type: Jar, dependsOn: classes) {
+	archiveClassifier.set('deobf')
+
+	from sourceSets.main.java.sourceDirectories
+	from sourceSets.main.output
+}
+
+// Generates the javadocs and shoves them in a JAR file.
+task javadocJar(type: Jar) {
+	archiveClassifier.set('javadoc')
+
+	from javadoc
+}
+
+// Ensures that the mod is built before it is published to the maven.
+publish {
+	dependsOn 'build'
+}
+
+publishing {
+	publications {
+		// Get the main jar, sources jar, and javadoc jars for publishing.
+		mavenJava(MavenPublication) {
+			groupId = "${maven_group}".toString()
+			artifactId = "${maven_artifact_id}".toString()
+			version = "${mc_version}-${version}".toString()
+
+			artifact reobfFile // main jar
+			artifact sourcesJar // sources jar
+			artifact javadocJar // javadoc jar
+		}
+	}
+	repositories {
+		// Modding Legacy Maven (ML exclusive)
+		maven {
+			name 'ModdingLegacyMaven'
+			url uri('https://maven.moddinglegacy.com/repository/modding-legacy/')
+			credentials {
+				username = project.findProperty('mlm.user') ?: System.getenv('ML_USERNAME')
+				password = project.findProperty('mlm.key') ?: System.getenv('ML_TOKEN')
+			}
+		}
+
+		// Test Maven repository located in the "mcmodsrepo" folder.
+		maven {
+			name 'TestMaven'
+			url "file:///${project.projectDir}/mcmodsrepo".toString()
+		}
+	}
+}

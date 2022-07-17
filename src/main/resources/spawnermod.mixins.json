@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.branders.spawnermod.mixin",
-  "refmap": "mixins.spawnermod.refmap.json",  
+  "refmap": "spawnermod.refmap.json",  
   "mixins": [
 	  "LimitedSpawnsMixin",
     "SpawnerRangeMixin"
