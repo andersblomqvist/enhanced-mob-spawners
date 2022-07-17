@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.network.NetworkDirection;
@@ -58,7 +58,7 @@ public class SpawnerEventHandler {
      */
     @SubscribeEvent
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-    	ServerPlayer player = (ServerPlayer) event.getPlayer();
+    	ServerPlayer player = (ServerPlayer) event.getEntity();
     	
     	SpawnerMod.LOGGER.info("Sending config to player.");
     	
@@ -134,7 +134,7 @@ public class SpawnerEventHandler {
     			
     			// drop monster egg
     			if(ConfigValues.get("disable_egg_removal_from_spawner") == 0)
-    				dropMonsterEgg(event.getPos(), (Level)event.getWorld());
+    				dropMonsterEgg(event.getPos(), (Level)event.getLevel());
     		}	
     	}
     }
@@ -149,7 +149,7 @@ public class SpawnerEventHandler {
     	if(event.getState().getBlock() != Blocks.SPAWNER || !(event.getEntity() instanceof Player))
     		return;
     	
-    	Level world = (Level) event.getWorld();
+    	Level world = (Level) event.getLevel();
     	BlockPos pos = event.getPos();
     	
     	SpawnerBlockEntity tileentity = (SpawnerBlockEntity)world.getBlockEntity(pos);
@@ -166,7 +166,7 @@ public class SpawnerEventHandler {
     @SubscribeEvent
     public void onNotifyEvent(BlockEvent.NeighborNotifyEvent event) {
     	
-    	Level level = (Level)event.getWorld();
+    	Level level = (Level)event.getLevel();
     	
     	for(Direction dir : Direction.values()) {
     		BlockPos pos = event.getPos().relative(dir);
@@ -277,7 +277,7 @@ public class SpawnerEventHandler {
     			event.getHand() == InteractionHand.OFF_HAND)
     		return;
     	
-    	Level level = event.getWorld();
+    	Level level = event.getLevel();
     	BlockPos blockpos = event.getPos();
     	
     	// Leave if we didn't right click a spawner block
@@ -285,7 +285,7 @@ public class SpawnerEventHandler {
 			return;
 		
 		// Leave if server
-		if(!level.isClientSide || event.getPlayer().isSpectator())
+		if(!level.isClientSide || event.getEntity().isSpectator())
 			return;
 		
 		// Send Network message

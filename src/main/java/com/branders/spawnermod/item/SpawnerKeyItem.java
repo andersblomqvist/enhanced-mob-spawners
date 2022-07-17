@@ -34,7 +34,7 @@ public class SpawnerKeyItem extends Item {
 	}
 	
 	@Override
-	public int getItemStackLimit(ItemStack stack) {
+	public int getMaxStackSize(ItemStack stack) {
 		return 1;
 	}
 	
