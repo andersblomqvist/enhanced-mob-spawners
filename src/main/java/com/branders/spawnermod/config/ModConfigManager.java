@@ -2,7 +2,6 @@ package com.branders.spawnermod.config;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,8 +78,7 @@ public class ModConfigManager {
 	private static void readConfig() {
 		try {
 			BufferedReader reader =  new BufferedReader(new FileReader(file));
-			@SuppressWarnings("deprecation")
-			JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
+			JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 			
 			Pair<JsonObject, Boolean> validConfig = validateConfig(json);
 			JsonObject entities = json.getAsJsonObject("disable_specific_egg_drops");
@@ -100,7 +98,10 @@ public class ModConfigManager {
 				saveConfig();
 			}
 			
-		} catch (FileNotFoundException e) {
+			reader.close();
+			
+		} catch (IOException e) {
+			SpawnerMod.LOGGER.warn("Could not read config file.");
 			e.printStackTrace();
 		}
 	}
