@@ -1,6 +1,8 @@
 package com.branders.spawnermod.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.branders.spawnermod.SpawnerMod;
@@ -15,6 +17,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ConfigValues {
 	
 	private static HashMap<String, Integer> CONFIG_SPEC = new HashMap<String, Integer>();
+	
+	private static ArrayList<Integer> ITEM_ID_BLACKLIST = new ArrayList<Integer>();
 	
 	/**
 	 * 	Initializes the CONFIG_SPEC hashmap with key value pairs where the values
@@ -41,6 +45,10 @@ public class ConfigValues {
 				CONFIG_SPEC.put(s, 0);
 			}				
 		});
+		
+		// Loggs the item id when the player right clicks a spawner.
+		// Makes it easy to see what ids you want to blacklist.
+		CONFIG_SPEC.put("display_item_id_from_right_click_in_log", 0);
 	}
 	
 	/**
@@ -87,6 +95,37 @@ public class ConfigValues {
 			return false;
 		else
 			return true;
+	}
+	
+	/**
+	 * 	Searches the black array list for item id.
+	 * 
+	 * 	@param itemId From Item.getId(item)
+	 * 	@return true if id is found
+	 */
+	public static boolean isItemIdBlacklisted(int itemId) {
+		if (ITEM_ID_BLACKLIST.contains(itemId))
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * 	Adds the item id to blacklist
+	 * 
+	 * 	@param itemId
+	 */
+	public static void blacklistItem(int itemId) {
+		ITEM_ID_BLACKLIST.add(itemId);
+	}
+	
+	/**
+	 * 	Returns an iterator over the blacklist ids
+	 * 
+	 * 	@return
+	 */
+	public static Iterator<Integer> getBlacklistIds() {
+		return ITEM_ID_BLACKLIST.iterator();
 	}
 	
 	/**

@@ -3,6 +3,7 @@ package com.branders.spawnermod.event;
 import java.util.Optional;
 import java.util.Random;
 
+import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKeyItem;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
@@ -231,6 +232,15 @@ public class SpawnerEventHandler {
 		if(level.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
 			return;
 		
+    	// Leave if item is part of the item id blacklist
+    	int itemId = Item.getId(item);
+    	
+    	if(ConfigValues.get("display_item_id_from_right_click_in_log") == 1)
+			SpawnerMod.LOGGER.info("Right clicked with item id: " + itemId);
+    	
+    	if(ConfigValues.isItemIdBlacklisted(itemId))
+    		return;
+    	
 		// Leave if server
 		if(!level.isClientSide || event.getPlayer().isSpectator())
 			return;
@@ -282,9 +292,9 @@ public class SpawnerEventHandler {
         // Create entity item
         ItemEntity entityItem = new ItemEntity(
         		level, 
-        		(double)pos.getX() + d0, 
-        		(double)pos.getY() + d1, 
-        		(double)pos.getZ() + d2, 
+        		(double)pos.getX() + d0,
+        		(double)pos.getY() + d1,
+        		(double)pos.getZ() + d2,
         		itemStack);
 		entityItem.setDefaultPickUpDelay();
 		
