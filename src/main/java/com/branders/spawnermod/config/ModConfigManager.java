@@ -2,7 +2,6 @@ package com.branders.spawnermod.config;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -98,7 +97,12 @@ public class ModConfigManager {
 			
 			JsonArray blacklist = json.getAsJsonArray("item_id_blacklist");
 			for(JsonElement elem : blacklist) {
-				ConfigValues.blacklistItem(elem.getAsInt());
+				try {
+					String name = elem.getAsString();
+					ConfigValues.blacklistItem(name);
+				} catch (Exception e) {
+					SpawnerMod.LOGGER.warn("Failed to read element inside blacklist array!");
+				}
 			}
 			
 			// If the loaded config was broken, save the fixed version now.
@@ -107,7 +111,9 @@ public class ModConfigManager {
 				saveConfig();
 			}
 			
-		} catch (FileNotFoundException e) {
+			reader.close();
+			
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -132,9 +138,9 @@ public class ModConfigManager {
 		}
 		
 		JsonArray blacklist = new JsonArray();
-		Iterator<Integer> it = ConfigValues.getBlacklistIds();
+		Iterator<String> it = ConfigValues.getBlacklistIds();
 		while(it.hasNext()) {
-			int id = it.next().intValue();
+			String id = it.next();
 			blacklist.add(id);
 		}
 		config.add("item_id_blacklist", blacklist);

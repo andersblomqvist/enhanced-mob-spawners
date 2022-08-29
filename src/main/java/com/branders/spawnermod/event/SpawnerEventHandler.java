@@ -233,12 +233,12 @@ public class SpawnerEventHandler {
 			return;
 		
     	// Leave if item is part of the item id blacklist
-    	int itemId = Item.getId(item);
+    	String registryName = item.getRegistryName().toString();
     	
     	if(ConfigValues.get("display_item_id_from_right_click_in_log") == 1)
-			SpawnerMod.LOGGER.info("Right clicked with item id: " + itemId);
+			SpawnerMod.LOGGER.info("Right clicked with item id: " + registryName);
     	
-    	if(ConfigValues.isItemIdBlacklisted(itemId))
+    	if(ConfigValues.isItemIdBlacklisted(registryName))
     		return;
     	
 		// Leave if server

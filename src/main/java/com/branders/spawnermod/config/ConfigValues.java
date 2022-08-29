@@ -18,7 +18,7 @@ public class ConfigValues {
 	
 	private static HashMap<String, Integer> CONFIG_SPEC = new HashMap<String, Integer>();
 	
-	private static ArrayList<Integer> ITEM_ID_BLACKLIST = new ArrayList<Integer>();
+	private static ArrayList<String> ITEM_ID_BLACKLIST = new ArrayList<String>();
 	
 	/**
 	 * 	Initializes the CONFIG_SPEC hashmap with key value pairs where the values
@@ -98,25 +98,25 @@ public class ConfigValues {
 	}
 	
 	/**
-	 * 	Searches the black array list for item id.
+	 * 	Searches the blacklist array for item id.
 	 * 
-	 * 	@param itemId From Item.getId(item)
+	 * 	@param registryName Full name "minecraft:apple"
 	 * 	@return true if id is found
 	 */
-	public static boolean isItemIdBlacklisted(int itemId) {
-		if (ITEM_ID_BLACKLIST.contains(itemId))
+	public static boolean isItemIdBlacklisted(String registryName) {
+		if (ITEM_ID_BLACKLIST.contains(registryName))
 			return true;
 		else
 			return false;
 	}
 	
 	/**
-	 * 	Adds the item id to blacklist
+	 * 	Adds the registry name to blacklist
 	 * 
-	 * 	@param itemId
+	 * 	@param registryName
 	 */
-	public static void blacklistItem(int itemId) {
-		ITEM_ID_BLACKLIST.add(itemId);
+	public static void blacklistItem(String registryName) {
+		ITEM_ID_BLACKLIST.add(registryName);
 	}
 	
 	/**
@@ -124,7 +124,7 @@ public class ConfigValues {
 	 * 
 	 * 	@return
 	 */
-	public static Iterator<Integer> getBlacklistIds() {
+	public static Iterator<String> getBlacklistIds() {
 		return ITEM_ID_BLACKLIST.iterator();
 	}
 	
