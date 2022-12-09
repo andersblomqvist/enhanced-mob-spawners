@@ -22,6 +22,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -29,7 +30,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
 
@@ -59,7 +59,7 @@ public class EventHandler {
 		// Make sure it was a spawner block
 		if(world.getBlockState(pos).getBlock() instanceof SpawnerBlock) {
 			
-			ItemStack item = Iterables.get(player.getItemsHand(), 0);
+			ItemStack item = Iterables.get(player.getHandItems(), 0);
 			NbtList enchants = item.getEnchantments();
 			
 			if(checkSilkTouch(enchants) && ConfigValues.get("disable_silk_touch") == 0) {
@@ -137,7 +137,7 @@ public class EventHandler {
 			itemStack = new ItemStack(ModRegistry.IRON_GOLEM_SPAWN_EGG);
 		else
 			itemStack = new ItemStack(
-					Registry.ITEM.get(new Identifier(entity_string + "_spawn_egg")));
+					Registries.ITEM.get(new Identifier(entity_string + "_spawn_egg")));
 		
 		// Get random fly-out position offsets
 		double d0 = (double)(world.getRandom().nextFloat() * 0.7F) + (double)0.15F;
@@ -157,7 +157,7 @@ public class EventHandler {
 		world.spawnEntity(entityItem);
 		
 		// Replace the entity inside the spawner with default entity
-		logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
+		logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, world, world.random, pos);
 		spawner.markDirty();
 		world.updateListeners(pos, blockstate, blockstate, 3);
     }

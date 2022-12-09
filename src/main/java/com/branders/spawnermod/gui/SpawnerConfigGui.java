@@ -9,7 +9,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
@@ -28,7 +27,7 @@ import net.minecraft.world.MobSpawnerLogic;
 @Environment(EnvType.CLIENT)
 public class SpawnerConfigGui extends Screen {
 	
-	// "Spawner Config" title in yellow at the top
+    // "Spawner Config" title in yellow at the top
 	private static final Text titleText = Text.translatable("gui.spawnermod.spawner_config_screen_title");
 	
 	// Reference to spawner logic and NBT data. Set in constructor
@@ -167,182 +166,187 @@ public class SpawnerConfigGui extends Screen {
 		/**
 		 * 	Count button
 		 */
-		addDrawableChild(countButton = new ButtonWidget(
-				width / 2 - 48, 55, 108, 20, Text.translatable(
-						"button.count." + getButtonText(countOptionValue)), button -> {
-			switch(countOptionValue) {
-				// Low, set to Default
-				case 0:
-					countOptionValue = 1;
-					spawnCount = _spawnCount.DEFAULT;
-					maxNearbyEntities = _maxNearbyEntities.DEFAULT;
-					break;
-					
-				// Default, set to High
-				case 1:
-					countOptionValue = 2;
-					spawnCount = _spawnCount.HIGH;
-					maxNearbyEntities = _maxNearbyEntities.HIGH;
-					break;
-					
-				// High, set to Very High
-				case 2:
-					countOptionValue = 3;
-					spawnCount = _spawnCount.HIGHEST;
-					maxNearbyEntities = _maxNearbyEntities.HIGHEST;
-					break;
-					
-				// Very high, set back to Low
-				case 3:
-					countOptionValue = 0;
-					spawnCount = _spawnCount.LOW;
-					maxNearbyEntities = _maxNearbyEntities.LOW;
-					break;
-			}
-			
-			countButton.setMessage(Text.translatable("button.count." + getButtonText(countOptionValue)));
-		}));
-		
+		countButton = addDrawableChild(ButtonWidget.builder(
+				Text.translatable("button.count." + getButtonText(countOptionValue)), button -> {
+					switch(countOptionValue) {
+						// Low, set to Default
+						case 0:
+							countOptionValue = 1;
+							spawnCount = _spawnCount.DEFAULT;
+							maxNearbyEntities = _maxNearbyEntities.DEFAULT;
+							break;
+							
+						// Default, set to High
+						case 1:
+							countOptionValue = 2;
+							spawnCount = _spawnCount.HIGH;
+							maxNearbyEntities = _maxNearbyEntities.HIGH;
+							break;
+							
+						// High, set to Very High
+						case 2:
+							countOptionValue = 3;
+							spawnCount = _spawnCount.HIGHEST;
+							maxNearbyEntities = _maxNearbyEntities.HIGHEST;
+							break;
+							
+						// Very high, set back to Low
+						case 3:
+							countOptionValue = 0;
+							spawnCount = _spawnCount.LOW;
+							maxNearbyEntities = _maxNearbyEntities.LOW;
+							break;
+					}
+				countButton.setMessage(Text.translatable("button.count." + getButtonText(countOptionValue)));
+				})
+				.dimensions(width / 2 - 48, 55, 108, 20)
+				.build());
 		
 		/**
 		 * 	Speed button
 		 */
-		addDrawableChild(speedButton = new ButtonWidget(
-				width / 2 - 48, 80, 108, 20, Text.translatable(
-						"button.speed." + getButtonText(speedOptionValue)), button -> {
-			switch(speedOptionValue) {
-				// Slow, set to default
-				case 0:
-					speedOptionValue = 1;
-					delay = _delay.DEFAULT;
-					minSpawnDelay = _minSpawnDelay.DEFAULT;
-					maxSpawnDelay = _maxSpawnDelay.DEFAULT;
-					break;
-					
-				// Default, set to Fast
-				case 1:
-					speedOptionValue = 2;
-					delay = _delay.HIGH;
-					minSpawnDelay = _minSpawnDelay.HIGH;
-					maxSpawnDelay = _maxSpawnDelay.HIGH;
-					break;
-					
-				// High, set to Very Fast
-				case 2:
-					speedOptionValue = 3;
-					delay = _delay.HIGHEST;
-					minSpawnDelay = _minSpawnDelay.HIGHEST;
-					maxSpawnDelay = _maxSpawnDelay.HIGHEST;
-					break;
-					
-				// Very high, set back to Slow
-				case 3:
-					speedOptionValue = 0;
-					delay = _delay.LOW;
-					minSpawnDelay = _minSpawnDelay.LOW;
-					maxSpawnDelay = _maxSpawnDelay.LOW;
-					break;
-			}
-			speedButton.setMessage(Text.translatable("button.speed." + getButtonText(speedOptionValue)));
-		}));
+		speedButton = addDrawableChild(ButtonWidget.builder(
+				Text.translatable("button.speed." + getButtonText(speedOptionValue)), button -> {
+					switch(speedOptionValue) {
+						// Slow, set to default
+						case 0:
+							speedOptionValue = 1;
+							delay = _delay.DEFAULT;
+							minSpawnDelay = _minSpawnDelay.DEFAULT;
+							maxSpawnDelay = _maxSpawnDelay.DEFAULT;
+							break;
+							
+						// Default, set to Fast
+						case 1:
+							speedOptionValue = 2;
+							delay = _delay.HIGH;
+							minSpawnDelay = _minSpawnDelay.HIGH;
+							maxSpawnDelay = _maxSpawnDelay.HIGH;
+							break;
+							
+						// High, set to Very Fast
+						case 2:
+							speedOptionValue = 3;
+							delay = _delay.HIGHEST;
+							minSpawnDelay = _minSpawnDelay.HIGHEST;
+							maxSpawnDelay = _maxSpawnDelay.HIGHEST;
+							break;
+							
+						// Very high, set back to Slow
+						case 3:
+							speedOptionValue = 0;
+							delay = _delay.LOW;
+							minSpawnDelay = _minSpawnDelay.LOW;
+							maxSpawnDelay = _maxSpawnDelay.LOW;
+							break;
+					}
+					speedButton.setMessage(Text.translatable("button.speed." + getButtonText(speedOptionValue)));
+				})
+				.dimensions(width / 2 - 48, 80, 108, 20)
+				.build());
 		
 		/**
 		 * 	Range button
 		 */
-		addDrawableChild(rangeButton = new ButtonWidget(
-				width / 2 - 48, 105, 108, 20, Text.translatable(
-						"button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
-			switch(rangeOptionValue) {
-				// Default, set to Far
-				case 0:
-					rangeOptionValue = 1;
-					requiredPlayerRange = _requiredPlayerRange.DEFAULT;
-					break;
-					
-				// Far, set to Very Far
-				case 1:
-					rangeOptionValue = 2;
-					requiredPlayerRange = _requiredPlayerRange.HIGH;
-					break;
-					
-				// Very Far, set to Extreme
-				case 2:
-					rangeOptionValue = 3;
-					requiredPlayerRange = _requiredPlayerRange.HIGHEST;
-					break;
-					
-				// Extreme, set back to Default or Custom
-				case 3:
-					if(isCustomRange) {
-						rangeOptionValue = 4;
-						requiredPlayerRange = customRange;
-					} else {
-						rangeOptionValue = 0;
-						requiredPlayerRange = _requiredPlayerRange.LOW;
+		rangeButton = addDrawableChild(ButtonWidget.builder(
+				Text.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
+					switch(rangeOptionValue) {
+						// Default, set to Far
+						case 0:
+							rangeOptionValue = 1;
+							requiredPlayerRange = _requiredPlayerRange.DEFAULT;
+							break;
+							
+						// Far, set to Very Far
+						case 1:
+							rangeOptionValue = 2;
+							requiredPlayerRange = _requiredPlayerRange.HIGH;
+							break;
+							
+						// Very Far, set to Extreme
+						case 2:
+							rangeOptionValue = 3;
+							requiredPlayerRange = _requiredPlayerRange.HIGHEST;
+							break;
+							
+						// Extreme, set back to Default or Custom
+						case 3:
+							if(isCustomRange) {
+								rangeOptionValue = 4;
+								requiredPlayerRange = customRange;
+							} else {
+								rangeOptionValue = 0;
+								requiredPlayerRange = _requiredPlayerRange.LOW;
+							}
+							break;
+		
+						// Custom, set back to Default
+						case 4:
+							rangeOptionValue = 0;
+							requiredPlayerRange = _requiredPlayerRange.LOW;
+							break;
 					}
-					break;
-
-				// Custom, set back to Default
-				case 4:
-					rangeOptionValue = 0;
-					requiredPlayerRange = _requiredPlayerRange.LOW;
-					break;
-			}
-			
-			rangeButton.setMessage(Text.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
-		}));
+					
+					rangeButton.setMessage(Text.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
+				})
+				.dimensions(width / 2 - 48, 105, 108, 20)
+				.build());
 		
 		/**
 		 * 	Disable button
 		 */
-		addDrawableChild(disableButton = new ButtonWidget(
-				width / 2 - 48, 130, 108, 20, Text.translatable(
-						"button.toggle." + getButtonText(disabled)), button -> {
-			if(disabled) {
-				// Set spawner to ON
-				disabled = false;
-				toggleButtons(true);
-				switch(rangeOptionValue) {
-					case 0:
-						requiredPlayerRange = _requiredPlayerRange.LOW;
-						break;
-					case 1:
-						requiredPlayerRange = _requiredPlayerRange.DEFAULT;
-						break;
-					case 2:
-						requiredPlayerRange = _requiredPlayerRange.HIGH;
-						break;
-					case 3:
-						requiredPlayerRange = _requiredPlayerRange.HIGHEST;
-						break;
-				}
-			}
-			else {
-				// Set spawner OFF
-				disabled = true;
-				toggleButtons(false);
-				requiredPlayerRange = 0;
-			}
-			
-			disableButton.setMessage(Text.translatable("button.toggle." + getButtonText(disabled)));
-		}));
+		disableButton = addDrawableChild(ButtonWidget.builder(
+				Text.translatable("button.toggle." + getButtonText(disabled)), button -> {
+					if(disabled) {
+						// Set spawner to ON
+						disabled = false;
+						toggleButtons(true);
+						switch(rangeOptionValue) {
+							case 0:
+								requiredPlayerRange = _requiredPlayerRange.LOW;
+								break;
+							case 1:
+								requiredPlayerRange = _requiredPlayerRange.DEFAULT;
+								break;
+							case 2:
+								requiredPlayerRange = _requiredPlayerRange.HIGH;
+								break;
+							case 3:
+								requiredPlayerRange = _requiredPlayerRange.HIGHEST;
+								break;
+						}
+					}
+					else {
+						// Set spawner OFF
+						disabled = true;
+						toggleButtons(false);
+						requiredPlayerRange = 0;
+					}
+					
+					disableButton.setMessage(Text.translatable("button.toggle." + getButtonText(disabled)));
+				})
+				.dimensions(width / 2 - 48, 130, 108, 20)
+				.build());
 		
 		/**
 		 * 	Save button - configures spawner data
 		 */
-		addDrawableChild(new ButtonWidget(width / 2 - 89, 180 + 10, 178, 20, Text.translatable("button.save"), button -> 
-		{
+		addDrawableChild(ButtonWidget.builder(Text.translatable("button.save"), button -> {
 			configureSpawner();
 			this.close();
-		}));
+		})
+		.dimensions(width / 2 - 89, 180 + 10, 178, 20)
+		.build());
 		
 		/**
 		 * 	Cancel button
 		 */
-		addDrawableChild(new ButtonWidget(width / 2 - 89, 180 + 35, 178, 20, Text.translatable("button.cancel"), button -> 
-		{
+		addDrawableChild(ButtonWidget.builder(Text.translatable("button.cancel"), button -> {
 			this.close();
-		}));
+		})
+		.dimensions(width / 2 - 89, 180 + 35, 178, 20)
+		.build());
+		
 		
 		if(disabled)
 			toggleButtons(false);
@@ -358,7 +362,6 @@ public class SpawnerConfigGui extends Screen {
 		// Draw black transparent background (just like when pressing escape)
 		renderBackground(matrices);
 		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, spawnerConfigTexture);
 		drawTexture(matrices, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
@@ -368,7 +371,6 @@ public class SpawnerConfigGui extends Screen {
 		
 		// Render spawns icon and text (only if enabled in config)
 		if(limitedSpawns) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, spawnsIconTexture);
 			drawTexture(matrices, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
 			drawTextWithShadow(matrices, client.textRenderer, Text.literal("" + (ConfigValues.get("limited_spawns_amount") - spawns)), width / 2 + 114, 27, 0xFFFFFF);
@@ -383,17 +385,17 @@ public class SpawnerConfigGui extends Screen {
     private void configureSpawner() {
     	
     	if(cachedDisabled)
-    		if(cachedDisabled == disabled)
+    	    if(cachedDisabled == disabled)
     			return;
     	
     	new SyncSpawnerMessage(
-    					pos, 
-    					delay, 
-    					spawnCount, 
-    					requiredPlayerRange, 
-    					maxNearbyEntities,
-    					minSpawnDelay, 
-    					maxSpawnDelay).send();
+				pos, 
+				delay, 
+				spawnCount, 
+				requiredPlayerRange, 
+				maxNearbyEntities,
+				minSpawnDelay, 
+				maxSpawnDelay).send();
     }
 	
 	/**

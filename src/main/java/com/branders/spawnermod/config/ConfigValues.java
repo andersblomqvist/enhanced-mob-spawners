@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.branders.spawnermod.SpawnerMod;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
 
 /**
  * 	All mod config values are stored here.
@@ -40,7 +40,7 @@ public class ConfigValues {
 		
 		// Loop through item registry and insert all spawn egg entities to hash map.
 		// Example of a key: "minecraft:pig" with default value 0.
-		Registry.ITEM.getIds().stream().forEach(i -> {
+		Registries.ITEM.getIds().stream().forEach(i -> {
 			String s = i.toString();
 			if(i.toString().contains("spawn_egg")) {
 				s = s.substring(0, s.length() - 10);	// 10 is length of "_spawn_egg"

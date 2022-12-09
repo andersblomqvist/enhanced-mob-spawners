@@ -32,7 +32,7 @@ public class LimitedSpawnsMixin {
 			cancellable = true)
 	private void entitySpawn(ServerWorld world, BlockPos pos, CallbackInfo ci) {
 		
-		if(ConfigValues.get("limited_spawns_enabled") == 0)
+	    if(ConfigValues.get("limited_spawns_enabled") == 0)
 			return;
 		
 		// Don't count "empty" entities.
@@ -66,7 +66,7 @@ public class LimitedSpawnsMixin {
         	nbt = ((MobSpawnerLogic)(Object)this).writeNbt(nbt);
         	nbt.putShort("RequiredPlayerRange", (short) 0);
         	((MobSpawnerLogic)(Object)this).readNbt(world, pos, nbt);
-        	((MobSpawnerLogic)(Object)this).setEntityId(EntityType.AREA_EFFECT_CLOUD);
+        	((MobSpawnerLogic)(Object)this).setEntityId(EntityType.AREA_EFFECT_CLOUD, world, world.random, pos);
         	world.syncWorldEvent(WorldEvents.LAVA_EXTINGUISHED, pos, 0);
         	ci.cancel();
         }

@@ -29,7 +29,7 @@ public class BlockHardnessMixin {
 		Block block = state.getBlock();
 		if(block instanceof SpawnerBlock) {
 			// Return custom hardness
-			float hardness = ConfigValues.get("spawner_hardness");
+		    float hardness = ConfigValues.get("spawner_hardness");
 			cir.setReturnValue(hardness);
 		}
     }

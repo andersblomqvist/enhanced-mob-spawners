@@ -46,7 +46,7 @@ public class PlayerPlaceBlockMixin {
 			MobSpawnerLogic logic = spawner.getLogic();
 			
 			// Replace the entity inside the spawner with default entity
-			logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
+			logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, world, world.random, pos);
 			spawner.markDirty();
 			world.updateListeners(pos, state, state, Block.NOTIFY_ALL);
 		}

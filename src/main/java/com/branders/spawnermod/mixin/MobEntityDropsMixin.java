@@ -15,9 +15,9 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 /**
  * 	"Event" for mob drops. We inject into the dropLoot method and add a spawn
@@ -36,7 +36,7 @@ public class MobEntityDropsMixin {
 	private void dropLoot(DamageSource source, boolean causedByPlayer, CallbackInfo ci) {
 		
 		// Leave if eggs should only drop when killed by a player
-		if(ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
+	    if(ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
 			return;
 		
 		Random random = new Random();
@@ -58,7 +58,7 @@ public class MobEntityDropsMixin {
 		else if(entityType.equals(EntityType.IRON_GOLEM))
 			egg = new ItemStack(ModRegistry.IRON_GOLEM_SPAWN_EGG);
 		else
-			egg = new ItemStack(Registry.ITEM.get(new Identifier(EntityType.getId(entityType).toString() + "_spawn_egg")));
+			egg = new ItemStack(Registries.ITEM.get(new Identifier(EntityType.getId(entityType).toString() + "_spawn_egg")));
 		
 		world.spawnEntity(new ItemEntity(world, entity.prevX, entity.prevY, entity.prevZ, egg));
 	}
