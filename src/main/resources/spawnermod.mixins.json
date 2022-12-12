@@ -6,7 +6,6 @@
   "mixins": [
     "LimitedSpawnsMixin",
     "SpawnerBlockExpMixin",
-    "PlayerPlaceBlockMixin",
     "MobEntityDropsMixin",
     "SpawnerBlockEntityMixin",
     "UpdateNeighborMixin",

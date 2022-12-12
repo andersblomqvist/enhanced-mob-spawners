@@ -22,20 +22,20 @@ import net.minecraft.util.math.BlockPos;
  */
 @Mixin(SpawnerBlock.class)
 public class SpawnerBlockExpMixin {
-	
-	
-	@Inject(
-			at = @At("HEAD"), 
-			method = "onStacksDropped("
-					+ "Lnet/minecraft/block/BlockState;"
-					+ "Lnet/minecraft/server/world/ServerWorld;"
-					+ "Lnet/minecraft/util/math/BlockPos;"
-					+ "Lnet/minecraft/item/ItemStack;"
-					+ "Z)"
-					+ "V", 
-			cancellable = true
-	)
-	public void onStacksDropped(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack, boolean dropExp, CallbackInfo info) {	
-		info.cancel();
-	}
+
+
+    @Inject(
+            at = @At("HEAD"), 
+            method = "onStacksDropped("
+                    + "Lnet/minecraft/block/BlockState;"
+                    + "Lnet/minecraft/server/world/ServerWorld;"
+                    + "Lnet/minecraft/util/math/BlockPos;"
+                    + "Lnet/minecraft/item/ItemStack;"
+                    + "Z)"
+                    + "V", 
+                    cancellable = true
+            )
+    public void onStacksDropped(BlockState state, ServerWorld world, BlockPos pos, ItemStack stack, boolean dropExp, CallbackInfo info) {	
+        info.cancel();
+    }
 }

@@ -11,8 +11,8 @@ import net.fabricmc.api.ClientModInitializer;
  */
 public class SpawnerModClient implements ClientModInitializer {
 
-	@Override
-	public void onInitializeClient() {
-		SpawnerModNetworking.registerClientMessages();
-	}
+    @Override
+    public void onInitializeClient() {
+        SpawnerModNetworking.registerClientMessages();
+    }
 }

@@ -15,22 +15,22 @@ import net.minecraft.world.BlockView;
 
 @Mixin(AbstractBlockState.class)
 public class BlockHardnessMixin {
-	
-	@Inject(
-			at = @At("HEAD"),
-			method = "getHardness("
-					+ "Lnet/minecraft/world/BlockView;"
-					+ "Lnet/minecraft/util/math/BlockPos;"
-					+ ")"
-					+ "F",
-			cancellable = true)
-	public void getHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
-		AbstractBlockState state = (AbstractBlockState)(Object)this;
-		Block block = state.getBlock();
-		if(block instanceof SpawnerBlock) {
-			// Return custom hardness
-		    float hardness = ConfigValues.get("spawner_hardness");
-			cir.setReturnValue(hardness);
-		}
+
+    @Inject(
+            at = @At("HEAD"),
+            method = "getHardness("
+                    + "Lnet/minecraft/world/BlockView;"
+                    + "Lnet/minecraft/util/math/BlockPos;"
+                    + ")"
+                    + "F",
+                    cancellable = true)
+    public void getHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+        AbstractBlockState state = (AbstractBlockState)(Object)this;
+        Block block = state.getBlock();
+        if(block instanceof SpawnerBlock) {
+            // Return custom hardness
+            float hardness = ConfigValues.get("spawner_hardness");
+            cir.setReturnValue(hardness);
+        }
     }
 }

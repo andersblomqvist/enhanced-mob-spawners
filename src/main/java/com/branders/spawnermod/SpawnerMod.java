@@ -23,34 +23,34 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
  */
 public class SpawnerMod implements ModInitializer {
 
-	public static final String MOD_ID = "spawnermod";
-	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-	
-	public static final EventHandler eventHandler = new EventHandler();
-	
-	@Override
-	public void onInitialize() {
-		
-		ModConfigManager.initConfig(MOD_ID);
-		
-		UseBlockCallback.EVENT.register(eventHandler::onBlockInteract);
-		PlayerBlockBreakEvents.BEFORE.register(eventHandler::onBlockBreak);
-		
-		// If we are a server we send server config values to client
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			ServerPlayNetworking.send(handler.player, SyncConfigMessage.ID, new SyncConfigMessage(
-					(short)ConfigValues.get("disable_spawner_config"), 
-					(short)ConfigValues.get("disable_count"), 
-					(short)ConfigValues.get("disable_range"), 
-					(short)ConfigValues.get("disable_speed"),
-					(short)ConfigValues.get("limited_spawns_enabled"),
-					(short)ConfigValues.get("limited_spawns_amount"),
-					(short)ConfigValues.get("default_spawner_range_enabled"),
-					(short)ConfigValues.get("default_spawner_range")));
-		});
-		
-		SpawnerModNetworking.registerServerMessages();
-		
-		ModRegistry.register();
-	}
+    public static final String MOD_ID = "spawnermod";
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+
+    public static final EventHandler eventHandler = new EventHandler();
+
+    @Override
+    public void onInitialize() {
+
+        ModConfigManager.initConfig(MOD_ID);
+
+        UseBlockCallback.EVENT.register(eventHandler::onBlockInteract);
+        PlayerBlockBreakEvents.BEFORE.register(eventHandler::onBlockBreak);
+
+        // If we are a server we send server config values to client
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            ServerPlayNetworking.send(handler.player, SyncConfigMessage.ID, new SyncConfigMessage(
+                    (short)ConfigValues.get("disable_spawner_config"), 
+                    (short)ConfigValues.get("disable_count"), 
+                    (short)ConfigValues.get("disable_range"), 
+                    (short)ConfigValues.get("disable_speed"),
+                    (short)ConfigValues.get("limited_spawns_enabled"),
+                    (short)ConfigValues.get("limited_spawns_amount"),
+                    (short)ConfigValues.get("default_spawner_range_enabled"),
+                    (short)ConfigValues.get("default_spawner_range")));
+        });
+
+        SpawnerModNetworking.registerServerMessages();
+
+        ModRegistry.register();
+    }
 }
