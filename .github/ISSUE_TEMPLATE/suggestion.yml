@@ -1,6 +1,6 @@
 name: Suggestion
 description: >-
-  Please use this template for suggestion a new feature or idea.
+  Please use this template for suggesting a new feature or idea.
 title: '[Suggestion]: '
 body:
   - type: textarea
