@@ -1,0 +1,43 @@
+name: Bug report
+description: >-
+  Please use this template for reporting bugs or other unexpected behavior.
+title: '[Bug]: '
+body:
+  - type: textarea
+    id: repro_steps
+    attributes:
+      label: Steps to Reproduce the Bug
+      description: Please explain what needs to be done to cause the bug.
+      placeholder: >-
+        Example:  
+        
+        1. Put Pig Spawn Egg inside spawner  
+        2. Blow the spawner up with TNT
+    validations:
+      required: true
+  - type: input
+    id: mod_version
+    attributes:
+      label: Enhanced Mob Spawner filename
+      description: >-
+        Minecraft and mod version are important.
+      placeholder: spawnermod-1.19.3-1.2.3+Fabric
+    validations:
+      required: true
+  - type: input
+    id: other_mod_version
+    attributes:
+      label: Other mod filename (Optional)
+      description: >-
+        Minecraft and mod version are important.
+      placeholder: anothercoolmod-1.19.3-1.0.1+Fabric
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Extra Notes (Optional)
+      description: >-
+        You can include more information here. If there is a mod conflict, please state clearly what that mod is.
+    validations:
+      required: false
