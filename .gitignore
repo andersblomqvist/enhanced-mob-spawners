@@ -21,6 +21,7 @@ build
 eclipse
 run
 testworld
+testmod.py
 
 # Files from Forge MDK
 forge*changelog.txt
