@@ -8,10 +8,6 @@ body:
     attributes:
       label: Other
       placeholder: >-
-        Example:  
-        Hey, I don't know where else to put this but...   
-        I was visiting my family in Canada and my older brother showed me this short video clip he took
-        of his city's mayor playing Modded Minecraft but he didn't know any of the JEI hotkeys,
-        check it out! <link>
+        Issue description ...
     validations:
       required: true
