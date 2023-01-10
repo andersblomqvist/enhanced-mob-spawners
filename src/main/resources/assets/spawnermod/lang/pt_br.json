@@ -14,10 +14,10 @@
 	"button.speed.very_high": "Velocidade: Muito R�pida",
 	"button.speed.disabled": "Velocidade Desativada",
 	
-	"button.range.default": "Alcance: Longe 32",
-	"button.range.low": "Alcance: Padr�o 16",
-	"button.range.high": "Alcance: Muito Longe 64",
-	"button.range.very_high": "Alcance: Extremo 128",
+	"button.range.default": "Alcance: Longe",
+	"button.range.low": "Alcance: Padr�o ",
+	"button.range.high": "Alcance: Muito Longe",
+	"button.range.very_high": "Alcance: Extremo",
 	"button.range.disabled": "Alcance Desativado",
 	"button.range.custom": "Custom range",
 	

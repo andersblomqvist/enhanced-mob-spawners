@@ -14,10 +14,10 @@
 	"button.speed.very_high": "Скорость: очень быстрая",
 	"button.speed.disabled": "Скорость отключена",
 	
-	"button.range.default": "Дальность: Дальний 32",
-	"button.range.low": "Диапазон: по умолчанию 16",
-	"button.range.high": "Дальность: Очень далеко 64",
-	"button.range.very_high": "Диапазон: Extreme 128",
+	"button.range.default": "Дальность: Дальний",
+	"button.range.low": "Диапазон: по умолчанию",
+	"button.range.high": "Дальность: Очень далеко",
+	"button.range.very_high": "Диапазон: Extreme",
 	"button.range.disabled": "Диапазон отключен",
 	"button.range.custom": "Custom range",
 	
