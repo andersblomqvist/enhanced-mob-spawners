@@ -3,7 +3,6 @@ package com.branders.spawnermod.networking.packet;
 import java.util.function.Supplier;
 
 import com.branders.spawnermod.config.ConfigValues;
-import com.branders.spawnermod.registry.ItemRegistry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -63,6 +62,10 @@ public class SyncSpawnerEggDrop
 		    	nbt = logic.save(nbt);
 		    	String entity_string = nbt.get("SpawnData").toString();
 		    	
+		    	// Leave if the spawner does not contain an entity
+		        if(entity_string.indexOf("\"") == -1)
+		            return;
+		    	
 		    	// Strips the string
 		    	// Example: {id: "minecraft:xxx_xx"} --> minecraft:xxx_xx
 		    	entity_string = entity_string.substring(entity_string.indexOf("\"") + 1);
@@ -73,11 +76,7 @@ public class SyncSpawnerEggDrop
 					return;
 				
 		    	// Get the entity mob egg and put in an ItemStack
-				ItemStack itemStack;
-				if(entity_string.contains("iron_golem"))
-					itemStack = new ItemStack(ItemRegistry.IRON_GOLEM_SPAWN_EGG.get());
-				else
-					itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
+				ItemStack itemStack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(entity_string + "_spawn_egg")));
 				
 				// Get random fly-out position offsets
 				double d0 = (double)(level.random.nextFloat() * 0.7F) + (double)0.15F;
@@ -92,7 +91,7 @@ public class SyncSpawnerEggDrop
 				level.addFreshEntity(entityItem);
 				
 				// Replace the entity inside the spawner with default entity
-				logic.setEntityId(EntityType.AREA_EFFECT_CLOUD);
+				logic.m_253197_(EntityType.AREA_EFFECT_CLOUD, level, level.random, msg.pos);
 				spawner.setChanged();
 				level.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 			}

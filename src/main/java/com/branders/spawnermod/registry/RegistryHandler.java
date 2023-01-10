@@ -7,6 +7,8 @@ public class RegistryHandler {
 
 	public static void init() {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		ItemRegistry.register(bus);
+		ItemRegistry items = new ItemRegistry();
+		bus.register(items);
+		items.register(bus);
 	}
 }
