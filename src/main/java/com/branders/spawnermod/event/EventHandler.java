@@ -6,6 +6,7 @@ import com.branders.spawnermod.item.SpawnerKey;
 import com.branders.spawnermod.mixin.UpdateNeighborMixin;
 import com.google.common.collect.Iterables;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -82,7 +83,10 @@ public class EventHandler {
      * 	Used to retrieve egg from Spawner.
      */
     public ActionResult onBlockInteract(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
-
+        
+        if(player.isSneaking() && FabricLoader.getInstance().isModLoaded("carrier"))
+            return ActionResult.PASS;
+        
         if(world.isClient)
             return ActionResult.PASS;
 
