@@ -1,10 +1,13 @@
----
 name: Suggestion
-about: Please use this template for suggesting a new feature or idea for future mod versions.
+description: >-
+  Please use this template for suggestion a new feature or idea.
 title: '[Suggestion]: '
-labels: enhancement
-assignees: ''
-
----
-
-Provide a brief description of your suggestion
+body:
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      placeholder: >-
+        Provide a brief description of your suggestion as clear as possible.
+    validations:
+      required: true
