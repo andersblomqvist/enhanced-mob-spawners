@@ -1,7 +1,7 @@
 ---
 name: Suggestion
-about: Please use this template for suggestion a new feature or idea.
-title: ''
+about: Please use this template for suggesting a new feature or idea for future mod versions.
+title: '[Suggestion]: '
 labels: enhancement
 assignees: ''
 
