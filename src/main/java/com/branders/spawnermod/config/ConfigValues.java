@@ -47,6 +47,9 @@ public class ConfigValues {
 				CONFIG_SPEC.put(s, 0);
 			}				
 		});
+		
+		SpawnerMod.LOGGER.info("Default config values:");
+		SpawnerMod.LOGGER.info(CONFIG_SPEC.keySet());
 	}
 	
 	/**
