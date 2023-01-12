@@ -104,6 +104,15 @@ public class EventHandler {
         if(item instanceof BlockItem || item instanceof SpawnEggItem || item instanceof SpawnerKey)
             return ActionResult.PASS;
 
+        // Leave if item is part of the item id blacklist
+        String registryName = Registries.ITEM.getId(item).toString();
+        
+        if(ConfigValues.get("display_item_id_from_right_click_in_log") == 1)
+            SpawnerMod.LOGGER.info("Right clicked with item id: " + registryName);
+
+        if(ConfigValues.isItemIdBlacklisted(registryName))
+            return ActionResult.PASS;
+        
         return dropMonsterEgg(hitResult.getBlockPos(), world);
     }
 

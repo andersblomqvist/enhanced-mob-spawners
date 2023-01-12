@@ -1,6 +1,8 @@
 package com.branders.spawnermod.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import com.branders.spawnermod.SpawnerMod;
@@ -15,6 +17,8 @@ import net.minecraft.registry.Registries;
 public class ConfigValues {
 
     private static HashMap<String, Integer> CONFIG_SPEC = new HashMap<String, Integer>();
+
+    private static ArrayList<String> ITEM_ID_BLACKLIST = new ArrayList<String>();
 
     /**
      * 	Initializes the CONFIG_SPEC hashmap with key value pairs where the values
@@ -47,6 +51,10 @@ public class ConfigValues {
                 CONFIG_SPEC.put(s, 0);
             }				
         });
+        
+        // Loggs the item id when the player right clicks a spawner.
+        // Makes it easy to see what ids you want to blacklist.
+        CONFIG_SPEC.put("display_item_id_from_right_click_in_log", 0);
     }
 
     /**
@@ -82,6 +90,35 @@ public class ConfigValues {
         return CONFIG_SPEC.keySet();
     }
 
+    /**
+     *  Searches the blacklist array for item id.
+     * 
+     *  @param registryName Full name "minecraft:apple"
+     *  @return true if id is found
+     */
+    public static boolean isItemIdBlacklisted(String registryName) {
+        if (ITEM_ID_BLACKLIST.contains(registryName))
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     *  Adds the registry name to blacklist
+     * 
+     *  @param registryName
+     */
+    public static void blacklistItem(String registryName) {
+        ITEM_ID_BLACKLIST.add(registryName);
+    }
+
+    /**
+     *  @returns an iterator over the blacklist ids
+     */
+    public static Iterator<String> getBlacklistIds() {
+        return ITEM_ID_BLACKLIST.iterator();
+    }
+    
     /**
      * 	Check whether a specific entity egg is disabled or not.
      * 
