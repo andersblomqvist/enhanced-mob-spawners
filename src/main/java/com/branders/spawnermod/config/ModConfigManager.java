@@ -7,11 +7,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import com.branders.spawnermod.SpawnerMod;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -92,6 +94,16 @@ public class ModConfigManager {
 					SpawnerMod.LOGGER.warn("Key error: Could not find key: " + key);
 			}
 			
+			JsonArray blacklist = json.getAsJsonArray("item_id_blacklist");
+			for(JsonElement elem : blacklist) {
+				try {
+					String name = elem.getAsString();
+					ConfigValues.blacklistItem(name);
+				} catch (Exception e) {
+					SpawnerMod.LOGGER.warn("Failed to read element inside blacklist array!");
+				}
+			}
+			
 			// If the loaded config was broken, save the fixed version now.
 			if(validConfig.getRight()) {
 				SpawnerMod.LOGGER.info("Config was broken. Saving new config which is fixed!");
@@ -124,7 +136,15 @@ public class ModConfigManager {
 			else
 				config.addProperty((String) key, ConfigValues.get((String) key));
 		}
-			
+		
+		JsonArray blacklist = new JsonArray();
+		Iterator<String> it = ConfigValues.getBlacklistIds();
+		while(it.hasNext()) {
+			String id = it.next();
+			blacklist.add(id);
+		}
+		config.add("item_id_blacklist", blacklist);
+		
 		config.add("disable_specific_egg_drops", entities);
 		
 		String jsonConfig = GSON.toJson(config);
@@ -158,6 +178,11 @@ public class ModConfigManager {
 				if(((String) k).matches("\\w+:\\w+"))
 					entities.addProperty((String) k, 0);
 			json.add("disable_specific_egg_drops", entities);
+		}
+		
+		if(json.getAsJsonArray("item_id_blacklist") == null) {
+			json.add("item_id_blacklist", new JsonArray());
+			brokenConfig = true;
 		}
 		
 		for(String key : ConfigValues.getKeys()) {

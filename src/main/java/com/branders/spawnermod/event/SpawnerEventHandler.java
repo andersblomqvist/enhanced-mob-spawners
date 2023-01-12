@@ -242,7 +242,7 @@ public class SpawnerEventHandler {
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event) {   
 		Item item = event.getItemStack().getItem();
-
+		
 		// Leave if we are client and if we are holding a block. Also prevent off hand action
 		if(item instanceof BlockItem || 
 				item instanceof SpawnEggItem || 
@@ -251,16 +251,26 @@ public class SpawnerEventHandler {
 			return;
 
 		Level level = event.getLevel();
-		BlockPos blockpos = event.getPos();
-
-		// Leave if we didn't right click a spawner block
-		if(level.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
-			return;
-
+		
 		// Leave if server
 		if(!level.isClientSide || event.getEntity().isSpectator())
 			return;
-
+		
+		BlockPos blockpos = event.getPos();
+		
+		// Leave if we didn't right click a spawner block
+		if(level.getBlockState(blockpos).getBlock() != Blocks.SPAWNER)
+			return;
+		
+    	// Leave if item is part of the item id blacklist
+    	String registryName = ForgeRegistries.ITEMS.getKey(item).toString();
+    			
+    	if(ConfigValues.get("display_item_id_from_right_click_in_log") == 1)
+			SpawnerMod.LOGGER.info("Right clicked with item id: " + registryName);
+    	
+    	if(ConfigValues.isItemIdBlacklisted(registryName))
+    		return;
+    	
 		// Send Network message
 		SpawnerModPacketHandler.INSTANCE.sendToServer(new SyncSpawnerEggDrop(blockpos));
 	}
