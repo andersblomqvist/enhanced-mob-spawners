@@ -10,7 +10,8 @@
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/enhanced-mob-spawners",
-    "sources": "https://github.com/andersblomqvist/enhanced-mob-spawners"
+    "sources": "https://github.com/andersblomqvist/enhanced-mob-spawners",
+    "issues": "https://github.com/andersblomqvist/enhanced-mob-spawners/issues"
   },
 
   "license": "CC0-1.0",

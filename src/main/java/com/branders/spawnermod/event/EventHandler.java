@@ -83,10 +83,10 @@ public class EventHandler {
      * 	Used to retrieve egg from Spawner.
      */
     public ActionResult onBlockInteract(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
-        
+
         if(player.isSneaking() && FabricLoader.getInstance().isModLoaded("carrier"))
             return ActionResult.PASS;
-        
+
         if(world.isClient)
             return ActionResult.PASS;
 
@@ -106,13 +106,13 @@ public class EventHandler {
 
         // Leave if item is part of the item id blacklist
         String registryName = Registries.ITEM.getId(item).toString();
-        
+
         if(ConfigValues.get("display_item_id_from_right_click_in_log") == 1)
             SpawnerMod.LOGGER.info("Right clicked with item id: " + registryName);
 
         if(ConfigValues.isItemIdBlacklisted(registryName))
             return ActionResult.PASS;
-        
+
         return dropMonsterEgg(hitResult.getBlockPos(), world);
     }
 
