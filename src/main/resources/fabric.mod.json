@@ -31,9 +31,9 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.12.6",
+    "fabricloader": ">=0.14.21",
     "fabric-api": "*",
-    "minecraft": "1.19.x"
+    "minecraft": "1.20.x"
   },
   "suggests": {
     "another-mod": "*"

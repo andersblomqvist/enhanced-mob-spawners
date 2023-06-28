@@ -54,7 +54,7 @@ public class SyncSpawnerMessage extends NetworkPacket {
 
         server.execute(() -> {
 
-            World world = player.world;
+            World world = player.getWorld();
 
             if(world != null) {
 

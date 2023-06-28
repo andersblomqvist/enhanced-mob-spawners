@@ -3,13 +3,12 @@ package com.branders.spawnermod.gui;
 import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -354,29 +353,28 @@ public class SpawnerConfigGui extends Screen {
 			toggleButtons(true);
 	}
 	
+	
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		// RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		// Draw black transparent background (just like when pressing escape)
-		renderBackground(matrices);
+		renderBackground(context);
 		
-		RenderSystem.setShaderTexture(0, spawnerConfigTexture);
-		drawTexture(matrices, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+		context.drawTexture(spawnerConfigTexture, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		
 		// Render spawner title text
 		int length = titleText.getString().length() * 2;
-		drawTextWithShadow(matrices, client.textRenderer, titleText, width / 2 - length - 3, 33, 0xFFD964);
+		context.drawTextWithShadow(client.textRenderer, titleText, width / 2 - length - 3, 33, 0xFFD964);
 		
 		// Render spawns icon and text (only if enabled in config)
 		if(limitedSpawns) {
-			RenderSystem.setShaderTexture(0, spawnsIconTexture);
-			drawTexture(matrices, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
-			drawTextWithShadow(matrices, client.textRenderer, Text.literal("" + (ConfigValues.get("limited_spawns_amount") - spawns)), width / 2 + 114, 27, 0xFFFFFF);
+			context.drawTexture(spawnsIconTexture, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
+			context.drawTextWithShadow(client.textRenderer, Text.literal("" + (ConfigValues.get("limited_spawns_amount") - spawns)), width / 2 + 114, 27, 0xFFFFFF);
 		}
 		
-		super.render(matrices, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 	}
 	
 	/**
