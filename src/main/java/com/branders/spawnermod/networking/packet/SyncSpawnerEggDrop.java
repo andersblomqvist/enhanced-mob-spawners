@@ -45,7 +45,7 @@ public class SyncSpawnerEggDrop
 	public static void handle(SyncSpawnerEggDrop msg, Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
 			
-			Level level = ctx.get().getSender().level;
+			Level level = ctx.get().getSender().level();
 			
 			if(level != null) {
 		    	// Leave if disabled in config
@@ -91,7 +91,7 @@ public class SyncSpawnerEggDrop
 				level.addFreshEntity(entityItem);
 				
 				// Replace the entity inside the spawner with default entity
-				logic.m_253197_(EntityType.AREA_EFFECT_CLOUD, level, level.random, msg.pos);
+				logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, level, level.random, msg.pos);
 				spawner.setChanged();
 				level.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 			}

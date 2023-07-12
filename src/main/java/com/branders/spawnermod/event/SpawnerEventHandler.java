@@ -70,7 +70,7 @@ public class SpawnerEventHandler {
 						ConfigValues.get("limited_spawns_amount"),
 						ConfigValues.get("default_spawner_range_enabled"),
 						ConfigValues.get("default_spawner_range")),
-				player.connection.getConnection(),
+				player.connection.connection,
 				NetworkDirection.PLAY_TO_CLIENT);
 	}
 
@@ -228,7 +228,7 @@ public class SpawnerEventHandler {
 
 		// Add monster egg to drops
 		event.getDrops().add(new ItemEntity(
-				entity.level, 
+				entity.level(), 
 				entity.getX(),
 				entity.getY(),
 				entity.getZ(),
@@ -327,7 +327,7 @@ public class SpawnerEventHandler {
 		level.addFreshEntity(entityItem);
 
 		// Replace the entity inside the spawner with default entity
-		logic.m_253197_(EntityType.AREA_EFFECT_CLOUD, level, level.random, pos);
+		logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, level, level.random, pos);
 		spawner.setChanged();
 		level.sendBlockUpdated(pos, blockstate, blockstate, 3);
 	}

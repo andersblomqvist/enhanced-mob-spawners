@@ -68,7 +68,7 @@ public class LimitedSpawnsMixin {
         	nbt = logic.save(nbt);
         	nbt.putShort("RequiredPlayerRange", (short) 0);
         	logic.load(level, pos, nbt);
-        	logic.m_253197_(EntityType.AREA_EFFECT_CLOUD, level, level.random, pos);
+        	logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, level, level.random, pos);
         	level.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
         	ci.cancel();
         }

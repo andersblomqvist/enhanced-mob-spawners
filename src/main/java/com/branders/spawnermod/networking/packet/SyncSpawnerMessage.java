@@ -71,7 +71,7 @@ public class SyncSpawnerMessage {
 	    ctx.get().enqueueWork(() -> {
 	    	
 	    	// Get world (server world, isRemote is false)
-	    	Level level = ctx.get().getSender().level;
+	    	Level level = ctx.get().getSender().level();
 	    	
 	    	if(level != null)
 	    	{

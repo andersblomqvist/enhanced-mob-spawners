@@ -16,7 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
- * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.19)
+ * 	Small mod adding more functionality to Mob Spawners (Minecraft Forge 1.20)
  * 
  * 	@author Anders <Branders> Blomqvist
  */
@@ -46,8 +46,7 @@ public class SpawnerMod {
 		MinecraftForge.EVENT_BUS.register(new SpawnerEventHandler());
 	}
 
-	private void commonSetup(final FMLCommonSetupEvent event)
-	{
+	private void commonSetup(final FMLCommonSetupEvent event) {
 		// When init config here all modded entities are loaded which is needed for creating
 		// the keys in the CONFIG_SPEC
 		ModConfigManager.initConfig(MOD_ID, FMLPaths.CONFIGDIR.get());

@@ -5,9 +5,9 @@ import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.networking.SpawnerModPacketHandler;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -179,7 +179,7 @@ public class SpawnerConfigGui extends Screen {
 		/**
 		 * 	Count button
 		 */
-		countButton = addRenderableWidget(Button.m_253074_(
+		countButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.count." + getButtonText(countOptionValue)), button -> {
 					switch(countOptionValue) {
 					// Low, set to Default
@@ -212,14 +212,14 @@ public class SpawnerConfigGui extends Screen {
 					}
 					countButton.setMessage(Component.translatable("button.count." + getButtonText(countOptionValue)));
 				})
-				.m_252987_(width / 2 - 48, 55, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 55, 108, 20)
+				.build());
 
 
 		/**
 		 * 	Speed button
 		 */
-		speedButton = addRenderableWidget(Button.m_253074_(
+		speedButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.speed." + getButtonText(speedOptionValue)), button -> {
 					switch(speedOptionValue) {
 					// Slow, set to default
@@ -256,13 +256,13 @@ public class SpawnerConfigGui extends Screen {
 					}
 					speedButton.setMessage(Component.translatable("button.speed." + getButtonText(speedOptionValue)));
 				})
-				.m_252987_(width / 2 - 48, 80, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 80, 108, 20)
+				.build());
 
 		/**
 		 * 	Range button
 		 */
-		rangeButton = addRenderableWidget(Button.m_253074_(
+		rangeButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
 					switch(rangeOptionValue) {
 					// Default, set to Far
@@ -303,13 +303,13 @@ public class SpawnerConfigGui extends Screen {
 
 					rangeButton.setMessage(Component.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
 				})
-				.m_252987_(width / 2 - 48, 105, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 105, 108, 20)
+				.build());
 
 		/**
 		 * 	Disable button
 		 */
-		disableButton = addRenderableWidget(Button.m_253074_(
+		disableButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.toggle." + getButtonText(disabled)), button -> {
 					if(disabled) {
 						// Set spawner to ON
@@ -339,23 +339,23 @@ public class SpawnerConfigGui extends Screen {
 
 					disableButton.setMessage(Component.translatable("button.toggle." + getButtonText(disabled)));
 				})
-				.m_252987_(width / 2 - 48, 130, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 130, 108, 20)
+				.build());
 
 		/**
 		 * 	Save button - configures spawner data
 		 */
-		addRenderableWidget(Button.m_253074_(Component.translatable("button.save"), button -> {
+		addRenderableWidget(Button.builder(Component.translatable("button.save"), button -> {
 			configureSpawner();
 			this.close();
-		}).m_252987_(width / 2 - 89, 180 + 10, 178, 20).m_253136_());
+		}).bounds(width / 2 - 89, 180 + 10, 178, 20).build());
 
 		/**
 		 * 	Cancel button
 		 */
-		addRenderableWidget(Button.m_253074_(Component.translatable("button.cancel"), button -> {
+		addRenderableWidget(Button.builder(Component.translatable("button.cancel"), button -> {
 			this.close();
-		}).m_252987_(width / 2 - 89, 180 + 35, 178, 20).m_253136_());
+		}).bounds(width / 2 - 89, 180 + 35, 178, 20).build());
 
 
 		if(disabled)
@@ -368,31 +368,30 @@ public class SpawnerConfigGui extends Screen {
 	 * 	Render GUI Texture
 	 */
 	@Override
-	public void m_86412_(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Draw black transparent background (just like when pressing escape)
-		renderBackground(matrixStack);
+		renderBackground(context);
 
 		// Draw spawner screen texture
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, spawnerConfigTexture);
-		blit(matrixStack, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
-
+		context.blit(spawnerConfigTexture, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+		
 		// Render spawner title text
 		int length = titleText.getString().length() * 2;
-		drawString(matrixStack, minecraft.font, titleText, width / 2 - length - 3, 33, 0xFFD964);
+		context.drawString(minecraft.font, titleText, width / 2 - length - 3, 33, 0xFFD964);
 
 		if(limitedSpawns) {
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.setShaderTexture(0, spawnsIconTexture);
-			blit(matrixStack, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
-			drawString(matrixStack, minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
+			context.blit(spawnsIconTexture, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
+			context.drawString(minecraft.font, "" + (ConfigValues.get("limited_spawns_amount") - spawns), width / 2 + 114, 27, 0xFFFFFF);
 			// drawString(matrixStack, minecraft.font, "not available yet", width / 2 + 114, 27, 0xFFFFFF);
 		}
 
-		// Render other stuff as well (buttons)
-		super.m_86412_(matrixStack, mouseX, mouseY, partialTicks);
+		super.render(context, mouseX, mouseY, partialTicks);
 	}
 
 	/**
