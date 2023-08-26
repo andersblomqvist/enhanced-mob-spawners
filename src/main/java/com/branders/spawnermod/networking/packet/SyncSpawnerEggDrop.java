@@ -91,7 +91,7 @@ public class SyncSpawnerEggDrop
 				level.addFreshEntity(entityItem);
 				
 				// Replace the entity inside the spawner with default entity
-				logic.m_253197_(EntityType.AREA_EFFECT_CLOUD, level, level.random, msg.pos);
+				logic.setEntityId(EntityType.AREA_EFFECT_CLOUD, level, level.random, msg.pos);
 				spawner.setChanged();
 				level.sendBlockUpdated(msg.pos, blockstate, blockstate, 3);
 			}

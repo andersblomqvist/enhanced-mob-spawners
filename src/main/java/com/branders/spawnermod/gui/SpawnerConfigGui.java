@@ -179,7 +179,7 @@ public class SpawnerConfigGui extends Screen {
 		/**
 		 * 	Count button
 		 */
-		countButton = addRenderableWidget(Button.m_253074_(
+		countButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.count." + getButtonText(countOptionValue)), button -> {
 					switch(countOptionValue) {
 					// Low, set to Default
@@ -212,14 +212,14 @@ public class SpawnerConfigGui extends Screen {
 					}
 					countButton.setMessage(Component.translatable("button.count." + getButtonText(countOptionValue)));
 				})
-				.m_252987_(width / 2 - 48, 55, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 55, 108, 20)
+				.build());
 
 
 		/**
 		 * 	Speed button
 		 */
-		speedButton = addRenderableWidget(Button.m_253074_(
+		speedButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.speed." + getButtonText(speedOptionValue)), button -> {
 					switch(speedOptionValue) {
 					// Slow, set to default
@@ -256,13 +256,13 @@ public class SpawnerConfigGui extends Screen {
 					}
 					speedButton.setMessage(Component.translatable("button.speed." + getButtonText(speedOptionValue)));
 				})
-				.m_252987_(width / 2 - 48, 80, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 80, 108, 20)
+				.build());
 
 		/**
 		 * 	Range button
 		 */
-		rangeButton = addRenderableWidget(Button.m_253074_(
+		rangeButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
 					switch(rangeOptionValue) {
 					// Default, set to Far
@@ -303,13 +303,13 @@ public class SpawnerConfigGui extends Screen {
 
 					rangeButton.setMessage(Component.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
 				})
-				.m_252987_(width / 2 - 48, 105, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 105, 108, 20)
+				.build());
 
 		/**
 		 * 	Disable button
 		 */
-		disableButton = addRenderableWidget(Button.m_253074_(
+		disableButton = addRenderableWidget(Button.builder(
 				Component.translatable("button.toggle." + getButtonText(disabled)), button -> {
 					if(disabled) {
 						// Set spawner to ON
@@ -339,23 +339,23 @@ public class SpawnerConfigGui extends Screen {
 
 					disableButton.setMessage(Component.translatable("button.toggle." + getButtonText(disabled)));
 				})
-				.m_252987_(width / 2 - 48, 130, 108, 20)
-				.m_253136_());
+				.bounds(width / 2 - 48, 130, 108, 20)
+				.build());
 
 		/**
 		 * 	Save button - configures spawner data
 		 */
-		addRenderableWidget(Button.m_253074_(Component.translatable("button.save"), button -> {
+		addRenderableWidget(Button.builder(Component.translatable("button.save"), button -> {
 			configureSpawner();
 			this.close();
-		}).m_252987_(width / 2 - 89, 180 + 10, 178, 20).m_253136_());
+		}).bounds(width / 2 - 89, 180 + 10, 178, 20).build());
 
 		/**
 		 * 	Cancel button
 		 */
-		addRenderableWidget(Button.m_253074_(Component.translatable("button.cancel"), button -> {
+		addRenderableWidget(Button.builder(Component.translatable("button.cancel"), button -> {
 			this.close();
-		}).m_252987_(width / 2 - 89, 180 + 35, 178, 20).m_253136_());
+		}).bounds(width / 2 - 89, 180 + 35, 178, 20).build());
 
 
 		if(disabled)
@@ -368,7 +368,7 @@ public class SpawnerConfigGui extends Screen {
 	 * 	Render GUI Texture
 	 */
 	@Override
-	public void m_86412_(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Draw black transparent background (just like when pressing escape)
@@ -392,7 +392,7 @@ public class SpawnerConfigGui extends Screen {
 		}
 
 		// Render other stuff as well (buttons)
-		super.m_86412_(matrixStack, mouseX, mouseY, partialTicks);
+		super.render(matrixStack, mouseX, mouseY, partialTicks);
 	}
 
 	/**

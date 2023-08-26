@@ -30,7 +30,7 @@ public class ItemRegistry {
 	
 	@SubscribeEvent
 	public void buildContents(CreativeModeTabEvent.BuildContents event) {
-		if (event.getTab() == CreativeModeTabs.f_256869_) {
+		if (event.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
 			event.accept(SPAWNER_KEY);
 		}
 	}
