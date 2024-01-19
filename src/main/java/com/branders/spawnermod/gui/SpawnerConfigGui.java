@@ -6,6 +6,7 @@ import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.spawner.MobSpawnerLogic;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -13,7 +14,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.MobSpawnerLogic;
 
 /**
  * 	Spawner GUI config screen. Renders the background and all the buttons.
@@ -360,7 +360,7 @@ public class SpawnerConfigGui extends Screen {
 		// RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		// Draw black transparent background (just like when pressing escape)
-		renderBackground(context);
+		renderBackground(context, mouseX, mouseY, delta);
 		
 		context.drawTexture(spawnerConfigTexture, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 		

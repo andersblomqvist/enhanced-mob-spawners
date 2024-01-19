@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 /**
- * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric (1.19)
+ * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric
  * 
  * 	@author Anders <Branders> Blomqvist
  */
