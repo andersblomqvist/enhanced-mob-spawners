@@ -3,7 +3,6 @@ package com.branders.spawnermod.gui;
 import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.networking.packet.SyncSpawnerMessage;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.spawner.MobSpawnerLogic;
@@ -16,70 +15,54 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 /**
- * 	Spawner GUI config screen. Renders the background and all the buttons.
- * 
- * 	It communicates with the spawner object by sending a network package with
- * 	data from the GUI elements. 
+ * 	Spawner GUI config screen. Renders the background and all the buttons. It communicates with the spawner block by
+ * 	sending a network package with data from the GUI elements.
  * 
  * 	@author Anders <Branders> Blomqvist
  */
 @Environment(EnvType.CLIENT)
 public class SpawnerConfigGui extends Screen {
 	
+    /**
+     *  Hold values for all NBT parameters we modify.
+     */
+    private static class Data {
+        short LOW, DEFAULT, HIGH, HIGHEST;
+        public Data(int i, int j, int k, int l) {
+            LOW = (short)i;
+            DEFAULT = (short)j;
+            HIGH = (short)k;
+            HIGHEST = (short)l;
+        }
+    }
+    
+    // Create the data for spawner logic NBT
+    private static final Data DELAY                 = new Data(30, 20, 10, 5);
+    private static final Data MIN_SPAWN_DELAY       = new Data(300, 200, 100, 50);
+    private static final Data MAX_SPAWN_DELAY       = new Data(900, 800, 400, 100);
+    private static final Data SPAWN_COUNT           = new Data(2, 4, 6, 12);
+    private static final Data MAX_NEARBY_ENTITIES   = new Data(6, 6, 12, 24);
+    private static final Data REQUIRED_PLAYER_RANGE = new Data(16, 32, 64, 128);
+    
     // "Spawner Config" title in yellow at the top
-	private static final Text titleText = Text.translatable("gui.spawnermod.spawner_config_screen_title");
-	
-	// Reference to spawner logic and NBT data. Set in constructor
-	private MobSpawnerLogic logic;
-	private BlockPos pos;
-	private NbtCompound nbt = new NbtCompound();
-	
-	// GUI textures
-	private Identifier spawnerConfigTexture = new Identifier(SpawnerMod.MOD_ID, "textures/gui/spawner_config_screen.png");
-	private int imageWidth = 178;
-	private int imageHeight = 177;
-	private Identifier spawnsIconTexture = new Identifier(SpawnerMod.MOD_ID, "textures/gui/spawner_config_screen_icon_spawns.png");
-	
+	private static final Text TITLE_TEXT = Text.translatable("gui.spawnermod.spawner_config_screen_title");
+
+	private static final Identifier SPAWNER_CONFIG_TEXTURE = new Identifier(SpawnerMod.MOD_ID, "textures/gui/spawner_config_screen.png");
+	private static final Identifier SPAWNS_ICON_TEXTURE = new Identifier(SpawnerMod.MOD_ID, "textures/gui/spawner_config_screen_icon_spawns.png");
+	private static final int SPAWNER_CONFIG_TEXTURE_WIDTH = 178;
+	private static final int SPAWNER_CONFIG_TEXTURE_HEIGHT = 177;
+
 	// Buttons for controlling Spawner data
-	private ButtonWidget countButton = null;
-	private ButtonWidget speedButton = null;
-	private ButtonWidget rangeButton = null;
-	private ButtonWidget disableButton = null;
-	
+	private ButtonWidget countButton;
+	private ButtonWidget speedButton;
+	private ButtonWidget rangeButton;
+	private ButtonWidget disableButton;
+
 	// Button States
 	private int countOptionValue;
 	private int speedOptionValue;
 	private int rangeOptionValue;
-	
-	// What the button will display depending on option value
-	String[] speedDisplayString = {"Slow", "Default", "Fast", "Very Fast"};
-	String[] countDisplayString = {"Low", "Default", "High", "Very High"};
-	String[] rangeDisplayString = {"Default", "Far", "Very Far", "Extreme"};
-	String[] disableDisplayString = {"Enabled", "Disabled"};
-	
-	/**
-	 * 	Object to hold values for all NBT parameters we modify.
-	 * 	Each parameter holds 4 different values: Low - Default - High - Highest. These are used to get
-	 * 	different values depending on what type of option the player decides to use.
-	 */
-	private class Data {
-		short LOW, DEFAULT, HIGH, HIGHEST;
-		public Data(int i, int j, int k, int l) {
-			LOW = (short)i;
-			DEFAULT = (short)j;
-			HIGH = (short)k;
-			HIGHEST = (short)l;
-		}
-	}
-	
-	// Create the data for spawner logic NBT (only used as reference)
-	private Data _delay 			  = new Data(30, 20, 10, 5);
-	private Data _minSpawnDelay 	  = new Data(300, 200, 100, 50);
-	private Data _maxSpawnDelay 	  = new Data(900, 800, 400, 100);
-	private Data _spawnCount 		  = new Data(2, 4, 6, 12);
-	private Data _maxNearbyEntities   = new Data(6, 6, 12, 24);
-	private Data _requiredPlayerRange = new Data(16, 32, 64, 128);
-	
+
 	// Create the variables which holds current NBT value
 	private short delay;
 	private short minSpawnDelay;
@@ -87,17 +70,18 @@ public class SpawnerConfigGui extends Screen {
 	private short spawnCount;
 	private short maxNearbyEntities;
 	private short requiredPlayerRange;
-	private short spawnRange;
 	private boolean disabled;
 	private short spawns;
 	
-	private boolean cachedDisabled;
-	private boolean limitedSpawns;
+	private final boolean cachedDisabled;
+	private final boolean limitedSpawns;
 	
 	private boolean isCustomRange;
 	private short customRange;
-	
-	/**
+
+	private final BlockPos pos;
+
+    /**
 	 * 	When creating this GUI a reference to the Mob Spawner logic and BlockPos is required so we can read
 	 * 	current NBT values (used to make GUI remember option states) and send network package to server with
 	 * 	a reference to the spawner block position.
@@ -105,8 +89,7 @@ public class SpawnerConfigGui extends Screen {
 	public SpawnerConfigGui(Text title, MobSpawnerLogic logic, BlockPos pos) {
 		
 		super(title);
-		
-		this.logic = logic;
+
 		this.pos = pos;
     	
 		if(ConfigValues.get("default_spawner_range_enabled") == 1) {
@@ -117,7 +100,8 @@ public class SpawnerConfigGui extends Screen {
     	// Read values for Spawner to check what type of configuration it has so we can render
     	// correct button display strings. We have to read all the values in case the player
     	// doesn't change anything and presses save button.
-		nbt = this.logic.writeNbt(nbt);
+        NbtCompound nbt = new NbtCompound();
+		nbt = logic.writeNbt(nbt);
     	delay = nbt.getShort("Delay");
     	minSpawnDelay = nbt.getShort("MinSpawnDelay");
     	maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
@@ -126,25 +110,24 @@ public class SpawnerConfigGui extends Screen {
     	requiredPlayerRange = nbt.getShort("RequiredPlayerRange");
     	
     	// If spawn range differs from 4, spawner is in the disabled state and
-    	// and the previous range is stored in this value
-    	spawnRange = nbt.getShort("SpawnRange");
-    	
+    	// the previous range is stored in this value
+    	short spawnRange = nbt.getShort("SpawnRange");
     	if(spawnRange > 4) {
     		disabled = true;
-    		cachedDisabled = disabled;
+    		cachedDisabled = true;
     		
     		// Set gui range to saved spawnRange value.
     		requiredPlayerRange = spawnRange;
     	}
     	else {
     		disabled = false;
-    		cachedDisabled = disabled;
+    		cachedDisabled = false;
     	}
     	
     	// Load button configuration
-    	countOptionValue = loadOptionState(spawnCount, _spawnCount);
-    	speedOptionValue = loadOptionState(minSpawnDelay, _minSpawnDelay);
-    	rangeOptionValue = loadOptionState(requiredPlayerRange, _requiredPlayerRange);
+    	countOptionValue = loadOptionState(spawnCount, SPAWN_COUNT);
+    	speedOptionValue = loadOptionState(minSpawnDelay, MIN_SPAWN_DELAY);
+    	rangeOptionValue = loadOptionState(requiredPlayerRange, REQUIRED_PLAYER_RANGE);
     	
     	if(ConfigValues.get("limited_spawns_enabled") != 0) {
     		limitedSpawns = true;
@@ -161,111 +144,98 @@ public class SpawnerConfigGui extends Screen {
 	
 	@Override
 	protected void init() {
-		
-		/**
-		 * 	Count button
-		 */
+
 		countButton = addDrawableChild(ButtonWidget.builder(
 				Text.translatable("button.count." + getButtonText(countOptionValue)), button -> {
 					switch(countOptionValue) {
 						// Low, set to Default
 						case 0:
 							countOptionValue = 1;
-							spawnCount = _spawnCount.DEFAULT;
-							maxNearbyEntities = _maxNearbyEntities.DEFAULT;
+							spawnCount = SPAWN_COUNT.DEFAULT;
+							maxNearbyEntities = MAX_NEARBY_ENTITIES.DEFAULT;
 							break;
 							
 						// Default, set to High
 						case 1:
 							countOptionValue = 2;
-							spawnCount = _spawnCount.HIGH;
-							maxNearbyEntities = _maxNearbyEntities.HIGH;
+							spawnCount = SPAWN_COUNT.HIGH;
+							maxNearbyEntities = MAX_NEARBY_ENTITIES.HIGH;
 							break;
 							
 						// High, set to Very High
 						case 2:
 							countOptionValue = 3;
-							spawnCount = _spawnCount.HIGHEST;
-							maxNearbyEntities = _maxNearbyEntities.HIGHEST;
+							spawnCount = SPAWN_COUNT.HIGHEST;
+							maxNearbyEntities = MAX_NEARBY_ENTITIES.HIGHEST;
 							break;
 							
 						// Very high, set back to Low
 						case 3:
 							countOptionValue = 0;
-							spawnCount = _spawnCount.LOW;
-							maxNearbyEntities = _maxNearbyEntities.LOW;
+							spawnCount = SPAWN_COUNT.LOW;
+							maxNearbyEntities = MAX_NEARBY_ENTITIES.LOW;
 							break;
 					}
-				countButton.setMessage(Text.translatable("button.count." + getButtonText(countOptionValue)));
-				})
-				.dimensions(width / 2 - 48, 55, 108, 20)
-				.build());
-		
-		/**
-		 * 	Speed button
-		 */
+					countButton.setMessage(Text.translatable("button.count." + getButtonText(countOptionValue)));
+		}).dimensions(width / 2 - 48, 55, 108, 20).build());
+
 		speedButton = addDrawableChild(ButtonWidget.builder(
 				Text.translatable("button.speed." + getButtonText(speedOptionValue)), button -> {
 					switch(speedOptionValue) {
 						// Slow, set to default
 						case 0:
 							speedOptionValue = 1;
-							delay = _delay.DEFAULT;
-							minSpawnDelay = _minSpawnDelay.DEFAULT;
-							maxSpawnDelay = _maxSpawnDelay.DEFAULT;
+							delay = DELAY.DEFAULT;
+							minSpawnDelay = MIN_SPAWN_DELAY.DEFAULT;
+							maxSpawnDelay = MAX_SPAWN_DELAY.DEFAULT;
 							break;
 							
 						// Default, set to Fast
 						case 1:
 							speedOptionValue = 2;
-							delay = _delay.HIGH;
-							minSpawnDelay = _minSpawnDelay.HIGH;
-							maxSpawnDelay = _maxSpawnDelay.HIGH;
+							delay = DELAY.HIGH;
+							minSpawnDelay = MIN_SPAWN_DELAY.HIGH;
+							maxSpawnDelay = MAX_SPAWN_DELAY.HIGH;
 							break;
 							
 						// High, set to Very Fast
 						case 2:
 							speedOptionValue = 3;
-							delay = _delay.HIGHEST;
-							minSpawnDelay = _minSpawnDelay.HIGHEST;
-							maxSpawnDelay = _maxSpawnDelay.HIGHEST;
+							delay = DELAY.HIGHEST;
+							minSpawnDelay = MIN_SPAWN_DELAY.HIGHEST;
+							maxSpawnDelay = MAX_SPAWN_DELAY.HIGHEST;
 							break;
 							
 						// Very high, set back to Slow
 						case 3:
 							speedOptionValue = 0;
-							delay = _delay.LOW;
-							minSpawnDelay = _minSpawnDelay.LOW;
-							maxSpawnDelay = _maxSpawnDelay.LOW;
+							delay = DELAY.LOW;
+							minSpawnDelay = MIN_SPAWN_DELAY.LOW;
+							maxSpawnDelay = MAX_SPAWN_DELAY.LOW;
 							break;
 					}
 					speedButton.setMessage(Text.translatable("button.speed." + getButtonText(speedOptionValue)));
-				})
-				.dimensions(width / 2 - 48, 80, 108, 20)
-				.build());
-		
-		/**
-		 * 	Range button
-		 */
+		}).dimensions(width / 2 - 48, 80, 108, 20).build());
+
 		rangeButton = addDrawableChild(ButtonWidget.builder(
 				Text.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange), button -> {
 					switch(rangeOptionValue) {
 						// Default, set to Far
 						case 0:
 							rangeOptionValue = 1;
-							requiredPlayerRange = _requiredPlayerRange.DEFAULT;
+							requiredPlayerRange = REQUIRED_PLAYER_RANGE.DEFAULT;
 							break;
 							
 						// Far, set to Very Far
 						case 1:
 							rangeOptionValue = 2;
-							requiredPlayerRange = _requiredPlayerRange.HIGH;
+							requiredPlayerRange = REQUIRED_PLAYER_RANGE.HIGH;
 							break;
 							
 						// Very Far, set to Extreme
 						case 2:
 							rangeOptionValue = 3;
-							requiredPlayerRange = _requiredPlayerRange.HIGHEST;
+							requiredPlayerRange = REQUIRED_PLAYER_RANGE.HIGHEST;
 							break;
 							
 						// Extreme, set back to Default or Custom
@@ -275,25 +245,19 @@ public class SpawnerConfigGui extends Screen {
 								requiredPlayerRange = customRange;
 							} else {
 								rangeOptionValue = 0;
-								requiredPlayerRange = _requiredPlayerRange.LOW;
+								requiredPlayerRange = REQUIRED_PLAYER_RANGE.LOW;
 							}
 							break;
 		
 						// Custom, set back to Default
 						case 4:
 							rangeOptionValue = 0;
-							requiredPlayerRange = _requiredPlayerRange.LOW;
+							requiredPlayerRange = REQUIRED_PLAYER_RANGE.LOW;
 							break;
 					}
-					
 					rangeButton.setMessage(Text.translatable("button.range." + getButtonText(rangeOptionValue)).append(" " + requiredPlayerRange));
-				})
-				.dimensions(width / 2 - 48, 105, 108, 20)
-				.build());
-		
-		/**
-		 * 	Disable button
-		 */
+		}).dimensions(width / 2 - 48, 105, 108, 20).build());
+
 		disableButton = addDrawableChild(ButtonWidget.builder(
 				Text.translatable("button.toggle." + getButtonText(disabled)), button -> {
 					if(disabled) {
@@ -302,16 +266,16 @@ public class SpawnerConfigGui extends Screen {
 						toggleButtons(true);
 						switch(rangeOptionValue) {
 							case 0:
-								requiredPlayerRange = _requiredPlayerRange.LOW;
+								requiredPlayerRange = REQUIRED_PLAYER_RANGE.LOW;
 								break;
 							case 1:
-								requiredPlayerRange = _requiredPlayerRange.DEFAULT;
+								requiredPlayerRange = REQUIRED_PLAYER_RANGE.DEFAULT;
 								break;
 							case 2:
-								requiredPlayerRange = _requiredPlayerRange.HIGH;
+								requiredPlayerRange = REQUIRED_PLAYER_RANGE.HIGH;
 								break;
 							case 3:
-								requiredPlayerRange = _requiredPlayerRange.HIGHEST;
+								requiredPlayerRange = REQUIRED_PLAYER_RANGE.HIGHEST;
 								break;
 						}
 					}
@@ -321,69 +285,53 @@ public class SpawnerConfigGui extends Screen {
 						toggleButtons(false);
 						requiredPlayerRange = 0;
 					}
-					
 					disableButton.setMessage(Text.translatable("button.toggle." + getButtonText(disabled)));
-				})
-				.dimensions(width / 2 - 48, 130, 108, 20)
-				.build());
-		
-		/**
-		 * 	Save button - configures spawner data
-		 */
+		}).dimensions(width / 2 - 48, 130, 108, 20).build());
+
 		addDrawableChild(ButtonWidget.builder(Text.translatable("button.save"), button -> {
 			configureSpawner();
 			this.close();
-		})
-		.dimensions(width / 2 - 89, 180 + 10, 178, 20)
-		.build());
-		
-		/**
-		 * 	Cancel button
-		 */
+		}).dimensions(width / 2 - 89, 180 + 10, 178, 20).build());
+
 		addDrawableChild(ButtonWidget.builder(Text.translatable("button.cancel"), button -> {
 			this.close();
-		})
-		.dimensions(width / 2 - 89, 180 + 35, 178, 20)
-		.build());
-		
-		
-		if(disabled)
-			toggleButtons(false);
-		else
-			toggleButtons(true);
+		}).dimensions(width / 2 - 89, 180 + 35, 178, 20).build());
+
+        toggleButtons(!disabled);
 	}
-	
-	
+
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		
-		// RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-		
-		// Draw black transparent background (just like when pressing escape)
-		renderBackground(context, mouseX, mouseY, delta);
-		
-		context.drawTexture(spawnerConfigTexture, width / 2 - imageWidth / 2, 5, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
-		
+	public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+
+		super.renderBackground(context, mouseX, mouseY, delta);
+
+		context.drawTexture(
+				SPAWNER_CONFIG_TEXTURE,
+				width / 2 - SPAWNER_CONFIG_TEXTURE_WIDTH / 2,
+				5,
+				0,
+				0,
+				SPAWNER_CONFIG_TEXTURE_WIDTH,
+				SPAWNER_CONFIG_TEXTURE_HEIGHT,
+				SPAWNER_CONFIG_TEXTURE_WIDTH,
+				SPAWNER_CONFIG_TEXTURE_HEIGHT
+		);
+
 		// Render spawner title text
-		int length = titleText.getString().length() * 2;
-		context.drawTextWithShadow(client.textRenderer, titleText, width / 2 - length - 3, 33, 0xFFD964);
-		
+		int length = TITLE_TEXT.getString().length() * 2;
+		context.drawTextWithShadow(client.textRenderer, TITLE_TEXT, width / 2 - length - 3, 33, 0xFFD964);
+
 		// Render spawns icon and text (only if enabled in config)
 		if(limitedSpawns) {
-			context.drawTexture(spawnsIconTexture, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
+			context.drawTexture(SPAWNS_ICON_TEXTURE, width / 2 - 7 + 101, 23, 0, 0, 14, 14, 14, 14);
 			context.drawTextWithShadow(client.textRenderer, Text.literal("" + (ConfigValues.get("limited_spawns_amount") - spawns)), width / 2 + 114, 27, 0xFFFFFF);
 		}
-		
-		super.render(context, mouseX, mouseY, delta);
 	}
-	
-	/**
-     * 	Send message to server with the new NBT values.
-     */
-    private void configureSpawner() {
+
+	private void configureSpawner() {
     	
     	if(cachedDisabled)
-    	    if(cachedDisabled == disabled)
+    	    if(disabled)
     			return;
     	
     	new SyncSpawnerMessage(
@@ -397,25 +345,20 @@ public class SpawnerConfigGui extends Screen {
     }
 	
 	/**
-     * 	@returns a string with the last part of the translation key depending on the button
+     * 	@return a string with the last part of the translation key depending on the button
      * 	option value.
      */
     private String getButtonText(int optionValue) {
-    	switch(optionValue) {
-	    	case 0:
-	    		return "low";
-	    	case 1:
-	    		return "default";
-	    	case 2:
-	    		return "high";
-	    	case 3:
-	    		return "very_high";
-	    	case 4:
-	    		return "custom";
-	    	default:
-	    		return "default";
-    	}
+        return switch (optionValue) {
+            case 0 -> "low";
+            case 1 -> "default";
+            case 2 -> "high";
+            case 3 -> "very_high";
+            case 4 -> "custom";
+            default -> "default";
+        };
     }
+
     private String getButtonText(boolean disabled) {
     	if(disabled)
     		return "disabled";
