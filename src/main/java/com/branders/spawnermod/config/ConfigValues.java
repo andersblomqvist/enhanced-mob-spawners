@@ -42,21 +42,40 @@ public class ConfigValues {
 
         CONFIG_SPEC.put("spawner_hardness", 5);
 
-        // Loop through item registry and insert all spawn egg entities to hash map.
-        // Example of a key: "minecraft:pig" with default value 0.
-        Registries.ITEM.getIds().stream().forEach(i -> {
-            String s = i.toString();
-            if(i.toString().contains("spawn_egg")) {
-                s = s.substring(0, s.length() - 10);	// 10 is length of "_spawn_egg"
-                CONFIG_SPEC.put(s, 0);
-            }				
-        });
+        addSpawnEggs();
         
-        // Loggs the item id when the player right clicks a spawner.
-        // Makes it easy to see what ids you want to blacklist.
+        // Logs the item id when the player right clicks a spawner.
+        // Makes it easy to see what id's you want to blacklist.
         CONFIG_SPEC.put("display_item_id_from_right_click_in_log", 0);
     }
 
+    private static void addSpawnEggs() {
+        Registries.ITEM.getIds().stream().forEach(i -> {
+            String s = i.toString();
+            if(i.toString().contains("spawn_egg")) {
+                // minecraft conventions: minecraft:pig_spawn_egg
+                // some other mods: whackmod:spawn_egg_pig
+                if (followNamingConvention(s)) {
+                    // 10 is length of "_spawn_egg"
+                    s = s.substring(0, s.length() - 10);
+                    CONFIG_SPEC.put(s, 0);
+                } else {
+                    String[] split = s.split(":");
+                    assert split.length == 2;
+                    String id = split[0];
+                    String e = split[1];
+                    // e will be: "spawn_egg_pig"
+                    e = e.substring(10, e.length());
+                    CONFIG_SPEC.put(id + ":" + e, 0);
+                }
+            }
+        });
+    }
+    
+    private static boolean followNamingConvention(String s) {
+        return s.endsWith("spawn_egg");
+    }
+    
     /**
      * 	Associates the specified value with the specified key in this map.
      * 	If the map previously contained a mapping for the key, the old value is replaced.
@@ -72,7 +91,7 @@ public class ConfigValues {
      * 	Tries to get the value associated with given key.
      *  
      * 	@param key with which the specified value is to be associated
-     * 	@return Returns its value if it exists otherwise 0.
+     * 	@return its value if it exists, otherwise 0.
      */
     public static int get(String key) {
         if(CONFIG_SPEC.containsKey(key))
@@ -113,7 +132,7 @@ public class ConfigValues {
     }
 
     /**
-     *  @returns an iterator over the blacklist ids
+     *  @return an iterator over the blacklist ids
      */
     public static Iterator<String> getBlacklistIds() {
         return ITEM_ID_BLACKLIST.iterator();
