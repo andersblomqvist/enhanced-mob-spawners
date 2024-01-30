@@ -13,6 +13,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.SpawnerBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
+import net.minecraft.block.spawner.MobSpawnerLogic;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
@@ -32,7 +33,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.MobSpawnerLogic;
 import net.minecraft.world.World;
 
 /**
@@ -136,27 +136,26 @@ public class EventHandler {
         NbtElement spawnData = nbt.get(MobSpawnerLogic.SPAWN_DATA_KEY);
         if(spawnData == null)
             return ActionResult.PASS;
-        String entity_string = spawnData.asString();
+        String entityString = spawnData.asString();
 
         // Leave if the spawner does not contain an entity
-        if(entity_string.indexOf("\"") == -1)
+        if(entityString.indexOf("\"") == -1)
             return ActionResult.PASS;
 
         // Strips the string
         // Example: {{id:"minecraft:xxx_xx"}} --> minecraft:xxx_xx
-        entity_string = entity_string.substring(entity_string.indexOf("\"") + 1);
-        entity_string = entity_string.substring(0, entity_string.indexOf("\""));
+        entityString = entityString.substring(entityString.indexOf("\"") + 1);
+        entityString = entityString.substring(0, entityString.indexOf("\""));
 
         // Just in case
-        if(entity_string.contains("area_effect_cloud"))
+        if(entityString.contains("area_effect_cloud"))
             return ActionResult.PASS;
 
-        // Get the entity mob egg and put in an ItemStack
-        Item egg = Registries.ITEM.get(new Identifier(entity_string + "_spawn_egg"));
+        Item egg = getSpawnEgg(entityString);
         if(egg == null) {
-            SpawnerMod.LOGGER.info("Identifier: " + entity_string + "_spawn_egg" + " could not be found in registries.");
+            SpawnerMod.LOGGER.info("Could not find spawn egg for: " + entityString);
             return ActionResult.PASS;
-        }
+        }        
         ItemStack itemStack = new ItemStack(egg);
 
         // Get random fly-out position offsets
@@ -182,6 +181,24 @@ public class EventHandler {
         world.updateListeners(pos, blockstate, blockstate, 3);
 
         return ActionResult.SUCCESS;
+    }
+
+    private Item getSpawnEgg(String entityString) {
+        Item egg = null;
+        
+        // if we follow minecraft naming conventions this will not be null
+        egg = Registries.ITEM.get(new Identifier(entityString + "_spawn_egg"));
+        
+        if (egg == null) {
+            // entity is "whackmod:pig" and we want it to be "whackmod:spawn_egg_pig"
+            String[] split = entityString.split(":");
+            assert(split.length == 2);
+            String id = split[0];
+            String e = "spawn_egg_" + split[1];
+            egg = Registries.ITEM.get(new Identifier(id + ":" + e));
+        }
+        
+        return egg;
     }
 
     /**	
@@ -242,15 +259,7 @@ public class EventHandler {
         spawner.markDirty();
         world.updateListeners(spawnerPos, blockstate, blockstate, Block.NOTIFY_ALL);
     }
-
-    /**
-     * 	Check a tools item enchantment list contains Silk Touch enchant
-     * 
-     * 	@param ListTag of enchantment
-     * 	@returns
-     * 		true if tool has Silk Touch
-     * 		false otherwise
-     */
+    
     private boolean checkSilkTouch(NbtList  list) {
         if(list.asString().contains("silk_touch"))
             return true;
