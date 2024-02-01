@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
+import com.branders.spawnermod.registry.ModRegistry;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -19,40 +21,40 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
 /**
- * 	"Event" for mob drops. We inject into the dropLoot method and add a spawn
- * 	egg item if lucky enough.
+ * "Event" for mob drops. We inject into the dropLoot method and add a spawn egg
+ * item if lucky enough.
  * 
- * 	@author Anders <Branders> Blomqvist
+ * @author Anders <Branders> Blomqvist
  */
 @Mixin(MobEntity.class)
 public class MobEntityDropsMixin {
 
-    @Inject(
-            at = @At("HEAD"),
-            method = "dropLoot(Lnet/minecraft/entity/damage/DamageSource;Z)V",
-            cancellable = true
-            )
+    @Inject(at = @At("HEAD"), method = "dropLoot(Lnet/minecraft/entity/damage/DamageSource;Z)V", cancellable = true)
     private void dropLoot(DamageSource source, boolean causedByPlayer, CallbackInfo ci) {
 
         // Leave if eggs should only drop when killed by a player
-        if(ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
+        if (ConfigValues.get("monster_egg_only_drop_when_killed_by_player") == 1 && !causedByPlayer)
             return;
 
         Random random = new Random();
 
-        if(random.nextFloat() > ConfigValues.get("monster_egg_drop_chance") / 100f)
+        if (random.nextFloat() > ConfigValues.get("monster_egg_drop_chance") / 100f)
             return;
 
         MobEntity entity = (MobEntity) (Object) this;
         ServerWorld world = (ServerWorld) entity.getEntityWorld();
 
-        ItemStack egg;
         EntityType<?> entityType = entity.getType();
+        String entityString = EntityType.getId(entityType).toString();
 
-        if(ConfigValues.isEggDisabled(EntityType.getId(entityType).toString()))
+        SpawnerMod.LOGGER.info(entityString);
+
+        if (ConfigValues.isEggDisabled(entityString))
             return;
 
-        egg = new ItemStack(Registries.ITEM.get(new Identifier(EntityType.getId(entityType).toString() + "_spawn_egg")));
+        String eggId = ModRegistry.getSpawnEggRegistryName(entityString);
+        SpawnerMod.LOGGER.info(eggId);
+        ItemStack egg = new ItemStack(Registries.ITEM.get(new Identifier(eggId)));
         world.spawnEntity(new ItemEntity(world, entity.prevX, entity.prevY, entity.prevZ, egg));
     }
 }
