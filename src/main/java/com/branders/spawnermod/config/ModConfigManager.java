@@ -62,19 +62,15 @@ public class ModConfigManager {
         if(!file.exists()) {
             // No config file found. Create a new default config
             SpawnerMod.LOGGER.info("Could not find config, generating new default config.");
-            saveConfig();
+            saveConfigToFile();
         }
         else {
             SpawnerMod.LOGGER.info("Reading config values from file.");
-            readConfig();
+            readConfigFromFile();
         }
     }
-
-    /**
-     * 	Reads the .json file where we iterate over the CONFIG_SPEC key values and read the value for
-     * 	each key.
-     */
-    private static void readConfig() {
+    
+    private static void readConfigFromFile() {
         try {
             BufferedReader reader =  new BufferedReader(new FileReader(file));
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
@@ -105,7 +101,7 @@ public class ModConfigManager {
             // If the loaded config was broken, save the fixed version now.
             if(validConfig.getRight()) {
                 SpawnerMod.LOGGER.info("Config was broken. Saving new config which is fixed!");
-                saveConfig();
+                saveConfigToFile();
             }
 
             reader.close();
@@ -116,10 +112,7 @@ public class ModConfigManager {
         }
     }
 
-    /**
-     * 	Saves the current values of the config to file.
-     */
-    private static void saveConfig() {
+    public static void saveConfigToFile() {
         JsonObject config = new JsonObject();
 
         // Sort the keys so it's easier for a human to edit config file

@@ -10,9 +10,9 @@ import com.branders.spawnermod.SpawnerMod;
 import net.minecraft.registry.Registries;
 
 /**
- * 	All mod config values are stored here.
+ * All mod config values are stored here.
  * 
- * 	@author Anders <Branders> Blomqvist
+ * @author Anders <Branders> Blomqvist
  */
 public class ConfigValues {
 
@@ -20,9 +20,11 @@ public class ConfigValues {
 
     private static ArrayList<String> ITEM_ID_BLACKLIST = new ArrayList<String>();
 
+    private static ArrayList<String> SPAWN_EGG_ENTITIES = new ArrayList<String>();
+
     /**
-     * 	Initializes the CONFIG_SPEC hashmap with key value pairs where the values
-     * 	are set to default.
+     * Initializes the CONFIG_SPEC hashmap with key value pairs where the values are
+     * set to default.
      */
     public static void setDefaultConfigValues() {
         CONFIG_SPEC.put("monster_egg_drop_chance", 4);
@@ -43,7 +45,7 @@ public class ConfigValues {
         CONFIG_SPEC.put("spawner_hardness", 5);
 
         addSpawnEggs();
-        
+
         // Logs the item id when the player right clicks a spawner.
         // Makes it easy to see what id's you want to blacklist.
         CONFIG_SPEC.put("display_item_id_from_right_click_in_log", 0);
@@ -52,13 +54,14 @@ public class ConfigValues {
     private static void addSpawnEggs() {
         Registries.ITEM.getIds().stream().forEach(i -> {
             String s = i.toString();
-            if(i.toString().contains("spawn_egg")) {
+            if (i.toString().contains("spawn_egg")) {
                 // minecraft conventions: minecraft:pig_spawn_egg
                 // some other mods: whackmod:spawn_egg_pig
                 if (followNamingConvention(s)) {
                     // 10 is length of "_spawn_egg"
                     s = s.substring(0, s.length() - 10);
                     CONFIG_SPEC.put(s, 0);
+                    SPAWN_EGG_ENTITIES.add(s);
                 } else {
                     String[] split = s.split(":");
                     assert split.length == 2;
@@ -67,34 +70,35 @@ public class ConfigValues {
                     // e will be: "spawn_egg_pig"
                     e = e.substring(10, e.length());
                     CONFIG_SPEC.put(id + ":" + e, 0);
+                    SPAWN_EGG_ENTITIES.add(id + ":" + e);
                 }
             }
         });
     }
-    
+
     private static boolean followNamingConvention(String s) {
         return s.endsWith("spawn_egg");
     }
-    
+
     /**
-     * 	Associates the specified value with the specified key in this map.
-     * 	If the map previously contained a mapping for the key, the old value is replaced.
+     * Associates the specified value with the specified key in this map. If the map
+     * previously contained a mapping for the key, the old value is replaced.
      * 
-     * 	@param key with which the specified value is to be associated
-     * 	@param value to be associated with the specified key
+     * @param key   with which the specified value is to be associated
+     * @param value to be associated with the specified key
      */
     public static void put(String key, int value) {
         CONFIG_SPEC.put(key, value);
     }
 
     /**
-     * 	Tries to get the value associated with given key.
-     *  
-     * 	@param key with which the specified value is to be associated
-     * 	@return its value if it exists, otherwise 0.
+     * Tries to get the value associated with given key.
+     * 
+     * @param key with which the specified value is to be associated
+     * @return its value if it exists, otherwise 0.
      */
     public static int get(String key) {
-        if(CONFIG_SPEC.containsKey(key))
+        if (CONFIG_SPEC.containsKey(key))
             return CONFIG_SPEC.get(key);
         else {
             SpawnerMod.LOGGER.warn("Key=" + key + " was not found when trying to access it! Returning 0");
@@ -103,17 +107,17 @@ public class ConfigValues {
     }
 
     /**
-     * 	@return a set view of the keys contained in this map
+     * @return a set view of the keys contained in this map
      */
     public static Set<String> getKeys() {
         return CONFIG_SPEC.keySet();
     }
 
     /**
-     *  Searches the blacklist array for item id.
+     * Searches the blacklist array for item id.
      * 
-     *  @param registryName Full name "minecraft:apple"
-     *  @return true if id is found
+     * @param registryName Full name "minecraft:apple"
+     * @return true if id is found
      */
     public static boolean isItemIdBlacklisted(String registryName) {
         if (ITEM_ID_BLACKLIST.contains(registryName))
@@ -123,29 +127,37 @@ public class ConfigValues {
     }
 
     /**
-     *  Adds the registry name to blacklist
+     * Adds the registry name to blacklist
      * 
-     *  @param registryName
+     * @param registryName
      */
     public static void blacklistItem(String registryName) {
         ITEM_ID_BLACKLIST.add(registryName);
     }
 
     /**
-     *  @return an iterator over the blacklist ids
+     * @return an iterator over the blacklist ids
      */
     public static Iterator<String> getBlacklistIds() {
         return ITEM_ID_BLACKLIST.iterator();
     }
-    
+
     /**
-     * 	Check whether a specific entity egg is disabled or not.
+     * @return an iterator over entities that has spawn eggs
+     */
+    public static Iterator<String> getSpawnEggEntities() {
+        return SPAWN_EGG_ENTITIES.iterator();
+    }
+
+    /**
+     * Check whether a specific entity egg is disabled or not.
      * 
-     * 	@param string entity identifier name ("minecraft:pig").
-     * 	@return true if the specified entity egg is disabled in config. Otherwise false.
+     * @param string entity identifier name ("minecraft:pig").
+     * @return true if the specified entity egg is disabled in config. Otherwise
+     *         false.
      */
     public static boolean isEggDisabled(String identifier) {
-        if(get(identifier) == 0)
+        if (get(identifier) == 0)
             return false;
         else
             return true;
