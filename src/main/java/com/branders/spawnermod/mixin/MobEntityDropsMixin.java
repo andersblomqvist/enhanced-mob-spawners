@@ -9,16 +9,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
-import com.branders.spawnermod.registry.ModRegistry;
+import com.branders.spawnermod.event.EventHandler;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 
 /**
  * "Event" for mob drops. We inject into the dropLoot method and add a spawn egg
@@ -52,9 +51,8 @@ public class MobEntityDropsMixin {
         if (ConfigValues.isEggDisabled(entityString))
             return;
 
-        String eggId = ModRegistry.getSpawnEggRegistryName(entityString);
-        SpawnerMod.LOGGER.info(eggId);
-        ItemStack egg = new ItemStack(Registries.ITEM.get(new Identifier(eggId)));
-        world.spawnEntity(new ItemEntity(world, entity.prevX, entity.prevY, entity.prevZ, egg));
+        Item egg = EventHandler.getSpawnEgg(entityString);
+        world.spawnEntity(new ItemEntity(world, entity.prevX, entity.prevY, entity.prevZ, new ItemStack(egg)));
+
     }
 }

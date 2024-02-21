@@ -22,6 +22,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -181,6 +182,37 @@ public class EventHandler {
         world.updateListeners(pos, blockstate, blockstate, 3);
 
         return ActionResult.SUCCESS;
+    }
+
+    /**
+     * Check for redstone update. If block gets powered we want to turn it off (set
+     * range to 0). We store previous range: 16, 32, 64 or 128, so we can set it
+     * back when spawner regain power.
+     * 
+     * <br>
+     * <br>
+     * Called from {@link UpdateNeighborMixin} /** Get the spawn egg for given
+     * entity depending on naming conventions.
+     * 
+     * @param entityString in the format: modid:entity_name
+     * @return the spawn egg for given entity
+     */
+    public static Item getSpawnEgg(String entityString) {
+        Item egg = null;
+
+        // if we follow minecraft naming conventions this will not be null
+        egg = Registries.ITEM.get(new Identifier(entityString + "_spawn_egg"));
+
+        if (egg == Items.AIR) {
+            // entity is "whackmod:pig" and we want it to be "whackmod:spawn_egg_pig"
+            String[] split = entityString.split(":");
+            assert (split.length == 2);
+            String id = split[0];
+            String e = "spawn_egg_" + split[1];
+            egg = Registries.ITEM.get(new Identifier(id + ":" + e));
+        }
+
+        return egg;
     }
 
     /**
