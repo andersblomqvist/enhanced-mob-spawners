@@ -185,14 +185,7 @@ public class EventHandler {
     }
 
     /**
-     * Check for redstone update. If block gets powered we want to turn it off (set
-     * range to 0). We store previous range: 16, 32, 64 or 128, so we can set it
-     * back when spawner regain power.
-     * 
-     * <br>
-     * <br>
-     * Called from {@link UpdateNeighborMixin} /** Get the spawn egg for given
-     * entity depending on naming conventions.
+     * Get the spawn egg for given entity depending on naming conventions.
      * 
      * @param entityString in the format: modid:entity_name
      * @return the spawn egg for given entity
