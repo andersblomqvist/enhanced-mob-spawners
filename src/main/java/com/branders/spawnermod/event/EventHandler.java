@@ -1,5 +1,8 @@
 package com.branders.spawnermod.event;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.branders.spawnermod.SpawnerMod;
 import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.item.SpawnerKey;
@@ -7,6 +10,7 @@ import com.branders.spawnermod.mixin.UpdateNeighborMixin;
 import com.branders.spawnermod.registry.ModRegistry;
 import com.google.common.collect.Iterables;
 
+import net.fabricmc.fabric.api.loot.v3.LootTableSource;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,6 +19,9 @@ import net.minecraft.block.SpawnerBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.block.spawner.MobSpawnerLogic;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
@@ -24,10 +31,23 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SpawnEggItem;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.condition.LootCondition;
+import net.minecraft.loot.condition.MatchToolLootCondition;
+import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.predicate.NumberRange;
+import net.minecraft.predicate.item.EnchantmentPredicate;
+import net.minecraft.predicate.item.EnchantmentsPredicate;
+import net.minecraft.predicate.item.ItemPredicate;
+import net.minecraft.predicate.item.ItemSubPredicateTypes;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -44,11 +64,28 @@ import net.minecraft.world.World;
  */
 public class EventHandler {
 
+    public boolean onLootTablesLoaded(RegistryKey<LootTable> key, LootTable.Builder tableBuilder,
+            LootTableSource source, RegistryWrapper.WrapperLookup registries) {
+
+        if (!source.isBuiltin())
+            return true;
+
+        if (Blocks.SPAWNER.getLootTableKey() != key)
+            return true;
+
+        // create new pool with silk touch condition
+        LootPool.Builder pool = LootPool.builder().conditionally(createSilkTouchCondition(registries))
+                .rolls(ConstantLootNumberProvider.create(1.0F)).with(ItemEntry.builder(Blocks.SPAWNER));
+
+        tableBuilder.pool(pool);
+
+        return true;
+    }
+
     /**
      * Called when player breaks a block
      * 
      * If silk touch was used we want to drop the monster egg. Otherwise just exp.
-     * The spawner block is dropped via loot_table json
      */
     public boolean onBlockBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, BlockEntity entity) {
 
@@ -63,10 +100,9 @@ public class EventHandler {
         // Make sure it was a spawner block
         if (world.getBlockState(pos).getBlock() instanceof SpawnerBlock) {
 
-            ItemStack item = Iterables.get(player.getHandItems(), 0);
-            NbtList enchants = item.getEnchantments();
+            ItemStack stack = Iterables.get(player.getHandItems(), 0);
 
-            if (checkSilkTouch(enchants) && ConfigValues.get("disable_silk_touch") == 0) {
+            if (checkSilkTouch(stack) && ConfigValues.get("disable_silk_touch") == 0) {
                 // Drop egg inside if not disabled from config
                 if (ConfigValues.get("disable_egg_removal_from_spawner") == 0)
                     dropMonsterEgg(pos, world);
@@ -156,7 +192,7 @@ public class EventHandler {
             return ActionResult.PASS;
 
         String eggId = ModRegistry.getSpawnEggRegistryName(entityString);
-        Item egg = Registries.ITEM.get(new Identifier(eggId));
+        Item egg = Registries.ITEM.get(Identifier.of(eggId));
         if (egg == null) {
             SpawnerMod.LOGGER.info("Could not find spawn egg for: " + entityString);
             return ActionResult.PASS;
@@ -194,7 +230,7 @@ public class EventHandler {
         Item egg = null;
 
         // if we follow minecraft naming conventions this will not be null
-        egg = Registries.ITEM.get(new Identifier(entityString + "_spawn_egg"));
+        egg = Registries.ITEM.get(Identifier.of(entityString + "_spawn_egg"));
 
         if (egg == Items.AIR) {
             // entity is "whackmod:pig" and we want it to be "whackmod:spawn_egg_pig"
@@ -202,7 +238,7 @@ public class EventHandler {
             assert (split.length == 2);
             String id = split[0];
             String e = "spawn_egg_" + split[1];
-            egg = Registries.ITEM.get(new Identifier(id + ":" + e));
+            egg = Registries.ITEM.get(Identifier.of(id + ":" + e));
         }
 
         return egg;
@@ -217,7 +253,7 @@ public class EventHandler {
      * <br>
      * Called from {@link UpdateNeighborMixin}
      * 
-     * @param spawnerwPos
+     * @param spawnerPos
      * @param world
      */
     public static void updateNeighbor(BlockPos spawnerPos, World world) {
@@ -269,10 +305,29 @@ public class EventHandler {
         world.updateListeners(spawnerPos, blockstate, blockstate, Block.NOTIFY_ALL);
     }
 
-    private boolean checkSilkTouch(NbtList list) {
-        if (list.asString().contains("silk_touch"))
+    private boolean checkSilkTouch(ItemStack stack) {
+        var silkTouch = stack.getEnchantments().getEnchantmentEntries().stream().filter(entry -> {
+            int level = EnchantmentHelper.getLevel(entry.getKey(), stack);
+            if (entry.getKey().matchesKey(Enchantments.SILK_TOUCH) && level >= 1) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+        if (silkTouch.size() >= 1)
             return true;
         else
             return false;
+    }
+
+    public LootCondition.Builder createSilkTouchCondition(RegistryWrapper.WrapperLookup registries) {
+
+        RegistryWrapper.Impl<Enchantment> impl = registries.getWrapperOrThrow(RegistryKeys.ENCHANTMENT);
+
+        return MatchToolLootCondition
+                .builder(ItemPredicate.Builder.create().subPredicate(ItemSubPredicateTypes.ENCHANTMENTS,
+                        EnchantmentsPredicate
+                                .enchantments(List.of(new EnchantmentPredicate(impl.getOrThrow(Enchantments.SILK_TOUCH),
+                                        NumberRange.IntRange.atLeast(1))))));
     }
 }

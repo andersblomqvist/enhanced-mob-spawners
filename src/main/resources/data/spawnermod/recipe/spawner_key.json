@@ -1,5 +1,6 @@
 {
   "type": "crafting_shaped",
+  "category": "equipment",
   "pattern": [
     " D ",
     " D ",
@@ -14,6 +15,7 @@
     }
   },
   "result": {
-    "item": "spawnermod:spawner_key"
+    "id": "spawnermod:spawner_key",
+    "count": 1
   }
 }

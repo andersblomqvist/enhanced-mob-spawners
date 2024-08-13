@@ -39,6 +39,17 @@ public class SpawnerModCommands {
         ConfigValues.getSpawnEggEntities().forEachRemaining(e -> {
             newCommand(e, IntegerArgumentType.integer(0, 1));
         });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            if (environment.integrated) {
+                dispatcher.register(literal("ems").then(literal("reset").executes(ctx -> {
+                    ConfigValues.setDefaultConfigValues();
+                    ctx.getSource().sendFeedback(() -> Text.literal("[EMS]: Config reset to default"), false);
+                    return 1;
+                })));
+            }
+        });
+
     }
 
     private static void newCommand(String literal, IntegerArgumentType type) {

@@ -7,7 +7,6 @@
     "LimitedSpawnsMixin",
     "SpawnerBlockExpMixin",
     "MobEntityDropsMixin",
-    "SpawnerBlockEntityMixin",
     "SpawnerBlockCancelDropMixin",
     "UpdateNeighborMixin",
     "SpawnerRangeMixin",

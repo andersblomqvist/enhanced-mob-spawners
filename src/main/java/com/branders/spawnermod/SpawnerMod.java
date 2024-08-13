@@ -7,19 +7,20 @@ import com.branders.spawnermod.config.ConfigValues;
 import com.branders.spawnermod.config.ModConfigManager;
 import com.branders.spawnermod.event.EventHandler;
 import com.branders.spawnermod.networking.SpawnerModNetworking;
-import com.branders.spawnermod.networking.packet.SyncConfigMessage;
+import com.branders.spawnermod.networking.packet.SyncConfigPacket;
 import com.branders.spawnermod.registry.ModRegistry;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 /**
- * 	Small mod adding more functionality to the Mob Spawner for Minecraft Fabric
+ * Small mod adding more functionality to the Mob Spawner for Minecraft Fabric
  * 
- * 	@author Anders <Branders> Blomqvist
+ * @author Anders <Branders> Blomqvist
  */
 public class SpawnerMod implements ModInitializer {
 
@@ -35,21 +36,19 @@ public class SpawnerMod implements ModInitializer {
 
         UseBlockCallback.EVENT.register(eventHandler::onBlockInteract);
         PlayerBlockBreakEvents.BEFORE.register(eventHandler::onBlockBreak);
+        LootTableEvents.MODIFY.register(eventHandler::onLootTablesLoaded);
+
+        SpawnerModNetworking.registerServerMessages();
 
         // If we are a server we send server config values to client
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayNetworking.send(handler.player, SyncConfigMessage.ID, new SyncConfigMessage(
-                    (short)ConfigValues.get("disable_spawner_config"), 
-                    (short)ConfigValues.get("disable_count"), 
-                    (short)ConfigValues.get("disable_range"), 
-                    (short)ConfigValues.get("disable_speed"),
-                    (short)ConfigValues.get("limited_spawns_enabled"),
-                    (short)ConfigValues.get("limited_spawns_amount"),
-                    (short)ConfigValues.get("default_spawner_range_enabled"),
-                    (short)ConfigValues.get("default_spawner_range")));
+            ServerPlayNetworking.send(handler.player,
+                    new SyncConfigPacket(ConfigValues.get("disable_spawner_config"), ConfigValues.get("disable_count"),
+                            ConfigValues.get("disable_range"), ConfigValues.get("disable_speed"),
+                            ConfigValues.get("limited_spawns_enabled"), ConfigValues.get("limited_spawns_amount"),
+                            ConfigValues.get("default_spawner_range_enabled"),
+                            ConfigValues.get("default_spawner_range")));
         });
-
-        SpawnerModNetworking.registerServerMessages();
 
         ModRegistry.register();
     }
