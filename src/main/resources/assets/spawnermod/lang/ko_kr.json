@@ -1,0 +1,33 @@
+{
+	"item.spawnermod.spawner_key": "생성기 열쇠",
+	"item.spawnermod.iron_golem_spawn_egg": "철 골렘 스폰 알",
+	
+	"button.count.default": "수량: 기본",
+	"button.count.low": "수량: 낮음",
+	"button.count.high": "수량: 높음",
+	"button.count.very_high": "수량: 매우 높음",
+	"button.count.disabled": "수량 비활성화",
+	
+	"button.speed.default": "속도: 기본",
+	"button.speed.low": "속도: 느림",
+	"button.speed.high": "속도: 빠름",
+	"button.speed.very_high": "속도: 매우 빠름",
+	"button.speed.disabled": "속도 비활성화",
+	
+	"button.range.default": "범위: 기본",
+	"button.range.low": "범위: 낮음",
+	"button.range.high": "범위: 높음",
+	"button.range.very_high": "범위: 매우 높음",
+	"button.range.disabled": "범위 비활성화",
+	"button.range.custom": "범위: 사용자 정의",
+	
+	"button.toggle.enabled": "생성기: 켜짐",
+	"button.toggle.disabled": "생성기: 꺼짐",
+	
+	"button.save": "저장",
+	"button.cancel": "취소",
+	
+	"tooltip.spawnermod.spawner_key_disabled": "생성기 열쇠가 비활성화되었습니다",
+	
+	"gui.spawnermod.spawner_config_screen_title": "생성기 설정"
+}
