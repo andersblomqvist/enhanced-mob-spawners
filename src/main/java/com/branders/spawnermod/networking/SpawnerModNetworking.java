@@ -21,9 +21,13 @@ import net.minecraft.world.WorldEvents;
 
 public class SpawnerModNetworking {
 
-    public static void registerServerMessages() {
+    public static void registerMessages() {
 
+        // this is ran on both (logical) client and server
         PayloadTypeRegistry.playC2S().register(SyncSpawnerPacket.PACKET_ID, SyncSpawnerPacket.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncConfigPacket.PACKET_ID, SyncConfigPacket.PACKET_CODEC);
+
+        // TODO: refactor away from this class
         ServerPlayNetworking.registerGlobalReceiver(SyncSpawnerPacket.PACKET_ID, (payload, context) -> {
             var world = context.player().getServerWorld();
 
@@ -76,9 +80,10 @@ public class SpawnerModNetworking {
         });
     }
 
-    public static void registerClientMessages() {
+    public static void registerClientHandler() {
 
-        PayloadTypeRegistry.playS2C().register(SyncConfigPacket.PACKET_ID, SyncConfigPacket.PACKET_CODEC);
+        // TODO: refactor away from this class
+
         ClientPlayNetworking.registerGlobalReceiver(SyncConfigPacket.PACKET_ID, (payload, context) -> {
             ConfigValues.put("disable_spawner_config", payload.config());
             ConfigValues.put("disable_count", payload.count());

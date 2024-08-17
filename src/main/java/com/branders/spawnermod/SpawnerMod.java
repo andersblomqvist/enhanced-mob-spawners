@@ -38,10 +38,18 @@ public class SpawnerMod implements ModInitializer {
         PlayerBlockBreakEvents.BEFORE.register(eventHandler::onBlockBreak);
         LootTableEvents.MODIFY.register(eventHandler::onLootTablesLoaded);
 
-        SpawnerModNetworking.registerServerMessages();
+        SpawnerModNetworking.registerMessages();
 
         // If we are a server we send server config values to client
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+
+            // update config values in the case where:
+            // player joins server with config A
+            // player leaves server
+            // player joins singleplayer world with their local config B
+            // if no update, then singleplayer will use A instead of B
+            ModConfigManager.initConfig(MOD_ID);
+
             ServerPlayNetworking.send(handler.player,
                     new SyncConfigPacket(ConfigValues.get("disable_spawner_config"), ConfigValues.get("disable_count"),
                             ConfigValues.get("disable_range"), ConfigValues.get("disable_speed"),

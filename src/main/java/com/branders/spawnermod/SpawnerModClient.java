@@ -13,6 +13,6 @@ public class SpawnerModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        SpawnerModNetworking.registerClientMessages();
+        SpawnerModNetworking.registerClientHandler();
     }
 }
